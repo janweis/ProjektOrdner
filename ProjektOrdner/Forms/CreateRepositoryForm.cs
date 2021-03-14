@@ -4,13 +4,13 @@ using System.Windows.Forms;
 
 namespace ProjektOrdner.Forms
 {
-    public partial class NewProjektForm : Form
+    public partial class CreateRepositoryForm : Form
     {
         public string ProjektName { get; set; }
         public DateTime ProjektEnde { get; set; }
         public bool UsePermissionAssistent { get; set; }
 
-        public NewProjektForm()
+        public CreateRepositoryForm()
         {
             ProjektName = string.Empty;
             ProjektEnde = DateTime.Now.AddDays(30);

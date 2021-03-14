@@ -1,6 +1,6 @@
 ﻿namespace ProjektOrdner.Forms
 {
-    partial class ManagerForm
+    partial class ManageRepositorysForm
     {
         /// <summary>
         /// Required designer variable.
@@ -38,7 +38,7 @@
             treeNode7,
             treeNode8,
             treeNode9});
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ManagerForm));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ManageRepositorysForm));
             this.ContextMenu2 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.umbenennenToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.EntfernenItem = new System.Windows.Forms.ToolStripMenuItem();

@@ -11,9 +11,9 @@ using System.Windows.Forms;
 
 namespace ProjektOrdner.Forms
 {
-    public partial class ManagerSplashScreenForm : Form
+    public partial class AppSplashScreenForm : Form
     {
-        public ManagerSplashScreenForm()
+        public AppSplashScreenForm()
         {
             InitializeComponent();
         }

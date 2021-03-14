@@ -75,7 +75,7 @@ namespace ProjektOrdner.Forms
         {
             List<UserModel> adUsers = new List<UserModel>();
 
-            ActiveDirectoryUserFinderForm finderForm = new ActiveDirectoryUserFinderForm(adUsers, AppSettings);
+            FindAdUserForm finderForm = new FindAdUserForm(adUsers, AppSettings);
             DialogResult dialogResult;
 
             try

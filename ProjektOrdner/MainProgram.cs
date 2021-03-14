@@ -28,7 +28,7 @@ namespace ProjektOrdner
         public async Task StartAsync()
         {
             // Load Splash
-            ManagerSplashScreenForm splashScreen = new ManagerSplashScreenForm();
+            AppSplashScreenForm splashScreen = new AppSplashScreenForm();
             splashScreen.FormClosed += ApplicationExitAction;
             splashScreen.Show();
 
@@ -108,7 +108,7 @@ namespace ProjektOrdner
             }
 
             // Start ManagerUI
-            ManagerForm manageProjekts = new ManagerForm(AppSettings, repositories);
+            ManageRepositorysForm manageProjekts = new ManageRepositorysForm(AppSettings, repositories);
             manageProjekts.FormClosed += ApplicationExitAction;
             splashScreen.Owner = manageProjekts;
             manageProjekts.Show();

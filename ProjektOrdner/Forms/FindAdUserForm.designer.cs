@@ -1,6 +1,6 @@
 ﻿namespace ProjektOrdner.Forms
 {
-    partial class ActiveDirectoryUserFinderForm
+    partial class FindAdUserForm
     {
         /// <summary>
         /// Required designer variable.

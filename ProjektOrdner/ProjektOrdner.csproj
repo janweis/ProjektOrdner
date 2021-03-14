@@ -75,17 +75,17 @@
     <Compile Include="App\LogProcessor.cs" />
     <Compile Include="App\ProjektOrdnerModel.cs" />
     <Compile Include="App\ServiceProcessor.cs" />
-    <Compile Include="Forms\ActiveDirectoryUserFinderForm.cs">
+    <Compile Include="Forms\FindAdUserForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\ActiveDirectoryUserFinderForm.designer.cs">
-      <DependentUpon>ActiveDirectoryUserFinderForm.cs</DependentUpon>
+    <Compile Include="Forms\FindAdUserForm.designer.cs">
+      <DependentUpon>FindAdUserForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\ManagerForm.cs">
+    <Compile Include="Forms\ManageRepositorysForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\ManagerForm.designer.cs">
-      <DependentUpon>ManagerForm.cs</DependentUpon>
+    <Compile Include="Forms\ManageRepositorysForm.designer.cs">
+      <DependentUpon>ManageRepositorysForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\ManagerInfoForm.cs">
       <SubType>Form</SubType>
@@ -93,11 +93,11 @@
     <Compile Include="Forms\ManagerInfoForm.designer.cs">
       <DependentUpon>ManagerInfoForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\ManagerSplashScreenForm.cs">
+    <Compile Include="Forms\AppSplashScreenForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\ManagerSplashScreenForm.designer.cs">
-      <DependentUpon>ManagerSplashScreenForm.cs</DependentUpon>
+    <Compile Include="Forms\AppSplashScreenForm.designer.cs">
+      <DependentUpon>AppSplashScreenForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\NewProjektAdvancedForm.cs">
       <SubType>Form</SubType>
@@ -105,11 +105,11 @@
     <Compile Include="Forms\NewProjektAdvancedForm.designer.cs">
       <DependentUpon>NewProjektAdvancedForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\NewProjektForm.cs">
+    <Compile Include="Forms\CreateRepositoryForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\NewProjektForm.designer.cs">
-      <DependentUpon>NewProjektForm.cs</DependentUpon>
+    <Compile Include="Forms\CreateRepositoryForm.designer.cs">
+      <DependentUpon>CreateRepositoryForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\PermissionManageForm.cs">
       <SubType>Form</SubType>
@@ -157,11 +157,10 @@
     <Compile Include="Repository\RepositoryManager.cs" />
     <Compile Include="Repository\RepositoryModel.cs" />
     <Compile Include="Repository\RepositoryOrgaModel.cs" />
+    <Compile Include="Repository\RepositoryOrganization.cs" />
     <Compile Include="Repository\RepositoryOrgaProcessor.cs" />
     <Compile Include="Repository\RepositoryProcessor.cs" />
     <Compile Include="Repository\RepositorySettings.cs" />
-    <Compile Include="Repository\RepositorySettingsModel.cs" />
-    <Compile Include="Repository\RepositorySettingsProcessor.cs" />
     <Compile Include="App\RootPathManager.cs" />
     <Compile Include="Utils\ActiveDirectoryUtil.cs" />
     <Compile Include="Permission\PermissionUIHelper.cs" />
@@ -171,23 +170,23 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Forms\ActiveDirectoryUserFinderForm.resx">
-      <DependentUpon>ActiveDirectoryUserFinderForm.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\FindAdUserForm.resx">
+      <DependentUpon>FindAdUserForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\ManagerForm.resx">
-      <DependentUpon>ManagerForm.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\ManageRepositorysForm.resx">
+      <DependentUpon>ManageRepositorysForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\ManagerInfoForm.resx">
       <DependentUpon>ManagerInfoForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\ManagerSplashScreenForm.resx">
-      <DependentUpon>ManagerSplashScreenForm.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\AppSplashScreenForm.resx">
+      <DependentUpon>AppSplashScreenForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\NewProjektAdvancedForm.resx">
       <DependentUpon>NewProjektAdvancedForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\NewProjektForm.resx">
-      <DependentUpon>NewProjektForm.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\CreateRepositoryForm.resx">
+      <DependentUpon>CreateRepositoryForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\PermissionManageForm.resx">
       <DependentUpon>PermissionManageForm.cs</DependentUpon>

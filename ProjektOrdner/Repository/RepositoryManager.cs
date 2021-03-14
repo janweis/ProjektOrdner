@@ -35,7 +35,7 @@ namespace ProjektOrdner.Repository
         public async Task CreateRepositoryAsync(IProgress<string> messageProgress)
         {
             // Collect Projekt Data
-            NewProjektForm getDataForm = new NewProjektForm();
+            CreateRepositoryForm getDataForm = new CreateRepositoryForm();
             getDataForm.ShowDialog();
 
             if (getDataForm.DialogResult == DialogResult.Cancel)

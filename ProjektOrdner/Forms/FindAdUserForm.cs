@@ -8,14 +8,14 @@ using System.Windows.Forms;
 
 namespace ProjektOrdner.Forms
 {
-    public partial class ActiveDirectoryUserFinderForm : Form
+    public partial class FindAdUserForm : Form
     {
         public List<UserModel> AdUsers { get; set; }
         public UserModel CurrentUserShown { get; set; }
         public AppSettingsModel AppSettings { get; set; }
 
 
-        public ActiveDirectoryUserFinderForm(List<UserModel> users, AppSettingsModel appSettings)
+        public FindAdUserForm(List<UserModel> users, AppSettingsModel appSettings)
         {
             AdUsers = users;
             AppSettings = appSettings;

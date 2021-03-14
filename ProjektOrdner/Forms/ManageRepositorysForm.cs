@@ -11,7 +11,7 @@ using System.Windows.Forms;
 
 namespace ProjektOrdner.Forms
 {
-    public partial class ManagerForm : Form
+    public partial class ManageRepositorysForm : Form
     {
         private AppSettingsModel AppSettings { get; set; }
         private RepositoryModel[] Repositorys { get; set; }
@@ -19,7 +19,7 @@ namespace ProjektOrdner.Forms
         private string CurrentRootPath { get; set; }
         private bool IncludeCorruptedProjects { get; set; }
 
-        public ManagerForm(AppSettingsModel appSettings, RepositoryModel[] repositorys)
+        public ManageRepositorysForm(AppSettingsModel appSettings, RepositoryModel[] repositorys)
         {
             InitializeComponent();
             Repositorys = repositorys;
