@@ -159,6 +159,7 @@
     <Compile Include="Repository\RepositoryOrgaModel.cs" />
     <Compile Include="Repository\RepositoryOrgaProcessor.cs" />
     <Compile Include="Repository\RepositoryProcessor.cs" />
+    <Compile Include="Repository\RepositorySettings.cs" />
     <Compile Include="Repository\RepositorySettingsModel.cs" />
     <Compile Include="Repository\RepositorySettingsProcessor.cs" />
     <Compile Include="App\RootPathManager.cs" />

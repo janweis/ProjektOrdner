@@ -150,7 +150,7 @@ namespace ProjektOrdner.App
             progress.Report($"Erstelle den ProjektOrdner");
 
             RepositoryProcessor repositoryProcessor = new RepositoryProcessor(AppSettings);
-            RepositoryModel repository = new RepositoryModel(repositoryOrga, new RepositorySettingsModel(), RepositoryVersion.V2);
+            RepositoryModel repository = new RepositoryModel(repositoryOrga, new RepositorySettings(), RepositoryVersion.V2);
 
             await repositoryProcessor
                 .AddRepositoryAsync(repository, progress);

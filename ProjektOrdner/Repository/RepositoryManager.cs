@@ -57,8 +57,7 @@ namespace ProjektOrdner.Repository
                 Version = RepositoryVersion.V2
             };
 
-            RepositorySettingsModel projektSettings = RepositorySettingsProcessor.GetDefaultSettings();
-            RepositoryModel repository = new RepositoryModel(organisation, projektSettings, RepositoryVersion.V2);
+            RepositoryModel repository = new RepositoryModel(organisation, new RepositorySettings(), RepositoryVersion.V2);
 
             // Add Repository
             await Processor.AddRepositoryAsync(repository, messageProgress);

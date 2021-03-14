@@ -40,7 +40,6 @@ namespace ProjektOrdner.Permission
         /// Ruft die Projektberechtigungen ab
         /// 
         /// </summary>
-
         public async Task<PermissionModel[]> GetPermissionsAsync(PermissionSource source)
         {
             List<PermissionModel> permissions = new List<PermissionModel>();
@@ -212,7 +211,6 @@ namespace ProjektOrdner.Permission
         /// Fügt Berechtigungen dem Projekt hinzu
         /// 
         /// </summary>
-
         public async Task AddPermissionAsync(PermissionSource source, PermissionModel permission)
         {
             switch (source)
@@ -285,7 +283,6 @@ namespace ProjektOrdner.Permission
         /// Entfernt Berechtigungen vom Projekt
         /// 
         /// </summary>
-
         public async Task RemovePermissionAsync(PermissionSource source, PermissionModel permission)
         {
             if (null == permission)
@@ -367,7 +364,6 @@ namespace ProjektOrdner.Permission
         /// Überschreibt die aktuellen Berechtigungen.
         /// 
         /// </summary>
-
         private async Task OverwritePermissionsAsync(PermissionSource source, PermissionModel[] permissions)
         {
             PermissionModel[] filePermissions = await GetPermissionsAsync(PermissionSource.File);
@@ -391,7 +387,6 @@ namespace ProjektOrdner.Permission
         /// Aktualisiert die Berechtigungen auf ein Projekt
         /// 
         /// </summary>
-
         public async Task UpdatePermissionsAsync(PermissionModel[] newPermissions)
         {
             List<Task> permissionTasks = new List<Task>();

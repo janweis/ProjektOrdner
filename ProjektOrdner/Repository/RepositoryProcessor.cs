@@ -40,16 +40,16 @@ namespace ProjektOrdner.Repository
             Task<RepositoryOrgaModel> organisationTask = organisationFile.GetInformationAsync();
 
             // Read ProjektSettings
-            RepositorySettingsProcessor settingsFile = new RepositorySettingsProcessor(folderPath);
-            Task<RepositorySettingsModel> projektSettingsTask = settingsFile.ReadSettingsAsync();
+            RepositorySettings repositorySettings = new RepositorySettings();
+            await repositorySettings.Load(folderPath);
+
 
             RepositoryOrgaModel organisationResult = await organisationTask;
-            RepositorySettingsModel settingsReturn = await projektSettingsTask;
 
             // Check Values!!
             if (null == organisationResult ||
                 string.IsNullOrWhiteSpace(organisationResult.ProjektName) == true ||
-                (null == settingsReturn && organisationResult.Version == RepositoryVersion.V2))
+                (null == repositorySettings && organisationResult.Version == RepositoryVersion.V2))
             {
                 // Konnte die Organisationsdatei nicht lesen oder verarbeiten!
 
@@ -61,7 +61,7 @@ namespace ProjektOrdner.Repository
                         ProjektName = projektDirectory.Name,
                         RootPath = projektDirectory.Parent.FullName
                     },
-                    RepositorySettings = new RepositorySettingsModel(),
+                    Settings = new RepositorySettings(),
                     Version = RepositoryVersion.Unknown,
                     Status = RepositoryModel.RepositoryStatus.Corrupted
                 };
@@ -71,7 +71,7 @@ namespace ProjektOrdner.Repository
             RepositoryModel repository = new RepositoryModel
             {
                 RepositoryOrga = organisationResult,
-                RepositorySettings = settingsReturn,
+                Settings = repositorySettings,
                 Version = organisationResult.Version,
                 Status = RepositoryModel.RepositoryStatus.Ok
             };
@@ -243,8 +243,10 @@ namespace ProjektOrdner.Repository
             tasks.Add(organisationFileProcessor.WriteOrganisationAsync(organisation));
 
             // Create Settings File
-            RepositorySettingsProcessor settingsFileProcessor = new RepositorySettingsProcessor(organisation.ProjektPath);
-            tasks.Add(settingsFileProcessor.WriteSettingsAsync(RepositorySettingsProcessor.GetDefaultSettings()));
+            RepositorySettings repositorySettings = new RepositorySettings();
+            tasks.Add(repositorySettings.Save(organisation.ProjektPath));
+
+
 
             await Task.WhenAll(tasks.ToArray());
         }
