@@ -1,0 +1,247 @@
+﻿using ProjektOrdner.App;
+using ProjektOrdner.Repository;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace ProjektOrdner.Processors
+{
+    public class ManagerNodeProcessor
+    {
+        private TreeView View { get; set; }
+        private ContextMenuStrip Context { get; set; }
+
+        public ManagerNodeProcessor(TreeView treeView, ContextMenuStrip contextMenuStrip)
+        {
+            View = treeView;
+            Context = contextMenuStrip;
+        }
+
+
+        //
+        // Get Node
+        //
+
+        public TreeNode GetNodeByName(string projektName)
+        {
+            if (View.Nodes.ContainsKey(projektName) == true)
+            {
+                return View.Nodes[projektName];
+            }
+
+            return null;
+        }
+
+        public TreeNode GetNodeByID(string id)
+        {
+            foreach (TreeNode node in View.Nodes)
+            {
+                if (node.Tag.ToString() == id)
+                {
+                    return node;
+                }
+            }
+
+            return null;
+        }
+
+        public TreeNode GetNodeBySelection(bool onlyMasterNode = false)
+        {
+            if(onlyMasterNode == false)
+                return View.SelectedNode;
+
+            if (null == View.SelectedNode.Parent)
+            {
+                return View.SelectedNode;
+            }
+            else
+            {
+                return View.SelectedNode.Parent;
+            }
+        }
+
+        public List<TreeNode> GetNodesByCheckBoxes()
+        {
+            List<TreeNode> nodeList = null;
+
+            if (View.CheckBoxes == true)
+            {
+                nodeList = new List<TreeNode>();
+
+                // Get checked Projects
+                foreach (TreeNode node in View.Nodes)
+                {
+                    if (node.Checked == true && null == node.Parent)
+                        nodeList.Add(node);
+                }
+            }
+
+            return nodeList;
+        }
+
+
+        //
+        // Add Node
+        //
+
+        public void AddProjektNodeCorrupted(string projektName, string projektPath)
+        {
+            // Add Projekt Node
+            View.Nodes.Add(projektName, projektName, 5, 5);
+            View.Nodes[projektName].Tag = projektPath;
+            View.Nodes[projektName].NodeFont = new System.Drawing.Font(View.Font, System.Drawing.FontStyle.Italic);
+        }
+
+        public void AddProjektNodeV2(string projektName, string projektPath)
+        {
+            // Add Projekt Node
+            View.Nodes.Add(projektName, projektName, 6, 6);
+            View.Nodes[projektName].Tag = projektPath;
+
+            // Add Attribute Nodes
+            View.Nodes[projektName].ContextMenuStrip = Context;
+            View.Nodes[projektName].Nodes.Add("Manager", "Berechtigungen - Manager", 1, 1);
+            View.Nodes[projektName].Nodes.Add("Change", "Berechtigungen - Lesen & Schreiben", 1, 1);
+            View.Nodes[projektName].Nodes.Add("Read", "Berechtigungen - Nur Lesen", 1, 1);
+            View.Nodes[projektName].Nodes.Add("Settings", "Einstellungen", 0, 0);
+            View.Nodes[projektName].Nodes.Add("Organization", "ProjektOrdner", 2, 2);
+        }
+
+        public void AddProjektNodeV1(string projektName, string projektPath)
+        {
+            // Add Projekt Node
+            View.Nodes.Add(projektName, projektName, 6, 6);
+            View.Nodes[projektName].Tag = projektPath;
+
+            // Add Attribute Nodes
+            View.Nodes[projektName].ContextMenuStrip = Context;
+            View.Nodes[projektName].Nodes.Add("Change", "Berechtigungen - Lesen & Schreiben", 1, 1);
+            View.Nodes[projektName].Nodes.Add("Read", "Berechtigungen - Nur Lesen", 1, 1);
+            View.Nodes[projektName].Nodes.Add("Organization", "ProjektOrdner v1", 2, 2);
+        }
+
+
+        //
+        // Remove Node
+        // 
+
+        public void RemoveProjektNodeByName(string projektName)
+        {
+            TreeNode node = GetNodeByName(projektName);
+
+            if (null != node)
+                View.Nodes.Remove(node);
+        }
+
+        public void RemoveProjektNodeByID(string id)
+        {
+            TreeNode node = GetNodeByID(id);
+
+            if (null != node)
+                View.Nodes.Remove(node);
+        }
+
+
+        //
+        // Special Functions
+        //
+
+        /// <summary>
+        /// 
+        /// Aktualisiert die Projektansicht
+        /// 
+        /// </summary>
+
+        public void UpdateView(RepositoryModel[] repositories, bool includeCorrupted = false)
+        {
+            // Pepare
+            View.BeginUpdate();
+            View.Nodes.Clear();
+
+            // Projekte zum View hinzufügen
+            foreach (RepositoryModel repository in repositories)
+            {
+                switch (repository.Status)
+                {
+                    case RepositoryModel.RepositoryStatus.Ok:
+                    {
+                        switch (repository.RepositoryOrga.Version)
+                        {
+                            case RepositoryVersion.V1:
+                            {
+                                AddProjektNodeV1(repository.RepositoryOrga.ProjektName, repository.RepositoryOrga.ProjektPath);
+                                break;
+                            }
+                            case RepositoryVersion.V2:
+                            {
+                                AddProjektNodeV2(repository.RepositoryOrga.ProjektName, repository.RepositoryOrga.ProjektPath);
+                                break;
+                            }
+                            case RepositoryVersion.Unknown:
+                                break;
+                        }
+
+                        break;
+                    }
+                    case RepositoryModel.RepositoryStatus.Corrupted:
+                    {
+                        if (includeCorrupted == true)
+                            AddProjektNodeCorrupted(repository.RepositoryOrga.ProjektName, repository.RepositoryOrga.ProjektPath);
+
+                        break;
+                    }
+                    case RepositoryModel.RepositoryStatus.NotChecked:
+                        break;
+                }
+            }
+
+            // Cleanup and Update
+            View.EndUpdate();
+        }
+
+
+        /// <summary>
+        /// 
+        /// Filtert die Projekt anzeige
+        /// 
+        /// </summary>
+
+        public void SetFilterView(string filter, RepositoryModel[] repositories)
+        {
+            IEnumerable<RepositoryModel> filteredRepos = repositories
+                .Where(repository => repository.RepositoryOrga.ProjektName.Contains(filter));
+
+            UpdateView(filteredRepos.ToArray());
+        }
+
+
+        /// <summary>
+        /// 
+        /// Öffnet das zugwiesene Verzeichnis im Explorer.
+        /// 
+        /// </summary>
+
+        public void OpenProjektFolder()
+        {
+            TreeNode node = GetNodeBySelection();
+
+            if (null == node || null != node.Parent)
+                return;
+
+            try
+            {
+                Process.Start(new ProcessStartInfo("explorer.exe", node.Tag.ToString()));
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Das Projektverzeichnis konnte nicht geöffnet werden! {ex.Message}");
+            }
+        }
+
+
+    }
+}

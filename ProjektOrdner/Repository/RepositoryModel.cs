@@ -1,0 +1,42 @@
+﻿using ProjektOrdner.App;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ProjektOrdner.Repository
+{
+    public class RepositoryModel
+    {
+        public enum RepositoryStatus { Ok, Corrupted, NotChecked }
+
+        public RepositoryOrgaModel RepositoryOrga { get; set; }
+        public RepositorySettingsModel RepositorySettings { get; set; }
+        public RepositoryVersion Version { get; set; }
+        public RepositoryStatus Status { get; set; }
+
+
+        public RepositoryModel()
+        {
+            Version = RepositoryVersion.Unknown;
+            Status = RepositoryStatus.NotChecked;
+        }
+
+        public RepositoryModel(RepositoryOrgaModel projektOrganisation, RepositorySettingsModel projektSettings, RepositoryVersion version)
+        {
+            RepositoryOrga = projektOrganisation;
+            RepositorySettings = projektSettings;
+            Version = version;
+        }
+
+        public override string ToString()
+        {
+            return $@"\n
+- Name: '{RepositoryOrga.ProjektName}'
+- Ende: {RepositoryOrga.ProjektEnde.ToShortDateString()}
+- Version: {Version.ToString()}
+";
+        }
+    }
+}
