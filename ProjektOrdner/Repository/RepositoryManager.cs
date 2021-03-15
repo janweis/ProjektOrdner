@@ -45,14 +45,14 @@ namespace ProjektOrdner.Repository
             }
 
             // Create Repository with Data
-            string projektName = getDataForm.ProjektName;
+            string Name = getDataForm.Name;
             DateTime projektEnde = getDataForm.ProjektEnde;
 
             RepositoryOrganization organisation = new RepositoryOrganization()
             {
                 ErstelltAm = DateTime.Now,
-                ProjektName = projektName,
-                ProjektEnde = projektEnde,
+                Name = Name,
+                EndeDatum = projektEnde,
                 RootPath = RootFolder,
                 Version = RepositoryVersion.V2
             };
@@ -81,10 +81,10 @@ namespace ProjektOrdner.Repository
         {
             // Get current directory name
             DirectoryInfo directory = new DirectoryInfo(folderPath);
-            string currentProjektName = directory.Name;
+            string currentName = directory.Name;
             
             // Get new repository name
-            RenameProjektForm renameProjekt = new RenameProjektForm(currentProjektName);
+            RenameProjektForm renameProjekt = new RenameProjektForm(currentName);
             DialogResult result = renameProjekt.ShowDialog();
 
             if (result == DialogResult.Cancel)
@@ -93,11 +93,11 @@ namespace ProjektOrdner.Repository
                 return;
             }
 
-            string newProjektName = renameProjekt.ProjektName;
+            string newName = renameProjekt.Name;
 
             // Get & Rename Repository
             RepositoryModel repository = await Processor.GetRepositoryAsync(folderPath, messageProgress);
-            await Processor.RenameRepositoryAsync(repository, newProjektName,messageProgress);
+            await Processor.RenameRepositoryAsync(repository, newName,messageProgress);
         }
 
 

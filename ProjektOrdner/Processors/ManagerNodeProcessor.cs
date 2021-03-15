@@ -26,11 +26,11 @@ namespace ProjektOrdner.Processors
         // Get Node
         //
 
-        public TreeNode GetNodeByName(string projektName)
+        public TreeNode GetNodeByName(string Name)
         {
-            if (View.Nodes.ContainsKey(projektName) == true)
+            if (View.Nodes.ContainsKey(Name) == true)
             {
-                return View.Nodes[projektName];
+                return View.Nodes[Name];
             }
 
             return null;
@@ -88,40 +88,40 @@ namespace ProjektOrdner.Processors
         // Add Node
         //
 
-        public void AddProjektNodeCorrupted(string projektName, string projektPath)
+        public void AddProjektNodeCorrupted(string Name, string projektPath)
         {
             // Add Projekt Node
-            View.Nodes.Add(projektName, projektName, 5, 5);
-            View.Nodes[projektName].Tag = projektPath;
-            View.Nodes[projektName].NodeFont = new System.Drawing.Font(View.Font, System.Drawing.FontStyle.Italic);
+            View.Nodes.Add(Name, Name, 5, 5);
+            View.Nodes[Name].Tag = projektPath;
+            View.Nodes[Name].NodeFont = new System.Drawing.Font(View.Font, System.Drawing.FontStyle.Italic);
         }
 
-        public void AddProjektNodeV2(string projektName, string projektPath)
+        public void AddProjektNodeV2(string Name, string projektPath)
         {
             // Add Projekt Node
-            View.Nodes.Add(projektName, projektName, 6, 6);
-            View.Nodes[projektName].Tag = projektPath;
+            View.Nodes.Add(Name, Name, 6, 6);
+            View.Nodes[Name].Tag = projektPath;
 
             // Add Attribute Nodes
-            View.Nodes[projektName].ContextMenuStrip = Context;
-            View.Nodes[projektName].Nodes.Add("Manager", "Berechtigungen - Manager", 1, 1);
-            View.Nodes[projektName].Nodes.Add("Change", "Berechtigungen - Lesen & Schreiben", 1, 1);
-            View.Nodes[projektName].Nodes.Add("Read", "Berechtigungen - Nur Lesen", 1, 1);
-            View.Nodes[projektName].Nodes.Add("Settings", "Einstellungen", 0, 0);
-            View.Nodes[projektName].Nodes.Add("Organization", "ProjektOrdner", 2, 2);
+            View.Nodes[Name].ContextMenuStrip = Context;
+            View.Nodes[Name].Nodes.Add("Manager", "Berechtigungen - Manager", 1, 1);
+            View.Nodes[Name].Nodes.Add("Change", "Berechtigungen - Lesen & Schreiben", 1, 1);
+            View.Nodes[Name].Nodes.Add("Read", "Berechtigungen - Nur Lesen", 1, 1);
+            View.Nodes[Name].Nodes.Add("Settings", "Einstellungen", 0, 0);
+            View.Nodes[Name].Nodes.Add("Organization", "ProjektOrdner", 2, 2);
         }
 
-        public void AddProjektNodeV1(string projektName, string projektPath)
+        public void AddProjektNodeV1(string Name, string projektPath)
         {
             // Add Projekt Node
-            View.Nodes.Add(projektName, projektName, 6, 6);
-            View.Nodes[projektName].Tag = projektPath;
+            View.Nodes.Add(Name, Name, 6, 6);
+            View.Nodes[Name].Tag = projektPath;
 
             // Add Attribute Nodes
-            View.Nodes[projektName].ContextMenuStrip = Context;
-            View.Nodes[projektName].Nodes.Add("Change", "Berechtigungen - Lesen & Schreiben", 1, 1);
-            View.Nodes[projektName].Nodes.Add("Read", "Berechtigungen - Nur Lesen", 1, 1);
-            View.Nodes[projektName].Nodes.Add("Organization", "ProjektOrdner v1", 2, 2);
+            View.Nodes[Name].ContextMenuStrip = Context;
+            View.Nodes[Name].Nodes.Add("Change", "Berechtigungen - Lesen & Schreiben", 1, 1);
+            View.Nodes[Name].Nodes.Add("Read", "Berechtigungen - Nur Lesen", 1, 1);
+            View.Nodes[Name].Nodes.Add("Organization", "ProjektOrdner v1", 2, 2);
         }
 
 
@@ -129,9 +129,9 @@ namespace ProjektOrdner.Processors
         // Remove Node
         // 
 
-        public void RemoveProjektNodeByName(string projektName)
+        public void RemoveProjektNodeByName(string Name)
         {
-            TreeNode node = GetNodeByName(projektName);
+            TreeNode node = GetNodeByName(Name);
 
             if (null != node)
                 View.Nodes.Remove(node);
@@ -173,12 +173,12 @@ namespace ProjektOrdner.Processors
                         {
                             case RepositoryVersion.V1:
                             {
-                                AddProjektNodeV1(repository.RepositoryOrga.ProjektName, repository.RepositoryOrga.ProjektPath);
+                                AddProjektNodeV1(repository.RepositoryOrga.Name, repository.RepositoryOrga.ProjektPath);
                                 break;
                             }
                             case RepositoryVersion.V2:
                             {
-                                AddProjektNodeV2(repository.RepositoryOrga.ProjektName, repository.RepositoryOrga.ProjektPath);
+                                AddProjektNodeV2(repository.RepositoryOrga.Name, repository.RepositoryOrga.ProjektPath);
                                 break;
                             }
                             case RepositoryVersion.Unknown:
@@ -190,7 +190,7 @@ namespace ProjektOrdner.Processors
                     case RepositoryModel.RepositoryStatus.Corrupted:
                     {
                         if (includeCorrupted == true)
-                            AddProjektNodeCorrupted(repository.RepositoryOrga.ProjektName, repository.RepositoryOrga.ProjektPath);
+                            AddProjektNodeCorrupted(repository.RepositoryOrga.Name, repository.RepositoryOrga.ProjektPath);
 
                         break;
                     }
@@ -213,7 +213,7 @@ namespace ProjektOrdner.Processors
         public void SetFilterView(string filter, RepositoryModel[] repositories)
         {
             IEnumerable<RepositoryModel> filteredRepos = repositories
-                .Where(repository => repository.RepositoryOrga.ProjektName.Contains(filter));
+                .Where(repository => repository.RepositoryOrga.Name.Contains(filter));
 
             UpdateView(filteredRepos.ToArray());
         }

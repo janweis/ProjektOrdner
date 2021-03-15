@@ -29,11 +29,11 @@
         private void InitializeComponent()
         {
             this.label1 = new System.Windows.Forms.Label();
-            this.ProjektNameTextBox = new System.Windows.Forms.TextBox();
+            this.NameTextBox = new System.Windows.Forms.TextBox();
             this.AbbrechenButton = new System.Windows.Forms.Button();
             this.RenameProjektButton = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
-            this.ProjektnameLbl = new System.Windows.Forms.Label();
+            this.NameLbl = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
@@ -45,14 +45,14 @@
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(245, 17);
             this.label1.TabIndex = 0;
-            this.label1.Text = "Geben Sie einen neuen Projektnamen ein";
+            this.label1.Text = "Geben Sie einen neuen Namen ein";
             // 
-            // ProjektNameTextBox
+            // NameTextBox
             // 
-            this.ProjektNameTextBox.Location = new System.Drawing.Point(10, 83);
-            this.ProjektNameTextBox.Name = "ProjektNameTextBox";
-            this.ProjektNameTextBox.Size = new System.Drawing.Size(309, 25);
-            this.ProjektNameTextBox.TabIndex = 1;
+            this.NameTextBox.Location = new System.Drawing.Point(10, 83);
+            this.NameTextBox.Name = "NameTextBox";
+            this.NameTextBox.Size = new System.Drawing.Size(309, 25);
+            this.NameTextBox.TabIndex = 1;
             // 
             // AbbrechenButton
             // 
@@ -82,17 +82,17 @@
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(83, 17);
             this.label2.TabIndex = 4;
-            this.label2.Text = "Projektname:";
+            this.label2.Text = "Name:";
             // 
-            // ProjektnameLbl
+            // NameLbl
             // 
-            this.ProjektnameLbl.AutoSize = true;
-            this.ProjektnameLbl.Font = new System.Drawing.Font("Segoe UI Semibold", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.ProjektnameLbl.Location = new System.Drawing.Point(7, 28);
-            this.ProjektnameLbl.Name = "ProjektnameLbl";
-            this.ProjektnameLbl.Size = new System.Drawing.Size(122, 17);
-            this.ProjektnameLbl.TabIndex = 5;
-            this.ProjektnameLbl.Text = "HierStehtDerName";
+            this.NameLbl.AutoSize = true;
+            this.NameLbl.Font = new System.Drawing.Font("Segoe UI Semibold", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.NameLbl.Location = new System.Drawing.Point(7, 28);
+            this.NameLbl.Name = "NameLbl";
+            this.NameLbl.Size = new System.Drawing.Size(122, 17);
+            this.NameLbl.TabIndex = 5;
+            this.NameLbl.Text = "HierStehtDerName";
             // 
             // label3
             // 
@@ -108,11 +108,11 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(344, 190);
             this.Controls.Add(this.label3);
-            this.Controls.Add(this.ProjektnameLbl);
+            this.Controls.Add(this.NameLbl);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.RenameProjektButton);
             this.Controls.Add(this.AbbrechenButton);
-            this.Controls.Add(this.ProjektNameTextBox);
+            this.Controls.Add(this.NameTextBox);
             this.Controls.Add(this.label1);
             this.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
@@ -129,11 +129,11 @@
         #endregion
 
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox ProjektNameTextBox;
+        private System.Windows.Forms.TextBox NameTextBox;
         private System.Windows.Forms.Button AbbrechenButton;
         private System.Windows.Forms.Button RenameProjektButton;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Label ProjektnameLbl;
+        private System.Windows.Forms.Label NameLbl;
         private System.Windows.Forms.Label label3;
     }
 }

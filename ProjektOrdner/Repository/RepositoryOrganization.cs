@@ -55,6 +55,7 @@ namespace ProjektOrdner.Repository
         }
 
 
+
         // // // // // // // // // // // // // // // // // // // // //
         // Functions
         // 
@@ -65,9 +66,9 @@ namespace ProjektOrdner.Repository
         /// Lade die Organisationsdatei Version 2
         /// 
         /// </summary>
-        public async Task<bool> LoadV2(string folderPath, string rootPath)
+        public async Task<bool> LoadV2(string folderPath)
         {
-            RootPath = rootPath;
+            RootPath = Directory.GetParent(folderPath).FullName;
             string filePath = Path.Combine(folderPath, Path.Combine(AppConstants.OrganisationFolderName, AppConstants.OrganisationFileNameV2));
 
             if (File.Exists(filePath) == true)
@@ -83,7 +84,7 @@ namespace ProjektOrdner.Repository
                         Name = repositoryOrganization.Name;
                         ErstelltAm = repositoryOrganization.ErstelltAm;
                         EndeDatum = repositoryOrganization.EndeDatum;
-                        RootPath = repositoryOrganization.RootPath;
+                        //RootPath = repositoryOrganization.RootPath;
                         Version = repositoryOrganization.Version;
                     }
                 }
@@ -137,7 +138,7 @@ namespace ProjektOrdner.Repository
 
                             switch (key)
                             {
-                                case "projektname":
+                                case "Name":
                                 {
                                     Name = value;
                                     break;
@@ -190,9 +191,15 @@ namespace ProjektOrdner.Repository
         /// Speichere die Organisationsdatei Version 2
         /// 
         /// </summary>
-        public async Task<bool> SaveV2(string folderPath)
+        public async Task<bool> SaveV2(string folderPath = null)
         {
-            string filePath = Path.Combine(folderPath, Path.Combine(AppConstants.OrganisationFolderName, AppConstants.OrganisationFileNameV2));
+            string filePath;
+
+            if (null == folderPath)
+                folderPath = Path.Combine(RootPath, Name);
+
+            filePath = Path.Combine(folderPath, Path.Combine(AppConstants.OrganisationFolderName, AppConstants.OrganisationFileNameV2));
+
             if (Directory.Exists(folderPath) == true)
             {
                 string organizationJson = JsonConvert.SerializeObject(this, new JsonSerializerSettings() { Formatting = Formatting.Indented });
@@ -223,7 +230,7 @@ namespace ProjektOrdner.Repository
 # Leerzeichen sind im Ordnernamen erlaubt, sollten aber nicht direkt nach dem '=' erfolgen.
 # den Unterstrich am Beginn des Dateinamens löschen.
 # Maximal darf der ProjektOrdner 45 Zeichen (a-z A-Z 0-9 und Leerzeichen) beinhalten.
-ProjektName=
+Name=
 
 ## PROJEKT ORGANISATION
 EndeDatum=
@@ -248,10 +255,10 @@ Gast=
         /// </summary>
         public bool IsValid()
         {
-            if (Name == string.Empty)
+            if (string.IsNullOrWhiteSpace(Name) == true)
                 return false;
 
-            if (RootPath == string.Empty)
+            if (string.IsNullOrWhiteSpace(RootPath) == true)
                 return false;
 
             if (EndeDatum == DateTime.MinValue)

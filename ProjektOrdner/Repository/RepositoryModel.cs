@@ -33,8 +33,8 @@ namespace ProjektOrdner.Repository
         public override string ToString()
         {
             return $@"\n
-- Name: '{RepositoryOrga.ProjektName}'
-- Ende: {RepositoryOrga.ProjektEnde.ToShortDateString()}
+- Name: '{RepositoryOrga.Name}'
+- Ende: {RepositoryOrga.EndeDatum.ToShortDateString()}
 - Version: {Version.ToString()}
 ";
         }

@@ -30,7 +30,7 @@
         {
             this.label1 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
-            this.ProjektnameTextbox = new System.Windows.Forms.TextBox();
+            this.NameTextbox = new System.Windows.Forms.TextBox();
             this.EndDate = new System.Windows.Forms.DateTimePicker();
             this.AnlegenButton = new System.Windows.Forms.Button();
             this.AbbrechenButton = new System.Windows.Forms.Button();
@@ -56,12 +56,12 @@
             this.label4.TabIndex = 3;
             this.label4.Text = "Voraussichtliches Projektende";
             // 
-            // ProjektnameTextbox
+            // NameTextbox
             // 
-            this.ProjektnameTextbox.Location = new System.Drawing.Point(15, 31);
-            this.ProjektnameTextbox.Name = "ProjektnameTextbox";
-            this.ProjektnameTextbox.Size = new System.Drawing.Size(253, 25);
-            this.ProjektnameTextbox.TabIndex = 4;
+            this.NameTextbox.Location = new System.Drawing.Point(15, 31);
+            this.NameTextbox.Name = "NameTextbox";
+            this.NameTextbox.Size = new System.Drawing.Size(253, 25);
+            this.NameTextbox.TabIndex = 4;
             // 
             // EndDate
             // 
@@ -121,7 +121,7 @@
             this.Controls.Add(this.AbbrechenButton);
             this.Controls.Add(this.AnlegenButton);
             this.Controls.Add(this.EndDate);
-            this.Controls.Add(this.ProjektnameTextbox);
+            this.Controls.Add(this.NameTextbox);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label1);
             this.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -140,7 +140,7 @@
 
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.TextBox ProjektnameTextbox;
+        private System.Windows.Forms.TextBox NameTextbox;
         private System.Windows.Forms.DateTimePicker EndDate;
         private System.Windows.Forms.Button AnlegenButton;
         private System.Windows.Forms.Button AbbrechenButton;

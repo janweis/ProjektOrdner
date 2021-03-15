@@ -16,14 +16,29 @@ namespace ProjektOrdner.Repository
 {
     public class RepositoryProcessor
     {
+        // // // // // // // // // // // // // // // // // // // // //
+        // Variables
+        // 
+
         private AppSettings AppSettings { get; set; }
+
         private ActiveDirectoryUtil ActiveDirectory { get; set; }
+
+
+        // // // // // // // // // // // // // // // // // // // // //
+        // Constructors
+        // 
 
         public RepositoryProcessor(AppSettings appSettings)
         {
             AppSettings = appSettings;
             ActiveDirectory = new ActiveDirectoryUtil(appSettings);
         }
+
+
+        // // // // // // // // // // // // // // // // // // // // //
+        // Functions
+        // 
 
         /// <summary>
         /// 
@@ -36,20 +51,15 @@ namespace ProjektOrdner.Repository
             await Task.Delay(10);
 
             // Read RepositoryInfoFile
-            RepositoryOrgaProcessor organisationFile = new RepositoryOrgaProcessor(folderPath);
-            Task<RepositoryOrganization> organisationTask = organisationFile.GetInformationAsync();
+            RepositoryOrganization repositoryOrganization = new RepositoryOrganization();
+            await repositoryOrganization.LoadV2(folderPath);
 
             // Read ProjektSettings
             RepositorySettings repositorySettings = new RepositorySettings();
             await repositorySettings.Load(folderPath);
 
-
-            RepositoryOrganization organisationResult = await organisationTask;
-
             // Check Values!!
-            if (null == organisationResult ||
-                string.IsNullOrWhiteSpace(organisationResult.ProjektName) == true ||
-                (null == repositorySettings && organisationResult.Version == RepositoryVersion.V2))
+            if (repositoryOrganization.IsValid() == false)
             {
                 // Konnte die Organisationsdatei nicht lesen oder verarbeiten!
 
@@ -58,7 +68,7 @@ namespace ProjektOrdner.Repository
                 {
                     RepositoryOrga = new RepositoryOrganization()
                     {
-                        ProjektName = projektDirectory.Name,
+                        Name = projektDirectory.Name,
                         RootPath = projektDirectory.Parent.FullName
                     },
                     Settings = new RepositorySettings(),
@@ -70,9 +80,9 @@ namespace ProjektOrdner.Repository
             // Setup Object
             RepositoryModel repository = new RepositoryModel
             {
-                RepositoryOrga = organisationResult,
+                RepositoryOrga = repositoryOrganization,
                 Settings = repositorySettings,
-                Version = organisationResult.Version,
+                Version = repositoryOrganization.Version,
                 Status = RepositoryModel.RepositoryStatus.Ok
             };
 
@@ -138,7 +148,7 @@ namespace ProjektOrdner.Repository
 
             // Create adn link Active Directory Groups
             progressMessage.Report("Creating Active Directory Groups... (3/4)");
-            GroupPrincipal[] adGroups = CreateAdGroups(repository.RepositoryOrga.ProjektName);
+            GroupPrincipal[] adGroups = CreateAdGroups(repository.RepositoryOrga.Name);
 
             // Set Permission to Folder
             progressMessage.Report("Set up Directory ACLs (4/4)");
@@ -212,63 +222,54 @@ namespace ProjektOrdner.Repository
         private async Task CreateFilesAsync(RepositoryOrganization organisation)
         {
             PermissionProcessor permissionProcessor = new PermissionProcessor(organisation.ProjektPath, AppSettings);
-            List<Task> tasks = new List<Task>();
 
             // Create ReadOnly permission file
             string readOnlyFilePath = permissionProcessor.GetPermissionFilePath(PermissionAccessRole.ReadOnly, organisation.ProjektPath);
             using (StreamWriter writer = new StreamWriter(readOnlyFilePath, false, Encoding.UTF8))
             {
-                tasks.Add(writer.WriteAsync(
-                    GetPermissionFileTemplate(PermissionAccessRole.ReadOnly)));
+                await writer.WriteAsync(GetPermissionFileTemplate(PermissionAccessRole.ReadOnly));
             }
 
             // Create ReadWrite permission file
             string readWriteFilePath = permissionProcessor.GetPermissionFilePath(PermissionAccessRole.ReadWrite, organisation.ProjektPath);
             using (StreamWriter writer = new StreamWriter(readWriteFilePath, false, Encoding.UTF8))
             {
-                tasks.Add(writer.WriteAsync(
-                    GetPermissionFileTemplate(PermissionAccessRole.ReadWrite)));
+                await writer.WriteAsync(GetPermissionFileTemplate(PermissionAccessRole.ReadWrite));
             }
 
             // Create Manager permission file
             string managerFilePath = permissionProcessor.GetPermissionFilePath(PermissionAccessRole.Manager, organisation.ProjektPath);
             using (StreamWriter writer = new StreamWriter(managerFilePath, false, Encoding.UTF8))
             {
-                tasks.Add(writer.WriteAsync(
-                    GetPermissionFileTemplate(PermissionAccessRole.Manager)));
+                await writer.WriteAsync(GetPermissionFileTemplate(PermissionAccessRole.Manager));
             }
 
             // Create Organisaion File
-            RepositoryOrgaProcessor organisationFileProcessor = new RepositoryOrgaProcessor(organisation.ProjektPath);
-            tasks.Add(organisationFileProcessor.WriteOrganisationAsync(organisation));
+            await organisation.SaveV2();
 
             // Create Settings File
             RepositorySettings repositorySettings = new RepositorySettings();
-            tasks.Add(repositorySettings.Save(organisation.ProjektPath));
-
-
-
-            await Task.WhenAll(tasks.ToArray());
+            await repositorySettings.Save(organisation.ProjektPath);
         }
 
-        private GroupPrincipal[] CreateAdGroups(string projektName)
+        private GroupPrincipal[] CreateAdGroups(string Name)
         {
-            string description = $"ProjektOrdner {projektName}; Angelegt am {DateTime.Now};";
+            string description = $"ProjektOrdner {Name}; Angelegt am {DateTime.Now};";
 
             // Create local Groups
             GroupPrincipal[] adLocalGroups =
             {
-                ActiveDirectory.AddGroup(GroupScope.Local, GetAdGroupName(projektName, GroupScope.Local, PermissionAccessRole.Manager), description),
-                ActiveDirectory.AddGroup(GroupScope.Local, GetAdGroupName(projektName, GroupScope.Local, PermissionAccessRole.ReadWrite), description),
-                ActiveDirectory.AddGroup(GroupScope.Local, GetAdGroupName(projektName, GroupScope.Local, PermissionAccessRole.ReadOnly), description),
+                ActiveDirectory.AddGroup(GroupScope.Local, GetAdGroupName(Name, GroupScope.Local, PermissionAccessRole.Manager), description),
+                ActiveDirectory.AddGroup(GroupScope.Local, GetAdGroupName(Name, GroupScope.Local, PermissionAccessRole.ReadWrite), description),
+                ActiveDirectory.AddGroup(GroupScope.Local, GetAdGroupName(Name, GroupScope.Local, PermissionAccessRole.ReadOnly), description),
             };
 
             // Create global Groups
             GroupPrincipal[] adGlobalGroups =
             {
-                ActiveDirectory.AddGroup(GroupScope.Global, GetAdGroupName(projektName, GroupScope.Global, PermissionAccessRole.Manager), description),
-                ActiveDirectory.AddGroup(GroupScope.Global, GetAdGroupName(projektName, GroupScope.Global, PermissionAccessRole.ReadWrite), description),
-                ActiveDirectory.AddGroup(GroupScope.Global, GetAdGroupName(projektName, GroupScope.Global, PermissionAccessRole.ReadOnly), description)
+                ActiveDirectory.AddGroup(GroupScope.Global, GetAdGroupName(Name, GroupScope.Global, PermissionAccessRole.Manager), description),
+                ActiveDirectory.AddGroup(GroupScope.Global, GetAdGroupName(Name, GroupScope.Global, PermissionAccessRole.ReadWrite), description),
+                ActiveDirectory.AddGroup(GroupScope.Global, GetAdGroupName(Name, GroupScope.Global, PermissionAccessRole.ReadOnly), description)
             };
 
             // Link local and global Groups
@@ -445,7 +446,7 @@ namespace ProjektOrdner.Repository
 
             // Remove Ad Groups
             progressMessage.Report("Deleting Active Directory Groups... (3/3)");
-            DeleteAdGroups(repository.RepositoryOrga.ProjektName);
+            DeleteAdGroups(repository.RepositoryOrga.Name);
 
             progressMessage.Report("Project sucessfully deleted!");
         }
@@ -488,9 +489,9 @@ namespace ProjektOrdner.Repository
             }
         }
 
-        private void DeleteAdGroups(string projektName)
+        private void DeleteAdGroups(string Name)
         {
-            foreach (GroupPrincipal group in GetAdGroups(projektName))
+            foreach (GroupPrincipal group in GetAdGroups(Name))
             {
                 if (null != group)
                 {
@@ -504,11 +505,11 @@ namespace ProjektOrdner.Repository
         // Helper Functions
         //
 
-        private List<GroupPrincipal> GetAdGroups(string projektName)
+        private List<GroupPrincipal> GetAdGroups(string Name)
         {
             List<GroupPrincipal> groupList = new List<GroupPrincipal>();
 
-            foreach (string groupNameItem in GetAdGroupNames(projektName))
+            foreach (string groupNameItem in GetAdGroupNames(Name))
             {
                 GroupPrincipal group = ActiveDirectory.GetGroup(groupNameItem, IdentityType.SamAccountName);
 
@@ -521,7 +522,7 @@ namespace ProjektOrdner.Repository
             return groupList;
         }
 
-        private string GetAdGroupName(string projektName, GroupScope groupScope, PermissionAccessRole PermissionAccessRole)
+        private string GetAdGroupName(string Name, GroupScope groupScope, PermissionAccessRole PermissionAccessRole)
         {
             string groupScopeName = "";
             switch (groupScope)
@@ -555,22 +556,22 @@ namespace ProjektOrdner.Repository
                 }
             }
 
-            string projektNameWithoutSpaces = projektName.Replace(" ", "");
-            string adGroupName = $@"{AppSettings.AdGroupNamePrefix}{groupScopeName}{AppSettings.AdGroupNameTopic}{projektNameWithoutSpaces}{adGroupSuffix}";
+            string NameWithoutSpaces = Name.Replace(" ", "");
+            string adGroupName = $@"{AppSettings.AdGroupNamePrefix}{groupScopeName}{AppSettings.AdGroupNameTopic}{NameWithoutSpaces}{adGroupSuffix}";
 
             return adGroupName.ToUpper();
         }
 
-        private List<string> GetAdGroupNames(string projektName)
+        private List<string> GetAdGroupNames(string Name)
         {
             return new List<string>
             {
-                GetAdGroupName(projektName, GroupScope.Local, PermissionAccessRole.ReadOnly),
-                GetAdGroupName(projektName, GroupScope.Local, PermissionAccessRole.ReadWrite),
-                GetAdGroupName(projektName, GroupScope.Local, PermissionAccessRole.Manager),
-                GetAdGroupName(projektName, GroupScope.Global, PermissionAccessRole.ReadOnly),
-                GetAdGroupName(projektName, GroupScope.Global, PermissionAccessRole.ReadWrite),
-                GetAdGroupName(projektName, GroupScope.Global, PermissionAccessRole.Manager)
+                GetAdGroupName(Name, GroupScope.Local, PermissionAccessRole.ReadOnly),
+                GetAdGroupName(Name, GroupScope.Local, PermissionAccessRole.ReadWrite),
+                GetAdGroupName(Name, GroupScope.Local, PermissionAccessRole.Manager),
+                GetAdGroupName(Name, GroupScope.Global, PermissionAccessRole.ReadOnly),
+                GetAdGroupName(Name, GroupScope.Global, PermissionAccessRole.ReadWrite),
+                GetAdGroupName(Name, GroupScope.Global, PermissionAccessRole.Manager)
             };
         }
 

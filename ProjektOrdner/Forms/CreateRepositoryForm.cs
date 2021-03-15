@@ -12,7 +12,7 @@ namespace ProjektOrdner.Forms
 
         public CreateRepositoryForm()
         {
-            ProjektName = string.Empty;
+            Name = string.Empty;
             ProjektEnde = DateTime.Now.AddDays(30);
             UsePermissionAssistent = true;
 
@@ -42,9 +42,9 @@ namespace ProjektOrdner.Forms
         /// </summary>
         private void ValidateAndClose()
         {
-            string projektName = ProjektnameTextbox.Text;
+            string Name = NameTextbox.Text;
 
-            bool isValidName = IsValidProjektName(projektName);
+            bool isValidName = IsValidName(Name);
             if (isValidName == false)
                 return;
 
@@ -52,7 +52,7 @@ namespace ProjektOrdner.Forms
             if (isValidDate == false)
                 return;
 
-            ProjektName = projektName;
+            ProjektName = Name;
             ProjektEnde = EndDate.Value;
 
             // Close Assistent
@@ -81,26 +81,26 @@ namespace ProjektOrdner.Forms
         /// 
         /// 
         /// </summary>
-        private bool IsValidProjektName(string projektName)
+        private bool IsValidName(string Name)
         {
             // Leer oder Leerzeichen
-            if (string.IsNullOrWhiteSpace(projektName) == true)
+            if (string.IsNullOrWhiteSpace(Name) == true)
             {
-                MessageBox.Show("Der Projektname darf nicht leer sein!", "Hinweis", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Der Name darf nicht leer sein!", "Hinweis", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return false;
             }
 
             // Länge
-            if (projektName.Length > 150)
+            if (Name.Length > 150)
             {
                 MessageBox.Show("Geben Sie einen Namen kleiner 150 Zeichen ein!", "Hinweis", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return false;
             }
 
             // Ungültige Zeichen
-            if (projektName.IndexOfAny(Path.GetInvalidPathChars()) >= 0)
+            if (Name.IndexOfAny(Path.GetInvalidPathChars()) >= 0)
             {
-                MessageBox.Show("Es wurden ungültige Zeichen im Projektnamen gefunden!", "Hinweis", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Es wurden ungültige Zeichen im Namen gefunden!", "Hinweis", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return false;
             }
 

@@ -79,8 +79,8 @@ namespace ProjektOrdner.Permission
 
         private List<PermissionModel> GetUsersFromGroup(PermissionAccessRole accessRole)
         {
-            string projektName = GetDirectoryNameFromPath(ProjektPath);
-            string groupName = AdUtil.GetAdGroupName(projektName, GroupScope.Global, accessRole);
+            string Name = GetDirectoryNameFromPath(ProjektPath);
+            string groupName = AdUtil.GetAdGroupName(Name, GroupScope.Global, accessRole);
             PrincipalCollection groupMembers = AdUtil.GetGroupMembers(groupName, IdentityType.SamAccountName);
 
             if (null != groupMembers)
@@ -233,8 +233,8 @@ namespace ProjektOrdner.Permission
             if (null == permission)
                 throw new ArgumentNullException();
 
-            string projektName = GetDirectoryNameFromPath(ProjektPath);
-            string groupName = AdUtil.GetAdGroupName(projektName, GroupScope.Global, permission.AccessRole);
+            string Name = GetDirectoryNameFromPath(ProjektPath);
+            string groupName = AdUtil.GetAdGroupName(Name, GroupScope.Global, permission.AccessRole);
 
             GroupPrincipal group = AdUtil.GetGroup(groupName, IdentityType.SamAccountName);
             UserPrincipal user = AdUtil.GetUser(permission.User.SamAccountName, IdentityType.SamAccountName);
@@ -308,8 +308,8 @@ namespace ProjektOrdner.Permission
             if (null == permission)
                 return; // Kein Argument übergeben!
 
-            string projektName = GetDirectoryNameFromPath(ProjektPath);
-            string groupName = AdUtil.GetAdGroupName(projektName, GroupScope.Global, permission.AccessRole);
+            string Name = GetDirectoryNameFromPath(ProjektPath);
+            string groupName = AdUtil.GetAdGroupName(Name, GroupScope.Global, permission.AccessRole);
             GroupPrincipal group = AdUtil.GetGroup(groupName, IdentityType.SamAccountName);
             Principal userItem = group.Members
                 .Where(user => user.SamAccountName == permission.User.SamAccountName)

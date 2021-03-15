@@ -289,9 +289,9 @@ namespace ProjektOrdner.Permission
         // Remove Node
         // 
 
-        public void RemoveProjektNodeByName(string projektName)
+        public void RemoveProjektNodeByName(string Name)
         {
-            TreeNode node = GetNodeByName(projektName);
+            TreeNode node = GetNodeByName(Name);
 
             if (null != node)
                 View.Nodes.Remove(node);

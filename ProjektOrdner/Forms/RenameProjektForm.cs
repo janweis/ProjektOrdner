@@ -14,12 +14,12 @@ namespace ProjektOrdner.Forms
     public partial class RenameProjektForm : Form
     {
         public string ProjektName { get; set; }
-        private string CurrentProjektName { get; set; }
+        private string CurrentName { get; set; }
 
-        public RenameProjektForm(string currentProjektName)
+        public RenameProjektForm(string currentName)
         {
-            CurrentProjektName = currentProjektName;
-            ProjektName = string.Empty;
+            CurrentName = currentName;
+            Name = string.Empty;
 
             InitializeComponent();
             PreSetComponents();
@@ -27,16 +27,16 @@ namespace ProjektOrdner.Forms
 
         private void PreSetComponents()
         {
-            ProjektnameLbl.Text = CurrentProjektName;
+            NameLbl.Text = CurrentName;
         }
 
         private void RenameProjektButton_Click(object sender, EventArgs e)
         {
-            bool isProjektNameValid = IsNameValid(ProjektNameTextBox.Text);
-            if (isProjektNameValid == false)
+            bool isNameValid = IsNameValid(NameTextBox.Text);
+            if (isNameValid == false)
                 return;
 
-            ProjektName = ProjektNameTextBox.Text;
+            Name = NameTextBox.Text;
 
             DialogResult = DialogResult.OK;
             Close();
@@ -54,24 +54,24 @@ namespace ProjektOrdner.Forms
         // Validations
         // 
 
-        private bool IsNameValid(string projektName)
+        private bool IsNameValid(string Name)
         {
             // Leer oder Leerzeichen
-            if (string.IsNullOrWhiteSpace(projektName) == true)
+            if (string.IsNullOrWhiteSpace(Name) == true)
             {
-                MessageBox.Show("Der Projektname darf nicht leer sein!", "Hinweis", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Der Name darf nicht leer sein!", "Hinweis", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return false;
             }
 
             // Länge
-            if (ProjektName.Length > 150)
+            if (Name.Length > 150)
             {
                 MessageBox.Show("Geben Sie einen Namen kleiner 150 Zeichen ein!", "Hinweis", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return false;
             }
 
             // Ungültige Zeichen
-            if (ProjektName.IndexOfAny(Path.GetInvalidPathChars()) >= 0)
+            if (Name.IndexOfAny(Path.GetInvalidPathChars()) >= 0)
             {
                 MessageBox.Show("Der neue Name enthält ungültige Zeichen!", "Hinweis", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return false;
