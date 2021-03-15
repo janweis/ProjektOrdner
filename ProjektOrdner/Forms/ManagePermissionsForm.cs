@@ -9,7 +9,7 @@ using static ProjektOrdner.Permission.PermissionNodeProcessor;
 
 namespace ProjektOrdner.Forms
 {
-    public partial class PermissionManageForm : Form
+    public partial class ManagePermissionsForm : Form
     {
         public List<PermissionModel> Permissions { get; set; }
         private PermissionNodeProcessor NodeProcessor { get; set; }
@@ -17,7 +17,7 @@ namespace ProjektOrdner.Forms
 
         private bool NodeAdvancedMode = false;
 
-        public PermissionManageForm(List<PermissionModel> permissions, AppSettingsModel appSettings)
+        public ManagePermissionsForm(List<PermissionModel> permissions, AppSettingsModel appSettings)
         {
             InitializeComponent();
 

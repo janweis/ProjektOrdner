@@ -49,7 +49,7 @@ namespace ProjektOrdner.Permission
 
             try
             {
-                PermissionManageForm permissionManage = new PermissionManageForm(editedPermissions, AppSettings);
+                ManagePermissionsForm permissionManage = new ManagePermissionsForm(editedPermissions, AppSettings);
                 DialogResult dialogResult = permissionManage.ShowDialog();
 
                 if (dialogResult == DialogResult.Cancel)

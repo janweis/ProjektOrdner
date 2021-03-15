@@ -1,6 +1,6 @@
 ﻿namespace ProjektOrdner.Forms
 {
-    partial class RootPathManageForm
+    partial class EditRootPathsForm
     {
         /// <summary>
         /// Required designer variable.

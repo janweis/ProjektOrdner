@@ -10,12 +10,12 @@ using System.Windows.Forms;
 
 namespace ProjektOrdner.Forms
 {
-    public partial class RootPathManageForm : Form
+    public partial class EditRootPathsForm : Form
     {
         public List<string> RootPaths { get; set; }
 
 
-        public RootPathManageForm(List<string> existingPaths = null)
+        public EditRootPathsForm(List<string> existingPaths = null)
         {
             InitializeComponent();
 
