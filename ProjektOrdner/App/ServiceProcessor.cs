@@ -13,11 +13,11 @@ namespace ProjektOrdner.App
     public class ServiceProcessor
     {
         private string RootPath { get; set; }
-        private AppSettingsModel AppSettings { get; set; }
+        private AppSettings AppSettings { get; set; }
         private string PickupFolderPath { get; set; }
 
 
-        public ServiceProcessor(string rootPath, AppSettingsModel appSettings)
+        public ServiceProcessor(string rootPath, AppSettings appSettings)
         {
             RootPath = rootPath;
             AppSettings = appSettings;

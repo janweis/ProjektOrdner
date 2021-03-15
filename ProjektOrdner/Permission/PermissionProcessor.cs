@@ -12,12 +12,12 @@ namespace ProjektOrdner.Permission
 {
     public class PermissionProcessor
     {
-        private AppSettingsModel AppSettings { get; set; }
+        private AppSettings AppSettings { get; set; }
         private ActiveDirectoryUtil AdUtil { get; set; }
         private string ProjektPath { get; set; }
         private RepositoryVersion OrdnerVersion { get; set; }
 
-        public PermissionProcessor(string projektPath, AppSettingsModel appSettings)
+        public PermissionProcessor(string projektPath, AppSettings appSettings)
         {
             ProjektPath = projektPath;
             AppSettings = appSettings;
@@ -26,7 +26,7 @@ namespace ProjektOrdner.Permission
             AdUtil = new ActiveDirectoryUtil(appSettings);
         }
 
-        public PermissionProcessor(string projektPath, AppSettingsModel appSettings, RepositoryVersion version)
+        public PermissionProcessor(string projektPath, AppSettings appSettings, RepositoryVersion version)
         {
             ProjektPath = projektPath;
             AppSettings = appSettings;

@@ -14,10 +14,10 @@ namespace ProjektOrdner.Mail
 {
     public class MailProcessor
     {
-        private AppSettingsModel AppSettings { get; set; }
+        private AppSettings AppSettings { get; set; }
         private RepositoryModel ProjektOrdner { get; set; }
 
-        public MailProcessor(AppSettingsModel appSettings, RepositoryModel projektOrdner)
+        public MailProcessor(AppSettings appSettings, RepositoryModel projektOrdner)
         {
             AppSettings = appSettings;
             ProjektOrdner = projektOrdner;

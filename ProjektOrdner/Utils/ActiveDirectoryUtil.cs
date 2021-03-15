@@ -11,9 +11,9 @@ namespace ProjektOrdner.Utils
     {
         private PrincipalContext GroupContext { get; set; }
         private PrincipalContext UserContext { get; set; }
-        private AppSettingsModel AppSettings { get; set; }
+        private AppSettings AppSettings { get; set; }
 
-        public ActiveDirectoryUtil(AppSettingsModel appSettings)
+        public ActiveDirectoryUtil(AppSettings appSettings)
         {
             GroupContext = new PrincipalContext(ContextType.Domain, Environment.UserDomainName, appSettings.AdGroupDlDN);
             UserContext = new PrincipalContext(ContextType.Domain, Environment.UserDomainName);

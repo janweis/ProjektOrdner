@@ -16,10 +16,10 @@ namespace ProjektOrdner.Repository
 {
     public class RepositoryProcessor
     {
-        private AppSettingsModel AppSettings { get; set; }
+        private AppSettings AppSettings { get; set; }
         private ActiveDirectoryUtil ActiveDirectory { get; set; }
 
-        public RepositoryProcessor(AppSettingsModel appSettings)
+        public RepositoryProcessor(AppSettings appSettings)
         {
             AppSettings = appSettings;
             ActiveDirectory = new ActiveDirectoryUtil(appSettings);

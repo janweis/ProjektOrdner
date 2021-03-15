@@ -15,9 +15,9 @@ namespace ProjektOrdner.Repository
     {
         public string RootFolder { get; set; }
         RepositoryProcessor Processor { get; set; }
-        AppSettingsModel AppSettings { get; set; }
+        AppSettings AppSettings { get; set; }
 
-        public RepositoryManager(string rootFolder, AppSettingsModel appSettings)
+        public RepositoryManager(string rootFolder, AppSettings appSettings)
         {
             RootFolder = rootFolder;
             AppSettings = appSettings;

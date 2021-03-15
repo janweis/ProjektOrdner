@@ -13,11 +13,11 @@ namespace ProjektOrdner.Forms
     {
         public List<PermissionModel> Permissions { get; set; }
         private PermissionNodeProcessor NodeProcessor { get; set; }
-        private AppSettingsModel AppSettings { get; set; }
+        private AppSettings AppSettings { get; set; }
 
         private bool NodeAdvancedMode = false;
 
-        public ManagePermissionsForm(List<PermissionModel> permissions, AppSettingsModel appSettings)
+        public ManagePermissionsForm(List<PermissionModel> permissions, AppSettings appSettings)
         {
             InitializeComponent();
 

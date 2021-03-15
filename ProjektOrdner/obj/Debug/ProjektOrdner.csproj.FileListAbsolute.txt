@@ -30,3 +30,9 @@ C:\Users\jan.weis\Documents\GitHub\ProjektOrdner\ProjektOrdner\bin\Debug\MimeKit
 C:\Users\jan.weis\Documents\GitHub\ProjektOrdner\ProjektOrdner\bin\Debug\Newtonsoft.Json.xml
 C:\Users\jan.weis\Documents\GitHub\ProjektOrdner\ProjektOrdner\bin\Debug\System.Buffers.xml
 C:\Users\jan.weis\Documents\GitHub\ProjektOrdner\ProjektOrdner\obj\Debug\ProjektOrdner.csproj.CopyComplete
+C:\Users\jan.weis\Documents\GitHub\ProjektOrdner\ProjektOrdner\obj\Debug\ProjektOrdner.Forms.FindAdUserForm.resources
+C:\Users\jan.weis\Documents\GitHub\ProjektOrdner\ProjektOrdner\obj\Debug\ProjektOrdner.Forms.ManageRepositorysForm.resources
+C:\Users\jan.weis\Documents\GitHub\ProjektOrdner\ProjektOrdner\obj\Debug\ProjektOrdner.Forms.AppSplashScreenForm.resources
+C:\Users\jan.weis\Documents\GitHub\ProjektOrdner\ProjektOrdner\obj\Debug\ProjektOrdner.Forms.CreateRepositoryForm.resources
+C:\Users\jan.weis\Documents\GitHub\ProjektOrdner\ProjektOrdner\obj\Debug\ProjektOrdner.Forms.ManagePermissionsForm.resources
+C:\Users\jan.weis\Documents\GitHub\ProjektOrdner\ProjektOrdner\obj\Debug\ProjektOrdner.Forms.EditRootPathsForm.resources

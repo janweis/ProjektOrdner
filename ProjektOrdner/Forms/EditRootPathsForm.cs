@@ -13,12 +13,13 @@ namespace ProjektOrdner.Forms
     public partial class EditRootPathsForm : Form
     {
         public List<string> RootPaths { get; set; }
-
+        private List<string> InitalRoots { get; set; }
 
         public EditRootPathsForm(List<string> existingPaths = null)
         {
             InitializeComponent();
 
+            InitalRoots = existingPaths;
             if (null != existingPaths)
             {
                 RootPathsTextBox.Lines = existingPaths.ToArray();

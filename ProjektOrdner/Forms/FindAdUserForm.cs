@@ -12,10 +12,10 @@ namespace ProjektOrdner.Forms
     {
         public List<UserModel> AdUsers { get; set; }
         public UserModel CurrentUserShown { get; set; }
-        public AppSettingsModel AppSettings { get; set; }
+        public AppSettings AppSettings { get; set; }
 
 
-        public FindAdUserForm(List<UserModel> users, AppSettingsModel appSettings)
+        public FindAdUserForm(List<UserModel> users, AppSettings appSettings)
         {
             AdUsers = users;
             AppSettings = appSettings;

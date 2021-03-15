@@ -10,7 +10,7 @@ namespace ProjektOrdner
 {
     public class MainProgram
     {
-        private AppSettingsModel AppSettings { get; set; }
+        private AppSettings Settings { get; set; }
 
         public MainProgram() { }
 
@@ -45,8 +45,8 @@ namespace ProjektOrdner
 
             try
             {
-                AppSettingsProcessor settingsProcessor = new AppSettingsProcessor();
-                AppSettings = await settingsProcessor.ReadSettingsAsync();
+                Settings = new AppSettings();
+                await Settings.LoadAsync();
             }
             catch (Exception ex)
             {
@@ -54,52 +54,34 @@ namespace ProjektOrdner
                 splashScreen.Close();
             }
 
-            if (null == AppSettings)
-            {
-                MessageBox.Show($"Es ist ein Fehler beim Lesen der AppSettings.json aufgetreten!", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                splashScreen.Close();
-            }
-
             // Validate Roots
-            WriteProgress("Verifiziere Rootpfade...", messageProgress);
+            WriteProgress("Verifiziere Standard RootPath...", messageProgress);
             await Task.Delay(10);
-            AppSettingsRootProfileModel rootFolderProfile = null;
 
             do
             {
-                rootFolderProfile = AppSettings?.RootFolders?.GetDefaultRoot();
-
-                if (null != rootFolderProfile)
+                if (null == Settings.RootPathDefault)
                 {
-                    if (Directory.Exists(rootFolderProfile.Path) == true)
-                    {
-                        break;
-                    }
+                    MessageBox.Show("Der default RootPath ist nicht definiert. Nachfolgend bitte die RootPaths einpflegen","Information",MessageBoxButtons.OK,MessageBoxIcon.Information);
+                    await Settings.ManageRootPathsAsync();
                 }
-
-                DialogResult dialogResult = MessageBox.Show("Der ProjektOrdner RootPath ist nicht erreichbar oder exitiert nicht. Möchten Sie die Pfade kontrollieren?", "Hinweis", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-
-                if (dialogResult == DialogResult.No)
-                    break;
-
-                // Manage Settings
-                RootPathManager pathManager = new RootPathManager(AppSettings);
-                await pathManager.ManageAsync();
-
-                // Set new Settings
-                AppSettings = pathManager.AppSettings;
+                else
+                {
+                    if (Directory.Exists(Settings.RootPathDefault) == true)
+                        break;
+                }
             } while (true);
 
 
             // Load Projects
-            WriteProgress("Lade Projekte...", messageProgress);
+            WriteProgress("Lade Projekte ...", messageProgress);
             await Task.Delay(10);
 
             RepositoryModel[] repositories = null;
             try
             {
-                RepositoryProcessor repositoryProcessor = new RepositoryProcessor(AppSettings);
-                repositories = await repositoryProcessor.GetRepositorysAsync(AppSettings?.RootFolders?.GetDefaultRoot().Path, messageProgress, false);
+                RepositoryProcessor repositoryProcessor = new RepositoryProcessor(Settings);
+                repositories = await repositoryProcessor.GetRepositorysAsync((string)Settings?.RootPathDefault, messageProgress, false);
             }
             catch (Exception ex)
             {
@@ -108,7 +90,7 @@ namespace ProjektOrdner
             }
 
             // Start ManagerUI
-            ManageRepositorysForm manageProjekts = new ManageRepositorysForm(AppSettings, repositories);
+            ManageRepositorysForm manageProjekts = new ManageRepositorysForm(Settings, repositories);
             manageProjekts.FormClosed += ApplicationExitAction;
             splashScreen.Owner = manageProjekts;
             manageProjekts.Show();

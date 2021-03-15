@@ -13,18 +13,18 @@ namespace ProjektOrdner.Forms
 {
     public partial class ManageRepositorysForm : Form
     {
-        private AppSettingsModel AppSettings { get; set; }
+        private AppSettings AppSettings { get; set; }
         private RepositoryModel[] Repositorys { get; set; }
         private ManagerNodeProcessor NodeProcessor { get; set; }
         private string CurrentRootPath { get; set; }
         private bool IncludeCorruptedProjects { get; set; }
 
-        public ManageRepositorysForm(AppSettingsModel appSettings, RepositoryModel[] repositorys)
+        public ManageRepositorysForm(AppSettings appSettings, RepositoryModel[] repositorys)
         {
             InitializeComponent();
             Repositorys = repositorys;
             AppSettings = appSettings;
-            CurrentRootPath = AppSettings.RootFolders.GetDefaultRoot().Path;
+            CurrentRootPath = AppSettings.RootPathDefault;
             IncludeCorruptedProjects = false;
 
             NodeProcessor = new ManagerNodeProcessor(ProjektsTree, ContextMenu2);
@@ -510,14 +510,8 @@ namespace ProjektOrdner.Forms
         private void aktualisierenToolStripMenuItem_Click(object sender, EventArgs e) =>
             UpdateViewAsync(new Progress<string>(message => UpdateToolStripStatus(message)), Repositorys);
 
-        private async void verwaltenToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            RootPathManager pathManager = new RootPathManager(AppSettings);
-            await pathManager.ManageAsync();
-
-            // Get new Settings
-            AppSettings = pathManager.AppSettings;
-        }
+        private async void verwaltenToolStripMenuItem_Click(object sender, EventArgs e) => 
+            await AppSettings.ManageRootPathsAsync();
 
         private async void anlegenToolStripMenuItem_Click(object sender, EventArgs e) =>
             await CreateProjektAsync();

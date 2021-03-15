@@ -12,9 +12,9 @@ namespace ProjektOrdner.Permission
     public class PermissionManager
     {
         private string FolderPath { get; set; }
-        private AppSettingsModel AppSettings { get; set; }
+        private AppSettings AppSettings { get; set; }
 
-        public PermissionManager(string folderPath, AppSettingsModel appSettings)
+        public PermissionManager(string folderPath, AppSettings appSettings)
         {
             FolderPath = folderPath;
             AppSettings = appSettings;

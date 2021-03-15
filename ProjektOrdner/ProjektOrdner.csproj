@@ -67,10 +67,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App\AppConstants.cs" />
-    <Compile Include="App\AppSettingsModel.cs" />
-    <Compile Include="App\AppSettingsProcessor.cs" />
-    <Compile Include="App\AppSettingsRootProfileModel.cs" />
-    <Compile Include="App\AppSettingsRootProfileProcessor.cs" />
+    <Compile Include="App\AppSettings.cs" />
     <Compile Include="App\EnumModel.cs" />
     <Compile Include="App\LogProcessor.cs" />
     <Compile Include="App\ProjektOrdnerModel.cs" />
@@ -149,7 +146,6 @@
     <Compile Include="Repository\RepositoryOrgaProcessor.cs" />
     <Compile Include="Repository\RepositoryProcessor.cs" />
     <Compile Include="Repository\RepositorySettings.cs" />
-    <Compile Include="App\RootPathManager.cs" />
     <Compile Include="Utils\ActiveDirectoryUtil.cs" />
     <Compile Include="Permission\PermissionUIHelper.cs" />
   </ItemGroup>
