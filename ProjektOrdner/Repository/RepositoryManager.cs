@@ -45,14 +45,14 @@ namespace ProjektOrdner.Repository
             }
 
             // Create Repository with Data
-            string Name = getDataForm.Name;
+            string projektName = getDataForm.ProjektName;
             DateTime projektEnde = getDataForm.ProjektEnde;
 
             RepositoryOrganization organisation = new RepositoryOrganization()
             {
                 ErstelltAm = DateTime.Now,
-                Name = Name,
-                EndeDatum = projektEnde,
+                ProjektName = projektName,
+                ProjektEnde = projektEnde,
                 RootPath = RootFolder,
                 Version = RepositoryVersion.V2
             };

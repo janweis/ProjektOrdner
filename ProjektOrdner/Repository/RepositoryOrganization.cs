@@ -18,13 +18,13 @@ namespace ProjektOrdner.Repository
 
         public Guid ID { get; private set; }
 
-        public string Name { get; set; }
+        public string ProjektName { get; set; }
 
         public string ProjektPath
         {
             get
             {
-                return Path.Combine(RootPath, Name);
+                return Path.Combine(RootPath, ProjektName);
             }
         }
 
@@ -32,7 +32,7 @@ namespace ProjektOrdner.Repository
 
         public DateTime ErstelltAm { get; set; }
 
-        public DateTime EndeDatum { get; set; }
+        public DateTime ProjektEnde { get; set; }
 
         public RepositoryVersion Version { get; set; }
 
@@ -46,10 +46,10 @@ namespace ProjektOrdner.Repository
         public RepositoryOrganization()
         {
             ID = Guid.NewGuid();
-            Name = string.Empty;
+            ProjektName = string.Empty;
             RootPath = string.Empty;
             ErstelltAm = DateTime.MinValue;
-            EndeDatum = DateTime.MinValue;
+            ProjektEnde = DateTime.MinValue;
             Version = RepositoryVersion.Unknown;
             LegacyPermissions = new List<PermissionModel>();
         }
@@ -81,9 +81,9 @@ namespace ProjektOrdner.Repository
                     if (null != repositoryOrganization)
                     {
                         ID = repositoryOrganization.ID;
-                        Name = repositoryOrganization.Name;
+                        ProjektName = repositoryOrganization.ProjektName;
                         ErstelltAm = repositoryOrganization.ErstelltAm;
-                        EndeDatum = repositoryOrganization.EndeDatum;
+                        ProjektEnde = repositoryOrganization.ProjektEnde;
                         //RootPath = repositoryOrganization.RootPath;
                         Version = repositoryOrganization.Version;
                     }
@@ -140,7 +140,7 @@ namespace ProjektOrdner.Repository
                             {
                                 case "Name":
                                 {
-                                    Name = value;
+                                    ProjektName = value;
                                     break;
                                 }
                                 case "startdatum":
@@ -155,7 +155,7 @@ namespace ProjektOrdner.Repository
                                 {
                                     if (DateTime.TryParse(value, out DateTime dateTime))
                                     {
-                                        EndeDatum = dateTime;
+                                        ProjektEnde = dateTime;
                                     }
                                     break;
                                 }
@@ -196,7 +196,7 @@ namespace ProjektOrdner.Repository
             string filePath;
 
             if (null == folderPath)
-                folderPath = Path.Combine(RootPath, Name);
+                folderPath = Path.Combine(RootPath, ProjektName);
 
             filePath = Path.Combine(folderPath, Path.Combine(AppConstants.OrganisationFolderName, AppConstants.OrganisationFileNameV2));
 
@@ -255,13 +255,13 @@ Gast=
         /// </summary>
         public bool IsValid()
         {
-            if (string.IsNullOrWhiteSpace(Name) == true)
+            if (string.IsNullOrWhiteSpace(ProjektName) == true)
                 return false;
 
             if (string.IsNullOrWhiteSpace(RootPath) == true)
                 return false;
 
-            if (EndeDatum == DateTime.MinValue)
+            if (ProjektEnde == DateTime.MinValue)
                 return false;
 
             if (Version == RepositoryVersion.Unknown)

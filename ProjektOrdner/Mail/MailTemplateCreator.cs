@@ -48,7 +48,7 @@ es wurde ein neues Projekt angelegt, indem Sie als ProjektManager angegeben wurd
         {
             return $@"{BegrüßungBlock()}
 
-der ProjektOrdner {RepositoryOrga.Name}, auf dem Sie ProjektManager waren, wurde gelöscht. Ein weiterer Zugriff ist nicht möglich.
+der ProjektOrdner {RepositoryOrga.ProjektName}, auf dem Sie ProjektManager waren, wurde gelöscht. Ein weiterer Zugriff ist nicht möglich.
 {ProjektOrgaDataBlock(PermissionAccessRole.Manager)}
 
 {AbschlussBlock()}";
@@ -63,7 +63,7 @@ der ProjektOrdner {RepositoryOrga.Name}, auf dem Sie ProjektManager waren, wurde
         {
             return $@"{BegrüßungBlock()}
 
-der ProjektOrdner {RepositoryOrga.Name}, in dem Sie ProjektManager sind, wird in {days.ToString()} um 22 Uhr gelöscht. Bitte kümmern Sie sich frühzeitig um ein Backup Ihrer Projektdaten. Projektverlängerungen können Sie in der IT-Abteilung beantragen.
+der ProjektOrdner {RepositoryOrga.ProjektName}, in dem Sie ProjektManager sind, wird in {days.ToString()} um 22 Uhr gelöscht. Bitte kümmern Sie sich frühzeitig um ein Backup Ihrer Projektdaten. Projektverlängerungen können Sie in der IT-Abteilung beantragen.
 {ProjektOrgaDataBlock(PermissionAccessRole.Manager)}
 
 {AbschlussBlock()}";
@@ -78,7 +78,7 @@ der ProjektOrdner {RepositoryOrga.Name}, in dem Sie ProjektManager sind, wird in
         {
             return $@"{BegrüßungBlock()}
 
-willkommen im ProjektOrdner '{RepositoryOrga.Name}'. Sie wurden durch einen ProjektManager zu dem Projekt hinzugefügt.
+willkommen im ProjektOrdner '{RepositoryOrga.ProjektName}'. Sie wurden durch einen ProjektManager zu dem Projekt hinzugefügt.
 
 {ProjektBerechtigungBlock(accessRole)}
 {ProjektPfadeBlock()}
@@ -97,7 +97,7 @@ willkommen im ProjektOrdner '{RepositoryOrga.Name}'. Sie wurden durch einen Proj
         {
             return $@"{BegrüßungBlock()}
 
-der Zugriff auf das Projekt '{RepositoryOrga.Name}' wurde Ihnen entzogen. Sie sind nun kein Mitglied in diesem Projekt mehr.
+der Zugriff auf das Projekt '{RepositoryOrga.ProjektName}' wurde Ihnen entzogen. Sie sind nun kein Mitglied in diesem Projekt mehr.
 
 {ProjektPfadeBlock()}
 
@@ -143,7 +143,7 @@ der Zugriff auf das Projekt '{RepositoryOrga.Name}' wurde Ihnen entzogen. Sie si
 
             return $@"{BegrüßungBlock()}
 
-diese Mail informiert Sie über die Berechtigungsanpassungen an einem ProjektOrdner. Folgend(e) aufgelistete(n) Änderung(en) wurde(n) am Projekt {RepositoryOrga.Name} durchgeführt.
+diese Mail informiert Sie über die Berechtigungsanpassungen an einem ProjektOrdner. Folgend(e) aufgelistete(n) Änderung(en) wurde(n) am Projekt {RepositoryOrga.ProjektName} durchgeführt.
 
 {report.ToString()}
 
@@ -166,15 +166,15 @@ diese Mail informiert Sie über die Berechtigungsanpassungen an einem ProjektOrd
         private string ProjektPfadeBlock()
         {
             return $@"Folgende Zugriffsmöglichkeiten stehen Ihnen zur Verfügung:
-    (1) 'I:\02_IFM Projekte\{RepositoryOrga.Name}'
-    (2) '\\ifmsrvfile.institut-ifm.de\data\02_IFM Projekte\{RepositoryOrga.Name}'";
+    (1) 'I:\02_IFM Projekte\{RepositoryOrga.ProjektName}'
+    (2) '\\ifmsrvfile.institut-ifm.de\data\02_IFM Projekte\{RepositoryOrga.ProjektName}'";
         }
 
         private string ProjektOrgaDataBlock(PermissionAccessRole accessRole)
         {
             return $@"## ProjektOrdner - Organisation:
-    Name: {RepositoryOrga.Name}
-    Ablaufdatum: {RepositoryOrga.EndeDatum.ToLongDateString()}
+    Name: {RepositoryOrga.ProjektName}
+    Ablaufdatum: {RepositoryOrga.ProjektEnde.ToLongDateString()}
     Ihre Berechtigung: {accessRole.ToString()}";
         }
 

@@ -48,7 +48,7 @@ namespace ProjektOrdner.Forms
                 return null;
 
             return Repositorys
-                .Where(repo => node.Name == repo.RepositoryOrga.Name)
+                .Where(repo => node.Name == repo.RepositoryOrga.ProjektName)
                 .FirstOrDefault();
         }
 
@@ -318,7 +318,7 @@ namespace ProjektOrdner.Forms
                 return; // Node ist kein Sub-Node!
 
             RepositoryModel repository = Repositorys
-                .Where(repo => repo.RepositoryOrga.Name == node.Parent.Text)
+                .Where(repo => repo.RepositoryOrga.ProjektName == node.Parent.Text)
                 .FirstOrDefault();
 
             if (null == repository)

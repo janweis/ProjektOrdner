@@ -68,7 +68,7 @@ namespace ProjektOrdner.Repository
                 {
                     RepositoryOrga = new RepositoryOrganization()
                     {
-                        Name = projektDirectory.Name,
+                        ProjektName = projektDirectory.Name,
                         RootPath = projektDirectory.Parent.FullName
                     },
                     Settings = new RepositorySettings(),
@@ -148,7 +148,7 @@ namespace ProjektOrdner.Repository
 
             // Create adn link Active Directory Groups
             progressMessage.Report("Creating Active Directory Groups... (3/4)");
-            GroupPrincipal[] adGroups = CreateAdGroups(repository.RepositoryOrga.Name);
+            GroupPrincipal[] adGroups = CreateAdGroups(repository.RepositoryOrga.ProjektName);
 
             // Set Permission to Folder
             progressMessage.Report("Set up Directory ACLs (4/4)");
@@ -446,7 +446,7 @@ namespace ProjektOrdner.Repository
 
             // Remove Ad Groups
             progressMessage.Report("Deleting Active Directory Groups... (3/3)");
-            DeleteAdGroups(repository.RepositoryOrga.Name);
+            DeleteAdGroups(repository.RepositoryOrga.ProjektName);
 
             progressMessage.Report("Project sucessfully deleted!");
         }

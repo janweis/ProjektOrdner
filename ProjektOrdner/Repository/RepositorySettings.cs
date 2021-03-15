@@ -82,7 +82,7 @@ namespace ProjektOrdner.Repository
         /// </summary>
         public async Task<bool> Save(string folderPath)
         {
-            string filePath = Path.Combine(folderPath, Path.Combine(AppConstants.OrganisationFolderName, AppConstants.OrganisationFileNameV2));
+            string filePath = Path.Combine(folderPath, Path.Combine(AppConstants.OrganisationFolderName, AppConstants.RepositorySettingsFileName));
 
             if (Directory.Exists(folderPath) == true)
             {

@@ -12,11 +12,12 @@ namespace ProjektOrdner.Forms
 
         public CreateRepositoryForm()
         {
+            InitializeComponent();
+
             Name = string.Empty;
             ProjektEnde = DateTime.Now.AddDays(30);
             UsePermissionAssistent = true;
 
-            InitializeComponent();
             PreSetComponents();
         }
         

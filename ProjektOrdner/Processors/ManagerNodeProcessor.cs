@@ -173,12 +173,12 @@ namespace ProjektOrdner.Processors
                         {
                             case RepositoryVersion.V1:
                             {
-                                AddProjektNodeV1(repository.RepositoryOrga.Name, repository.RepositoryOrga.ProjektPath);
+                                AddProjektNodeV1(repository.RepositoryOrga.ProjektName, repository.RepositoryOrga.ProjektPath);
                                 break;
                             }
                             case RepositoryVersion.V2:
                             {
-                                AddProjektNodeV2(repository.RepositoryOrga.Name, repository.RepositoryOrga.ProjektPath);
+                                AddProjektNodeV2(repository.RepositoryOrga.ProjektName, repository.RepositoryOrga.ProjektPath);
                                 break;
                             }
                             case RepositoryVersion.Unknown:
@@ -190,7 +190,7 @@ namespace ProjektOrdner.Processors
                     case RepositoryModel.RepositoryStatus.Corrupted:
                     {
                         if (includeCorrupted == true)
-                            AddProjektNodeCorrupted(repository.RepositoryOrga.Name, repository.RepositoryOrga.ProjektPath);
+                            AddProjektNodeCorrupted(repository.RepositoryOrga.ProjektName, repository.RepositoryOrga.ProjektPath);
 
                         break;
                     }
@@ -213,7 +213,7 @@ namespace ProjektOrdner.Processors
         public void SetFilterView(string filter, RepositoryModel[] repositories)
         {
             IEnumerable<RepositoryModel> filteredRepos = repositories
-                .Where(repository => repository.RepositoryOrga.Name.Contains(filter));
+                .Where(repository => repository.RepositoryOrga.ProjektName.Contains(filter));
 
             UpdateView(filteredRepos.ToArray());
         }
