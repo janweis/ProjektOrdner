@@ -48,7 +48,7 @@ namespace ProjektOrdner.Forms
                 return null;
 
             return Repositorys
-                .Where(repo => node.Name == repo.RepositoryOrga.ProjektName)
+                .Where(repo => node.Name == repo.RepositoryOrga.Name)
                 .FirstOrDefault();
         }
 
@@ -318,7 +318,7 @@ namespace ProjektOrdner.Forms
                 return; // Node ist kein Sub-Node!
 
             RepositoryModel repository = Repositorys
-                .Where(repo => repo.RepositoryOrga.ProjektName == node.Parent.Text)
+                .Where(repo => repo.RepositoryOrga.Name == node.Parent.Text)
                 .FirstOrDefault();
 
             if (null == repository)
@@ -487,7 +487,7 @@ namespace ProjektOrdner.Forms
             textBox1.Text = "";
 
         private void beendenToolStripMenuItem_Click(object sender, EventArgs e) =>
-            Application.Exit();
+            Close();
 
         private void MehrfachAuswahlModusToolStripMenuItem_Click(object sender, EventArgs e) =>
             SetMultiValueTree();

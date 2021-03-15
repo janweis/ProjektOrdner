@@ -125,15 +125,13 @@ namespace ProjektOrdner.App
         /// </summary>
         private async Task CreateProjekt(FileInfo file, IProgress<string> progress)
         {
-            // Getting File
-            RepositoryOrgaProcessor organisationFile = new RepositoryOrgaProcessor(file, RootPath);
-            RepositoryOrgaModel repositoryOrga = await organisationFile.GetInformationAsync();
-            PermissionModel[] permissions = organisationFile.GetPermissionEntries();
+            // Read Antragfile
+            progress.Report($"Verarbeite den Projektantrag...");
+            RepositoryOrganization repositoryOrga = new RepositoryOrganization();
+            await repositoryOrga.LoadV1(file.FullName, RootPath);
+            bool isFileValid = repositoryOrga.IsValid();
 
-            // Validation Tests
-            bool isFileValid = organisationFile.HasValidRepositoryData(repositoryOrga);
-
-            // Validate DATA
+            // Validate Antragfile
             if (isFileValid == false)
             {
                 throw new Exception($"Der Antrag ist ungültig!; {file.FullName}");
@@ -145,9 +143,8 @@ namespace ProjektOrdner.App
                 throw new Exception("Das Projekt existiert bereits!");
             }
 
-
             // Create Repository
-            progress.Report($"Erstelle den ProjektOrdner");
+            progress.Report($"Erstelle den ProjektOrdner...");
 
             RepositoryProcessor repositoryProcessor = new RepositoryProcessor(AppSettings);
             RepositoryModel repository = new RepositoryModel(repositoryOrga, new RepositorySettings(), RepositoryVersion.V2);
@@ -156,7 +153,7 @@ namespace ProjektOrdner.App
                 .AddRepositoryAsync(repository, progress);
 
             // Setup Projekt Permissions
-            if (null != permissions)
+            if (repositoryOrga.LegacyPermissions.Count > 0)
             {
                 progress.Report("Mitglieder werden berechtigt ...");
 
@@ -165,7 +162,7 @@ namespace ProjektOrdner.App
 
                 List<Task> permTasks = new List<Task>();
                 List<MimeMessage> mails = new List<MimeMessage>();
-                foreach (PermissionModel permission in permissions)
+                foreach (PermissionModel permission in repositoryOrga.LegacyPermissions)
                 {
                     // Add Permissions
                     permTasks.Add(permissionProcessor.AddPermissionAsync(PermissionSource.File, permission));

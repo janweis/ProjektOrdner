@@ -48,7 +48,7 @@ namespace ProjektOrdner.Repository
             string projektName = getDataForm.ProjektName;
             DateTime projektEnde = getDataForm.ProjektEnde;
 
-            RepositoryOrgaModel organisation = new RepositoryOrgaModel()
+            RepositoryOrganization organisation = new RepositoryOrganization()
             {
                 ErstelltAm = DateTime.Now,
                 ProjektName = projektName,

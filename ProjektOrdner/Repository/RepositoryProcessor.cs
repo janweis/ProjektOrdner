@@ -37,14 +37,14 @@ namespace ProjektOrdner.Repository
 
             // Read RepositoryInfoFile
             RepositoryOrgaProcessor organisationFile = new RepositoryOrgaProcessor(folderPath);
-            Task<RepositoryOrgaModel> organisationTask = organisationFile.GetInformationAsync();
+            Task<RepositoryOrganization> organisationTask = organisationFile.GetInformationAsync();
 
             // Read ProjektSettings
             RepositorySettings repositorySettings = new RepositorySettings();
             await repositorySettings.Load(folderPath);
 
 
-            RepositoryOrgaModel organisationResult = await organisationTask;
+            RepositoryOrganization organisationResult = await organisationTask;
 
             // Check Values!!
             if (null == organisationResult ||
@@ -56,7 +56,7 @@ namespace ProjektOrdner.Repository
                 DirectoryInfo projektDirectory = new DirectoryInfo(folderPath);
                 return new RepositoryModel
                 {
-                    RepositoryOrga = new RepositoryOrgaModel()
+                    RepositoryOrga = new RepositoryOrganization()
                     {
                         ProjektName = projektDirectory.Name,
                         RootPath = projektDirectory.Parent.FullName
@@ -209,7 +209,7 @@ namespace ProjektOrdner.Repository
             return content;
         }
 
-        private async Task CreateFilesAsync(RepositoryOrgaModel organisation)
+        private async Task CreateFilesAsync(RepositoryOrganization organisation)
         {
             PermissionProcessor permissionProcessor = new PermissionProcessor(organisation.ProjektPath, AppSettings);
             List<Task> tasks = new List<Task>();

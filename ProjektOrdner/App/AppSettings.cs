@@ -70,7 +70,6 @@ namespace ProjektOrdner.App
         public string RootPathDefault { get; set; }
 
 
-
         // Dort wird die Protokollierung eingeschaltet
         public bool Logging { get; set; } = false;
 
@@ -108,10 +107,7 @@ namespace ProjektOrdner.App
         // Constructors
         //
 
-        public AppSettings()
-        {
-
-        }
+        public AppSettings() { }
 
 
         // // // // // // // // // // // // // // // // // // // // // 
@@ -209,12 +205,6 @@ namespace ProjektOrdner.App
                 }
             }
         }
-
-
-
-
-
-
 
     }
 }

@@ -11,7 +11,7 @@ namespace ProjektOrdner.Repository
     {
         public enum RepositoryStatus { Ok, Corrupted, NotChecked }
 
-        public RepositoryOrgaModel RepositoryOrga { get; set; }
+        public RepositoryOrganization RepositoryOrga { get; set; }
         public RepositorySettings Settings { get; set; }
         public RepositoryVersion Version { get; set; }
         public RepositoryStatus Status { get; set; }
@@ -23,7 +23,7 @@ namespace ProjektOrdner.Repository
             Status = RepositoryStatus.NotChecked;
         }
 
-        public RepositoryModel(RepositoryOrgaModel projektOrganisation, RepositorySettings settings, RepositoryVersion version)
+        public RepositoryModel(RepositoryOrganization projektOrganisation, RepositorySettings settings, RepositoryVersion version)
         {
             RepositoryOrga = projektOrganisation;
             Settings = settings;
