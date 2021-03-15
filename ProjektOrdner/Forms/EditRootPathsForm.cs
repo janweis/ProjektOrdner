@@ -12,33 +12,47 @@ namespace ProjektOrdner.Forms
 {
     public partial class EditRootPathsForm : Form
     {
-        public List<string> RootPaths { get; set; }
+        // // // // // // // // // // // // // // // // // // // // //
+        // Variables
+        // 
+
         private List<string> InitalRoots { get; set; }
 
-        public EditRootPathsForm(List<string> existingPaths = null)
+
+        // // // // // // // // // // // // // // // // // // // // //
+        // Constructors
+        // 
+
+        public EditRootPathsForm(List<string> existingPaths)
         {
             InitializeComponent();
 
-            InitalRoots = existingPaths;
-            if (null != existingPaths)
+            if (null == existingPaths)
+            {
+                InitalRoots = new List<string>();
+            }
+            else
+            {
+                InitalRoots = existingPaths;
+            }
+
+            if (InitalRoots.Count > 0)
             {
                 RootPathsTextBox.Lines = existingPaths.ToArray();
             }
         }
 
 
-        //
-        // FUNCTIONS
-        // ___________________________________________________________________________________
-
+        // // // // // // // // // // // // // // // // // // // // //
+        // Functions
+        // 
 
         /// <summary>
         /// 
         /// Fügt einen neuen Pfad zu der Textbox hinzu.
         /// 
         /// </summary>
-
-        private void AddRootPath()
+        private void OpenFolderDialog()
         {
             FolderBrowserDialog folderBrowser = new FolderBrowserDialog();
             folderBrowser.Description = "Wählen Sie einen oder mehrere Root-Ordner aus.";
@@ -63,44 +77,28 @@ namespace ProjektOrdner.Forms
 
         /// <summary>
         /// 
-        /// Übergibt die Pfade in die Variable und beendet die Form.
+        /// Set root paths
         /// 
         /// </summary>
-
-        private void ExitDialog()
+        private void ApplyRootFolders()
         {
-            // Define valid paths
-            IEnumerable<string> paths = RootPathsTextBox.Text.Split(';').Where(path => string.IsNullOrWhiteSpace(path) == false);
-
-            if (null != paths)
-            {
-                RootPaths = paths.ToList();
-            }
-
-            // Exit
-            Close();
+            InitalRoots.Clear();
+            InitalRoots.AddRange(RootPathsTextBox.Text.Split(';').Where(root => string.IsNullOrWhiteSpace(root) == false));
         }
 
 
+        // // // // // // // // // // // // // // // // // // // // //
+        // Controls
+        // 
 
-        //
-        // CONTROLS
-        // ___________________________________________________________________________________
-
-        private void DurchsuchenButton_Click(object sender, EventArgs e)
-        {
-            AddRootPath();
-        }
+        private void DurchsuchenButton_Click(object sender, EventArgs e) => OpenFolderDialog();
 
         private void OkButton_Click(object sender, EventArgs e)
         {
-            ExitDialog();
+            ApplyRootFolders();
+            Close();
         }
 
-        private void AbbrechenButton_Click(object sender, EventArgs e)
-        {
-            ExitDialog();
-        }
-
+        private void AbbrechenButton_Click(object sender, EventArgs e) => Close();
     }
 }

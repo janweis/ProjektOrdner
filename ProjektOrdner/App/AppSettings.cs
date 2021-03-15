@@ -107,7 +107,10 @@ namespace ProjektOrdner.App
         // Constructors
         //
 
-        public AppSettings() { }
+        public AppSettings()
+        {
+            RootPaths = new List<string>();
+        }
 
 
         // // // // // // // // // // // // // // // // // // // // // 
@@ -146,7 +149,7 @@ namespace ProjektOrdner.App
                     AdGroupScopeGlobalName = appSettings.AdGroupScopeGlobalName;
                     AdGroupScopeLocalName = appSettings.AdGroupScopeLocalName;
                     AdGroupID = appSettings.AdGroupID;
-                    RootPaths = appSettings.RootPaths;
+                    RootPathDefault = appSettings.RootPathDefault;
                     Logging = appSettings.Logging;
                     LogPath = appSettings.LogPath;
                     UserMaxProjektOrdner = appSettings.UserMaxProjektOrdner;
@@ -155,6 +158,15 @@ namespace ProjektOrdner.App
                     MailDisabled = appSettings.MailDisabled;
                     MailServer = appSettings.MailServer;
                     MailPort = appSettings.MailPort;
+
+                    if (null == appSettings.RootPaths)
+                    {
+                        RootPaths = new List<string>();
+                    }
+                    else
+                    {
+                        RootPaths = appSettings.RootPaths;
+                    }
                 }
 
                 return true;
@@ -191,6 +203,10 @@ namespace ProjektOrdner.App
             // Show Form
             EditRootPathsForm manageRootPaths = new EditRootPathsForm(RootPaths);
             DialogResult dialogResult = manageRootPaths.ShowDialog();
+
+            if (RootPaths.Count > 0)
+                if (string.IsNullOrWhiteSpace(RootPathDefault) == true)
+                    RootPathDefault = RootPaths.First();
 
             if (dialogResult == DialogResult.Cancel)
             {
