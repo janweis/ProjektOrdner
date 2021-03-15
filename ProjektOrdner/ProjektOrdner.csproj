@@ -99,29 +99,17 @@
     <Compile Include="Forms\AppSplashScreenForm.designer.cs">
       <DependentUpon>AppSplashScreenForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\NewProjektAdvancedForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\NewProjektAdvancedForm.designer.cs">
-      <DependentUpon>NewProjektAdvancedForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="Forms\CreateRepositoryForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\CreateRepositoryForm.designer.cs">
       <DependentUpon>CreateRepositoryForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\PermissionManageForm.cs">
+    <Compile Include="Forms\ManagePermissionsForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\PermissionManageForm.designer.cs">
-      <DependentUpon>PermissionManageForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\ProjektEigenschaftenForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\ProjektEigenschaftenForm.designer.cs">
-      <DependentUpon>ProjektEigenschaftenForm.cs</DependentUpon>
+    <Compile Include="Forms\ManagePermissionsForm.designer.cs">
+      <DependentUpon>ManagePermissionsForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\RenameProjektForm.cs">
       <SubType>Form</SubType>
@@ -129,11 +117,11 @@
     <Compile Include="Forms\RenameProjektForm.designer.cs">
       <DependentUpon>RenameProjektForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\RootPathManageForm.cs">
+    <Compile Include="Forms\EditRootPathsForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\RootPathManageForm.designer.cs">
-      <DependentUpon>RootPathManageForm.cs</DependentUpon>
+    <Compile Include="Forms\EditRootPathsForm.designer.cs">
+      <DependentUpon>EditRootPathsForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Mail\MailProcessor.cs" />
     <Compile Include="Mail\MailTemplateCreator.cs" />
@@ -182,23 +170,17 @@
     <EmbeddedResource Include="Forms\AppSplashScreenForm.resx">
       <DependentUpon>AppSplashScreenForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\NewProjektAdvancedForm.resx">
-      <DependentUpon>NewProjektAdvancedForm.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Forms\CreateRepositoryForm.resx">
       <DependentUpon>CreateRepositoryForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\PermissionManageForm.resx">
-      <DependentUpon>PermissionManageForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\ProjektEigenschaftenForm.resx">
-      <DependentUpon>ProjektEigenschaftenForm.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\ManagePermissionsForm.resx">
+      <DependentUpon>ManagePermissionsForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\RenameProjektForm.resx">
       <DependentUpon>RenameProjektForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\RootPathManageForm.resx">
-      <DependentUpon>RootPathManageForm.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\EditRootPathsForm.resx">
+      <DependentUpon>EditRootPathsForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

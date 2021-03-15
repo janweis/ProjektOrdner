@@ -30,7 +30,7 @@ namespace ProjektOrdner.App
             List<string> startPathList = GetPaths();
 
             // Show Form
-            RootPathManageForm manageRootPaths = new RootPathManageForm(startPathList);
+            EditRootPathsForm manageRootPaths = new EditRootPathsForm(startPathList);
             DialogResult dialogResult = manageRootPaths.ShowDialog();
 
             if (dialogResult == DialogResult.Cancel)
