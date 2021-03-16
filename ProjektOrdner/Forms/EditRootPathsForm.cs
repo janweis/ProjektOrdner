@@ -38,7 +38,8 @@ namespace ProjektOrdner.Forms
 
             if (InitalRoots.Count > 0)
             {
-                RootPathsTextBox.Lines = existingPaths.ToArray();
+                IEnumerable<string> pathList = existingPaths.Select(path => ($"{path};").Trim());
+                RootPathsTextBox.Lines = pathList.ToArray();
             }
         }
 

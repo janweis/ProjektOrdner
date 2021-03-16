@@ -73,7 +73,6 @@
             this.updateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aktualisiereAlleBerechtigungenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.projektRootToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.test1ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.test2ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
             this.verwaltenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -81,6 +80,7 @@
             this.ansichtToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aktualisierenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
+            this.projekteErneutEinlesenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.zeigeDefekteProjekteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.infoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.nachUpdatesSuchenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -91,7 +91,6 @@
             this.label1 = new System.Windows.Forms.Label();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.button1 = new System.Windows.Forms.Button();
-            this.projekteErneutEinlesenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ContextMenu2.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.MainMenu.SuspendLayout();
@@ -355,45 +354,37 @@
             // projektRootToolStripMenuItem
             // 
             this.projektRootToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.test1ToolStripMenuItem,
-            this.test2ToolStripMenuItem,
-            this.toolStripSeparator6,
             this.verwaltenToolStripMenuItem,
-            this.projektRootAnlegenToolStripMenuItem});
-            this.projektRootToolStripMenuItem.Enabled = false;
+            this.projektRootAnlegenToolStripMenuItem,
+            this.toolStripSeparator6,
+            this.test2ToolStripMenuItem});
             this.projektRootToolStripMenuItem.Name = "projektRootToolStripMenuItem";
-            this.projektRootToolStripMenuItem.Size = new System.Drawing.Size(141, 21);
-            this.projektRootToolStripMenuItem.Text = "ProjektOrdners-Root";
-            // 
-            // test1ToolStripMenuItem
-            // 
-            this.test1ToolStripMenuItem.Name = "test1ToolStripMenuItem";
-            this.test1ToolStripMenuItem.Size = new System.Drawing.Size(223, 22);
-            this.test1ToolStripMenuItem.Text = "Test1";
+            this.projektRootToolStripMenuItem.Size = new System.Drawing.Size(123, 21);
+            this.projektRootToolStripMenuItem.Text = "Stammverzeichnis";
             // 
             // test2ToolStripMenuItem
             // 
             this.test2ToolStripMenuItem.Name = "test2ToolStripMenuItem";
-            this.test2ToolStripMenuItem.Size = new System.Drawing.Size(223, 22);
+            this.test2ToolStripMenuItem.Size = new System.Drawing.Size(251, 22);
             this.test2ToolStripMenuItem.Text = "Test2";
             // 
             // toolStripSeparator6
             // 
             this.toolStripSeparator6.Name = "toolStripSeparator6";
-            this.toolStripSeparator6.Size = new System.Drawing.Size(220, 6);
+            this.toolStripSeparator6.Size = new System.Drawing.Size(248, 6);
             // 
             // verwaltenToolStripMenuItem
             // 
             this.verwaltenToolStripMenuItem.Name = "verwaltenToolStripMenuItem";
-            this.verwaltenToolStripMenuItem.Size = new System.Drawing.Size(223, 22);
-            this.verwaltenToolStripMenuItem.Text = "Pfade verwalten";
+            this.verwaltenToolStripMenuItem.Size = new System.Drawing.Size(251, 22);
+            this.verwaltenToolStripMenuItem.Text = "Stammverzeichnisse verwalten";
             this.verwaltenToolStripMenuItem.Click += new System.EventHandler(this.verwaltenToolStripMenuItem_Click);
             // 
             // projektRootAnlegenToolStripMenuItem
             // 
             this.projektRootAnlegenToolStripMenuItem.Name = "projektRootAnlegenToolStripMenuItem";
-            this.projektRootAnlegenToolStripMenuItem.Size = new System.Drawing.Size(223, 22);
-            this.projektRootAnlegenToolStripMenuItem.Text = "Neuen Rootpfad anlegen";
+            this.projektRootAnlegenToolStripMenuItem.Size = new System.Drawing.Size(251, 22);
+            this.projektRootAnlegenToolStripMenuItem.Text = "Stammverzeichnis anlegen";
             // 
             // ansichtToolStripMenuItem
             // 
@@ -417,6 +408,13 @@
             // 
             this.toolStripSeparator8.Name = "toolStripSeparator8";
             this.toolStripSeparator8.Size = new System.Drawing.Size(212, 6);
+            // 
+            // projekteErneutEinlesenToolStripMenuItem
+            // 
+            this.projekteErneutEinlesenToolStripMenuItem.Name = "projekteErneutEinlesenToolStripMenuItem";
+            this.projekteErneutEinlesenToolStripMenuItem.Size = new System.Drawing.Size(215, 22);
+            this.projekteErneutEinlesenToolStripMenuItem.Text = "Projekte erneut einlesen";
+            this.projekteErneutEinlesenToolStripMenuItem.Click += new System.EventHandler(this.projekteErneutEinlesenToolStripMenuItem_Click);
             // 
             // zeigeDefekteProjekteToolStripMenuItem
             // 
@@ -530,14 +528,7 @@
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
-            // projekteErneutEinlesenToolStripMenuItem
-            // 
-            this.projekteErneutEinlesenToolStripMenuItem.Name = "projekteErneutEinlesenToolStripMenuItem";
-            this.projekteErneutEinlesenToolStripMenuItem.Size = new System.Drawing.Size(215, 22);
-            this.projekteErneutEinlesenToolStripMenuItem.Text = "Projekte erneut einlesen";
-            this.projekteErneutEinlesenToolStripMenuItem.Click += new System.EventHandler(this.projekteErneutEinlesenToolStripMenuItem_Click);
-            // 
-            // ManagerForm
+            // ManageRepositorysForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -552,7 +543,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.MainMenu;
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.Name = "ManagerForm";
+            this.Name = "ManageRepositorysForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "ProjektOrdner - Manager";
             this.ContextMenu2.ResumeLayout(false);
@@ -604,7 +595,6 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
         private System.Windows.Forms.ToolStripMenuItem EigenschaftenItem;
         private System.Windows.Forms.ToolStripMenuItem projektRootToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem test1ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem test2ToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator6;
         private System.Windows.Forms.ToolStripMenuItem verwaltenToolStripMenuItem;

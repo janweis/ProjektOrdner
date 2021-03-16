@@ -37,6 +37,7 @@ namespace ProjektOrdner
             Progress<string> messageProgress = new Progress<string>(projekt => { splashScreen.UpdateProjekt(projekt); });
 
             // Wait...
+            WriteProgress("Starte mit den Vorbeitungen ...", messageProgress);
             await Task.Delay(1500);
 
             // Load Application Settings
@@ -55,7 +56,7 @@ namespace ProjektOrdner
             }
 
             // Validate Roots
-            WriteProgress("Verifiziere Standard RootPath...", messageProgress);
+            WriteProgress("Verifiziere default RootPath...", messageProgress);
             await Task.Delay(10);
 
             do
