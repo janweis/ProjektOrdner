@@ -89,11 +89,11 @@
     <Compile Include="Forms\ManagerInfoForm.designer.cs">
       <DependentUpon>ManagerInfoForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\AppSplashScreenForm.cs">
+    <Compile Include="Forms\SplashScreenForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\AppSplashScreenForm.designer.cs">
-      <DependentUpon>AppSplashScreenForm.cs</DependentUpon>
+    <Compile Include="Forms\SplashScreenForm.designer.cs">
+      <DependentUpon>SplashScreenForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\GetRepositoryNameForm.cs">
       <SubType>Form</SubType>
@@ -157,8 +157,8 @@
     <EmbeddedResource Include="Forms\ManagerInfoForm.resx">
       <DependentUpon>ManagerInfoForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\AppSplashScreenForm.resx">
-      <DependentUpon>AppSplashScreenForm.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\SplashScreenForm.resx">
+      <DependentUpon>SplashScreenForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\GetRepositoryNameForm.resx">
       <DependentUpon>GetRepositoryNameForm.cs</DependentUpon>

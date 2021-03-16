@@ -28,7 +28,7 @@ namespace ProjektOrdner
         public async Task StartAsync()
         {
             // Load Splash
-            AppSplashScreenForm splashScreen = new AppSplashScreenForm();
+            SplashScreenForm splashScreen = new SplashScreenForm();
             splashScreen.FormClosed += ApplicationExitAction;
             splashScreen.Show();
 
