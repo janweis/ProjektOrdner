@@ -31,11 +31,10 @@ namespace ProjektOrdner.Repository
         /// Erstellt ein neues Projekt.
         /// 
         /// </summary>
-
         public async Task CreateRepositoryAsync(IProgress<string> messageProgress)
         {
             // Collect Projekt Data
-            CreateRepositoryForm getDataForm = new CreateRepositoryForm();
+            GetRepositoryNameForm getDataForm = new GetRepositoryNameForm();
             getDataForm.ShowDialog();
 
             if (getDataForm.DialogResult == DialogResult.Cancel)
@@ -76,7 +75,6 @@ namespace ProjektOrdner.Repository
         /// Benennt das Projekt um.
         /// 
         /// </summary>
-
         public async Task RenameRepositoryAsync(string folderPath, IProgress<string> messageProgress)
         {
             // Get current directory name
@@ -106,7 +104,6 @@ namespace ProjektOrdner.Repository
         /// Entfernt das Projekt.
         /// 
         /// </summary>
-
         public async Task RemoveRespositoryAsync(string folderPath, IProgress<string> messageProgress)
         {
             RepositoryModel repository = await Processor.GetRepositoryAsync(folderPath, messageProgress);

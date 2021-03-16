@@ -11,10 +11,10 @@ namespace ProjektOrdner.Mail
 {
     internal class MailTemplateCreator
     {
-        private UserModel User { get; set; }
+        private AdUser User { get; set; }
         private RepositoryOrganization RepositoryOrga { get; set; }
 
-        public MailTemplateCreator(UserModel user, RepositoryOrganization repositoryOrga)
+        public MailTemplateCreator(AdUser user, RepositoryOrganization repositoryOrga)
         {
             User = user;
             RepositoryOrga = repositoryOrga;

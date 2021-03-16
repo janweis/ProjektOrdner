@@ -292,7 +292,7 @@ Gast=
                 {
                     AccessRole = accessRole,
                     Source = PermissionSource.File,
-                    User = new UserModel(username),
+                    User = new AdUser(username),
                     ProjektPath = ProjektPath
                 });
             });

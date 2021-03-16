@@ -95,11 +95,11 @@
     <Compile Include="Forms\AppSplashScreenForm.designer.cs">
       <DependentUpon>AppSplashScreenForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\CreateRepositoryForm.cs">
+    <Compile Include="Forms\GetRepositoryNameForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\CreateRepositoryForm.designer.cs">
-      <DependentUpon>CreateRepositoryForm.cs</DependentUpon>
+    <Compile Include="Forms\GetRepositoryNameForm.designer.cs">
+      <DependentUpon>GetRepositoryNameForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\ManagePermissionsForm.cs">
       <SubType>Form</SubType>
@@ -122,14 +122,12 @@
     <Compile Include="Mail\MailProcessor.cs" />
     <Compile Include="Mail\MailTemplateCreator.cs" />
     <Compile Include="MainProgram.cs" />
-    <Compile Include="Models\AdUserModel.cs" />
+    <Compile Include="Permission\AdUser.cs" />
     <Compile Include="Permission\PermissionManager.cs" />
     <Compile Include="Permission\PermissionComparer.cs" />
     <Compile Include="Permission\PermissionModel.cs" />
     <Compile Include="Permission\PermissionNodeProcessor.cs" />
     <Compile Include="Permission\PermissionProcessor.cs" />
-    <Compile Include="Permission\UserModel.cs" />
-    <Compile Include="Permission\UserProcessor.cs" />
     <Compile Include="Processors\ManagerNodeProcessor.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -144,7 +142,6 @@
     <Compile Include="Repository\RepositoryProcessor.cs" />
     <Compile Include="Repository\RepositorySettings.cs" />
     <Compile Include="Utils\ActiveDirectoryUtil.cs" />
-    <Compile Include="Permission\PermissionUIHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -163,8 +160,8 @@
     <EmbeddedResource Include="Forms\AppSplashScreenForm.resx">
       <DependentUpon>AppSplashScreenForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\CreateRepositoryForm.resx">
-      <DependentUpon>CreateRepositoryForm.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\GetRepositoryNameForm.resx">
+      <DependentUpon>GetRepositoryNameForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\ManagePermissionsForm.resx">
       <DependentUpon>ManagePermissionsForm.cs</DependentUpon>
@@ -186,5 +183,6 @@
   <ItemGroup>
     <None Include="Resources\projects_folder_20300.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

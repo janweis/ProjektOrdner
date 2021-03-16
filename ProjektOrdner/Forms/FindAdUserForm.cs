@@ -10,12 +10,12 @@ namespace ProjektOrdner.Forms
 {
     public partial class FindAdUserForm : Form
     {
-        public List<UserModel> AdUsers { get; set; }
-        public UserModel CurrentUserShown { get; set; }
+        public List<AdUser> AdUsers { get; set; }
+        public AdUser CurrentUserShown { get; set; }
         public AppSettings AppSettings { get; set; }
 
 
-        public FindAdUserForm(List<UserModel> users, AppSettings appSettings)
+        public FindAdUserForm(List<AdUser> users, AppSettings appSettings)
         {
             AdUsers = users;
             AppSettings = appSettings;
@@ -45,22 +45,22 @@ namespace ProjektOrdner.Forms
             if (string.IsNullOrWhiteSpace(FilterBox.Text) == true)
                 return; // Suche ist leer
 
-            UserModel.IdentificationTypes identification = UserModel.IdentificationTypes.SamAccountName;
+            AdUser.IdentificationTypes identification = AdUser.IdentificationTypes.SamAccountName;
             switch (FilterArtCombo.Text)
             {
                 case "Benutzername":
                 {
-                    identification = UserModel.IdentificationTypes.SamAccountName;
+                    identification = AdUser.IdentificationTypes.SamAccountName;
                     break;
                 }
                 case "Matrikelnummer":
                 {
-                    identification = UserModel.IdentificationTypes.Matrikelnummer;
+                    identification = AdUser.IdentificationTypes.Matrikelnummer;
                     break;
                 }
                 case "E-Mail Adresse":
                 {
-                    identification = UserModel.IdentificationTypes.Email;
+                    identification = AdUser.IdentificationTypes.Email;
                     break;
                 }
             }
@@ -72,7 +72,7 @@ namespace ProjektOrdner.Forms
             if (null == foundUser)
                 return; // Kein Benutzer gefunden!
 
-            UserModel user = new UserModel(foundUser);
+            AdUser user = new AdUser(foundUser);
 
             // Add User to View
             PermissionNodeProcessor nodeProcessor = new PermissionNodeProcessor(UserTreeView);

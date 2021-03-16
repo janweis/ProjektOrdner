@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.DirectoryServices;
 using System.DirectoryServices.AccountManagement;
-using static ProjektOrdner.Permission.UserModel;
+using static ProjektOrdner.Permission.AdUser;
 
 namespace ProjektOrdner.Utils
 {

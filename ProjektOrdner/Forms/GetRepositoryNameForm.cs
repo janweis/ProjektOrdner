@@ -4,13 +4,13 @@ using System.Windows.Forms;
 
 namespace ProjektOrdner.Forms
 {
-    public partial class CreateRepositoryForm : Form
+    public partial class GetRepositoryNameForm : Form
     {
         public string ProjektName { get; set; }
         public DateTime ProjektEnde { get; set; }
         public bool UsePermissionAssistent { get; set; }
 
-        public CreateRepositoryForm()
+        public GetRepositoryNameForm()
         {
             InitializeComponent();
 

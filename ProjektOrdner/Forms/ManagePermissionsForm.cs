@@ -73,7 +73,7 @@ namespace ProjektOrdner.Forms
 
         private void AddUserToView()
         {
-            List<UserModel> adUsers = new List<UserModel>();
+            List<AdUser> adUsers = new List<AdUser>();
 
             FindAdUserForm finderForm = new FindAdUserForm(adUsers, AppSettings);
             DialogResult dialogResult;
@@ -95,7 +95,7 @@ namespace ProjektOrdner.Forms
             NodeProcessor.ClearMasterNode(MasterNode.Unbestimmt);
             PermissionTreeView.BeginUpdate();
 
-            foreach (UserModel adUser in adUsers)
+            foreach (AdUser adUser in adUsers)
             {
                 // Process Nodes
                 if (NodeAdvancedMode == true)

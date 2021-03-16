@@ -29,11 +29,11 @@ namespace ProjektOrdner.Mail
         /// Erstellt Mail anhand von Templates
         /// 
         /// </summary>
-        public MimeMessage CreateMail(string mailtext, string betreff, UserModel user)
+        public MimeMessage CreateMail(string mailtext, string betreff, AdUser user)
         {
             MimeMessage mail = new MimeMessage();
             mail.From.Add(new MailboxAddress(AppConstants.MailFromAddress, AppConstants.MailFromAddress));
-            mail.To.Add(new MailboxAddress($"{user.Vorname} {user.Nachname}", user.EMail));
+            mail.To.Add(new MailboxAddress($"{user.Vorname} {user.Nachname}", user.Email));
             mail.Subject = betreff;
             mail.Body = new TextPart("plain")
             {

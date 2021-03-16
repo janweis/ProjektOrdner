@@ -13,7 +13,7 @@ namespace ProjektOrdner.Permission
     {
         public string ProjektPath { get; set; }
 
-        public UserModel User { get; set; }
+        public AdUser User { get; set; }
 
         public PermissionAccessRole AccessRole { get; set; }
 

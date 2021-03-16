@@ -1,6 +1,6 @@
 ﻿namespace ProjektOrdner.Forms
 {
-    partial class CreateRepositoryForm
+    partial class GetRepositoryNameForm
     {
         /// <summary>
         /// Required designer variable.

@@ -93,7 +93,7 @@ namespace ProjektOrdner.Permission
                     {
                         permissions.Add(new PermissionModel()
                         {
-                            User = new UserModel(userItem as UserPrincipal),
+                            User = new AdUser(userItem as UserPrincipal),
                             Source = PermissionSource.ActiveDirectory,
                             AccessRole = accessRole
                         });
@@ -137,26 +137,18 @@ namespace ProjektOrdner.Permission
             // Create Permission-Objects
             foreach (string fileLine in filteredFileContent)
             {
-                UserModel user = new UserModel(fileLine);
+                AdUser user = new AdUser(fileLine);
+                user.UpdateUser();
 
-                // Active Directory Validation
-                UserProcessor userProcessor = new UserProcessor(user);
-                userProcessor.Validate();
-
-                if (user.IsValidated == false)
+                if (user.IsValidated == true)
                 {
-                    continue;
+                    projektPermissions.Add(new PermissionModel
+                    {
+                        AccessRole = permissionAccess,
+                        User = user,
+                        Source = PermissionSource.File
+                    });
                 }
-
-                // Update Data
-                userProcessor.UpdateUserData();
-
-                projektPermissions.Add(new PermissionModel
-                {
-                    AccessRole = permissionAccess,
-                    User = user,
-                    Source = PermissionSource.File
-                });
             }
 
             return projektPermissions;

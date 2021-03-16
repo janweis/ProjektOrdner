@@ -214,7 +214,7 @@ namespace ProjektOrdner.Permission
             View.Nodes[masterNodeName].Tag = masterNodeName;
         }
 
-        public void AddNodeAdvanced(UserModel adUser, MasterNode master)
+        public void AddNodeAdvanced(AdUser adUser, MasterNode master)
         {
             if (null == adUser)
                 return;
@@ -229,12 +229,12 @@ namespace ProjektOrdner.Permission
 
             // Add Node Attributes
             masterNode.Nodes[name].Nodes.Add("", $"Benutzername:{adUser.SamAccountName}", 1, 1);
-            masterNode.Nodes[name].Nodes.Add("", $"Email:{adUser.EMail}", 1, 1);
+            masterNode.Nodes[name].Nodes.Add("", $"Email:{adUser.Email}", 1, 1);
             masterNode.Nodes[name].Nodes.Add("", $"Matrikelnummer:{adUser.Matrikelnummer}", 1, 1);
             masterNode.Expand();
         }
 
-        public void AddNodeSimple(UserModel adUser, MasterNode master)
+        public void AddNodeSimple(AdUser adUser, MasterNode master)
         {
             if (null == adUser)
                 return;
@@ -249,7 +249,7 @@ namespace ProjektOrdner.Permission
             masterNode.Expand();
         }
 
-        public void AddNodeDirect(UserModel adUser)
+        public void AddNodeDirect(AdUser adUser)
         {
             // Add Node
             string name = $"{adUser.Nachname}, {adUser.Vorname}";
@@ -258,7 +258,7 @@ namespace ProjektOrdner.Permission
 
             // Add Node Attributes
             View.Nodes[name].Nodes.Add("", $"Benutzername:{adUser.SamAccountName}", 1, 1);
-            View.Nodes[name].Nodes.Add("", $"Email:{adUser.EMail}", 1, 1);
+            View.Nodes[name].Nodes.Add("", $"Email:{adUser.Email}", 1, 1);
             View.Nodes[name].Nodes.Add("", $"Matrikelnummer:{adUser.Matrikelnummer}", 1, 1);
             View.Nodes[name].Expand();
         }
