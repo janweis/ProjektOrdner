@@ -108,7 +108,7 @@ namespace ProjektOrdner.Repository
             else
             {
                 if (repositoryVersion == RepositoryVersion.V1)
-                    await repositoryOrganization.LoadV1(new DirectoryInfo(folderPath));
+                    await repositoryOrganization.LoadV1(folderPath);
             }
 
             // Read ProjektSettings

@@ -66,13 +66,13 @@ namespace ProjektOrdner.Repository
         /// Lade die Organisations- oder Antragsdatei Version 1
         /// 
         /// </summary>
-        public async Task LoadV1(DirectoryInfo directory)
+        public async Task LoadV1(string folderPath)
         {
-            if (null == directory)
+            if (Directory.Exists(folderPath) == false)
                 return;
 
-            string rootPath = directory.Parent.ToString();
-            string filePath = Path.Combine(directory.FullName, AppConstants.OrganisationFileNameV1);
+            string rootPath = Directory.GetParent(folderPath).FullName;
+            string filePath = Path.Combine(folderPath, AppConstants.OrganisationFileNameV1);
 
             if (File.Exists(filePath) == true)
             {
