@@ -29,8 +29,8 @@ namespace ProjektOrdner.Forms
 
             NodeProcessor = new ManagerNodeProcessor(ProjektsTree, ContextMenu2);
 
-            UpdateViewAsync(
-                new Progress<string>(message => UpdateToolStripStatus(message)), repositorys);
+            //if (null != repositorys)
+            UpdateViewAsync(new Progress<string>(message => UpdateToolStripStatus(message)), repositorys);
         }
 
         //
@@ -461,6 +461,9 @@ namespace ProjektOrdner.Forms
         /// </summary>
         private void UpdateViewAsync(IProgress<string> message, RepositoryFolder[] repositories)
         {
+            if (null == repositories)
+                return;
+
             // Update Nodes
             NodeProcessor.UpdateView(repositories, IncludeCorruptedProjects);
 

@@ -99,7 +99,17 @@ namespace ProjektOrdner.Repository
 
             // Read RepositoryInfoFile
             RepositoryOrganization repositoryOrganization = new RepositoryOrganization();
-            await repositoryOrganization.LoadV2(folderPath);
+            RepositoryVersion repositoryVersion = repositoryOrganization.GetRepositoryVersion(folderPath);
+
+            if (repositoryVersion == RepositoryVersion.V2)
+            {
+                await repositoryOrganization.LoadV2(folderPath);
+            }
+            else
+            {
+                if (repositoryVersion == RepositoryVersion.V1)
+                    await repositoryOrganization.LoadV1(new DirectoryInfo(folderPath));
+            }
 
             // Read ProjektSettings
             RepositorySettings repositorySettings = new RepositorySettings();

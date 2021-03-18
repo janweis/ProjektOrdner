@@ -1,6 +1,6 @@
 ﻿using ProjektOrdner.App;
-using ProjektOrdner.Utils;
 using ProjektOrdner.Forms;
+using ProjektOrdner.Utils;
 using System;
 using System.Collections.Generic;
 using System.DirectoryServices.AccountManagement;
@@ -90,8 +90,10 @@ namespace ProjektOrdner.Repository
         /// </summary>
         public DirectoryInfo[] GetRepositories()
         {
-            DirectoryInfo directoryInfo = new DirectoryInfo(RootPath);
-            return directoryInfo.GetDirectories();
+            DirectoryInfo rootDirectory = new DirectoryInfo(RootPath);
+            DirectoryInfo[] projektList = rootDirectory.GetDirectories();
+
+            return projektList;
         }
 
 
@@ -103,35 +105,44 @@ namespace ProjektOrdner.Repository
         public async Task<RepositoryFolder[]> GetRepositories(bool includeCorrupted, IProgress<string> progress)
         {
             progress.Report("Lade Projektliste...");
-            string[] folderList = GetRepositories()
-                .Where(folder =>
-                    folder.Name.StartsWith("_") == false && // Unterstrich ausblenden
-                    folder.Name.StartsWith(".") == false)  // Punkt ausblenden
-                ?.Select(directory => directory.FullName)
-                ?.ToArray();
-            
-            progress.Report("Lade Projekt(e)...");
-            List<Task<RepositoryFolder>> tasks = new List<Task<RepositoryFolder>>();
-            RepositoryFolder repositoryFolder = new RepositoryFolder(AppSettings);
-            foreach (string folderPath in folderList)
+            string[] folderList;
+            try
             {
-                tasks.Add(repositoryFolder.Get(folderPath, progress));
+                folderList = GetRepositories()
+                    .Where(folder =>
+                        folder.Name.StartsWith("_") == false && // Unterstrich ausblenden
+                        folder.Name.StartsWith(".") == false)  // Punkt ausblenden
+                    ?.Select(directory => directory.FullName)
+                    ?.ToArray();
+            }
+            catch (Exception)
+            {
+                progress.Report("Error: Could not read folders! You may not have the correct permissions!");
+                return null;
             }
 
-            RepositoryFolder[] repositories = await Task.WhenAll(tasks);
+            int i = 0;
+            RepositoryFolder repositoryFolder = new RepositoryFolder(AppSettings);
+            List<RepositoryFolder> repositories = new List<RepositoryFolder>();
+            foreach (string folderPath in folderList)
+            {
+                i++;
+                progress.Report($"Lade Projekt {i.ToString()}/{folderList.Count().ToString()}");
+                repositories.Add(await repositoryFolder.Get(folderPath, progress));
+            }
 
             // Exclude empty Projects
             repositories = repositories
-                    .Where(projekt => null != projekt)
-                    ?.ToArray();
+                .Where(projekt => null != projekt)
+                .ToList();
 
             // Exclude corrupted projects
             if (includeCorrupted == false)
                 repositories = repositories
                     .Where(projekt => projekt.Status == RepositoryFolder.RepositoryStatus.Ok)
-                    ?.ToArray();
+                    ?.ToList();
 
-            return repositories;
+            return repositories.ToArray();
         }
 
 
@@ -140,7 +151,7 @@ namespace ProjektOrdner.Repository
         /// 
         /// 
         /// </summary>
-        public static async Task StartRootAssistant(AppSettings appSettings,IProgress<string> progress)
+        public static async Task StartRootAssistant(AppSettings appSettings, IProgress<string> progress)
         {
             RootFolderAssistentForm rootFolderAssistent = new RootFolderAssistentForm();
             DialogResult result = rootFolderAssistent.ShowDialog();
@@ -163,7 +174,7 @@ namespace ProjektOrdner.Repository
 
                     if (appSettings.RootPaths.Contains(rootFolderAssistent.SelectedPath) == true)
                         return;
-                    
+
                     appSettings.RootPaths.Add(rootFolderAssistent.SelectedPath);
                     await appSettings.SaveAsync();
 
@@ -174,7 +185,7 @@ namespace ProjektOrdner.Repository
                     break;
             }
 
-            MessageBox.Show("Die Änderung wurde erfolgreich übernommen!","Information",MessageBoxButtons.OK,MessageBoxIcon.Information);
+            MessageBox.Show("Die Änderung wurde erfolgreich übernommen!", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
 

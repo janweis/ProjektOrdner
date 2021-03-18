@@ -66,14 +66,12 @@ namespace ProjektOrdner.Repository
         /// Lade die Organisations- oder Antragsdatei Version 1
         /// 
         /// </summary>
-        public async Task LoadV1(DirectoryInfo directory, string rootPath)
+        public async Task LoadV1(DirectoryInfo directory)
         {
             if (null == directory)
                 return;
 
-            if (string.IsNullOrWhiteSpace(rootPath) == true)
-                return;
-
+            string rootPath = directory.Parent.ToString();
             string filePath = Path.Combine(directory.FullName, AppConstants.OrganisationFileNameV1);
 
             if (File.Exists(filePath) == true)
@@ -304,6 +302,34 @@ Gast=
                 return false;
 
             return true;
+        }
+
+
+        /// <summary>
+        /// 
+        /// Ermittelt die Verion des ProjektOrdners.
+        /// 
+        /// </summary>
+        public RepositoryVersion GetRepositoryVersion(string folderPath)
+        {
+            string orgaVersion1FilePath = Path.Combine(folderPath, AppConstants.OrganisationFileNameV1);
+            string orgaVersion2FilePath = Path.Combine(folderPath, Path.Combine(AppConstants.OrganisationFolderName, AppConstants.OrganisationFileNameV2));
+
+            if(File.Exists(orgaVersion2FilePath) == true)
+            {
+                return RepositoryVersion.V2;
+            }
+            else
+            {
+                if(File.Exists(orgaVersion1FilePath) == true)
+                {
+                    return RepositoryVersion.V1;
+                }
+                else
+                {
+                    return RepositoryVersion.Unknown;
+                }
+            }
         }
 
 

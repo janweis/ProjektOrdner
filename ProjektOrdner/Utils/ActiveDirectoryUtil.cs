@@ -17,8 +17,8 @@ namespace ProjektOrdner.Utils
 
         public ActiveDirectoryUtil(AppSettings appSettings)
         {
-            GroupContext = new PrincipalContext(ContextType.Domain, Environment.UserDomainName, appSettings.AdGroupDlDN);
-            UserContext = new PrincipalContext(ContextType.Domain, Environment.UserDomainName);
+            GroupContext = new PrincipalContext(ContextType.Domain, appSettings.AdDomainName, appSettings.AdGroupDlDN);
+            UserContext = new PrincipalContext(ContextType.Domain, appSettings.AdDomainName);
             AppSettings = appSettings;
         }
 

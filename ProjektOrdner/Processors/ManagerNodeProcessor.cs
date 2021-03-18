@@ -158,6 +158,9 @@ namespace ProjektOrdner.Processors
 
         public void UpdateView(RepositoryFolder[] repositories, bool includeCorrupted = false)
         {
+            if (null == repositories)
+                return;
+
             // Pepare
             View.BeginUpdate();
             View.Nodes.Clear();
