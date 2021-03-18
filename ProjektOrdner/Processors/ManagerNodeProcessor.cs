@@ -156,29 +156,29 @@ namespace ProjektOrdner.Processors
         /// 
         /// </summary>
 
-        public void UpdateView(RepositoryModel[] repositories, bool includeCorrupted = false)
+        public void UpdateView(RepositoryFolder[] repositories, bool includeCorrupted = false)
         {
             // Pepare
             View.BeginUpdate();
             View.Nodes.Clear();
 
             // Projekte zum View hinzufügen
-            foreach (RepositoryModel repository in repositories)
+            foreach (RepositoryFolder repository in repositories)
             {
                 switch (repository.Status)
                 {
-                    case RepositoryModel.RepositoryStatus.Ok:
+                    case RepositoryFolder.RepositoryStatus.Ok:
                     {
-                        switch (repository.RepositoryOrga.Version)
+                        switch (repository.Organization.Version)
                         {
                             case RepositoryVersion.V1:
                             {
-                                AddProjektNodeV1(repository.RepositoryOrga.ProjektName, repository.RepositoryOrga.ProjektPath);
+                                AddProjektNodeV1(repository.Organization.ProjektName, repository.Organization.ProjektPath);
                                 break;
                             }
                             case RepositoryVersion.V2:
                             {
-                                AddProjektNodeV2(repository.RepositoryOrga.ProjektName, repository.RepositoryOrga.ProjektPath);
+                                AddProjektNodeV2(repository.Organization.ProjektName, repository.Organization.ProjektPath);
                                 break;
                             }
                             case RepositoryVersion.Unknown:
@@ -187,14 +187,14 @@ namespace ProjektOrdner.Processors
 
                         break;
                     }
-                    case RepositoryModel.RepositoryStatus.Corrupted:
+                    case RepositoryFolder.RepositoryStatus.Corrupted:
                     {
                         if (includeCorrupted == true)
-                            AddProjektNodeCorrupted(repository.RepositoryOrga.ProjektName, repository.RepositoryOrga.ProjektPath);
+                            AddProjektNodeCorrupted(repository.Organization.ProjektName, repository.Organization.ProjektPath);
 
                         break;
                     }
-                    case RepositoryModel.RepositoryStatus.NotChecked:
+                    case RepositoryFolder.RepositoryStatus.NotChecked:
                         break;
                 }
             }
@@ -210,10 +210,10 @@ namespace ProjektOrdner.Processors
         /// 
         /// </summary>
 
-        public void SetFilterView(string filter, RepositoryModel[] repositories)
+        public void SetFilterView(string filter, RepositoryFolder[] repositories)
         {
-            IEnumerable<RepositoryModel> filteredRepos = repositories
-                .Where(repository => repository.RepositoryOrga.ProjektName.Contains(filter));
+            IEnumerable<RepositoryFolder> filteredRepos = repositories
+                .Where(repository => repository.Organization.ProjektName.Contains(filter));
 
             UpdateView(filteredRepos.ToArray());
         }

@@ -419,6 +419,62 @@ namespace ProjektOrdner.Permission
         }
 
 
+        /// <summary>
+        /// 
+        /// 
+        /// 
+        /// </summary>
+        public static string GetPermissionTemplate(PermissionAccessRole permissionAccess)
+        {
+            string accessType = "";
+            switch (permissionAccess)
+            {
+                case PermissionAccessRole.ReadOnly:
+                {
+                    accessType = "Nur Lesen";
+                    break;
+                }
+                case PermissionAccessRole.ReadWrite:
+                {
+                    accessType = "Lesen & Schreiben";
+                    break;
+                }
+                case PermissionAccessRole.Manager:
+                {
+                    accessType = "Manager";
+                    break;
+                }
+            }
+
+            string content = $@"
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# 
+# ProjektOrdner-Berechtigungsdatei - {accessType}
+# 
+# <> WICHTIG <>
+# o Verwenden Sie nur den Windows-Anmeldename, Matrikelnummer oder die Emailadresse, um den Benutzer zu berechtigen.
+# o Berechtigungen werden automatisiert halbstündlich :15 - :45 übernommen und Sie via Mail benachrichtigt.
+# o Verändern Sie den Namen der Datei nicht.
+##
+# <> ANLEITUNGEN <>
+# Die Anleitungen sind unter '_ProjektOrdner beantragen' zu finden.
+#
+# <> BEISPIELE <>
+# stmustera
+# 12345678
+# profmuster
+# max.mustermann@hs-kempten.de
+#
+";
+            return content;
+        }
+
+
+
+
+
+
+
         // 
         // HELPERS
         //

@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.DirectoryServices;
 using System.DirectoryServices.AccountManagement;
+using System.DirectoryServices.ActiveDirectory;
+using System.Security.Principal;
 using static ProjektOrdner.Permission.AdUser;
 
 namespace ProjektOrdner.Utils
@@ -267,9 +269,35 @@ namespace ProjektOrdner.Utils
 
 
 
+
         //
         // HELPERS
         // ___________________________________________________________________________________________
+
+        
+        /// <summary>
+        /// 
+        /// Ruft die SID der Domäne ab.
+        /// 
+        /// </summary>
+        public static SecurityIdentifier GetDomainSID()
+        {
+            byte[] domainSid;
+
+            var directoryContext =
+                new DirectoryContext(DirectoryContextType.Domain, System.Net.NetworkInformation.IPGlobalProperties.GetIPGlobalProperties().DomainName);
+
+            using (Domain domain = Domain.GetDomain(directoryContext))
+            using (DirectoryEntry directoryEntry = domain.GetDirectoryEntry())
+                domainSid = (byte[])directoryEntry.Properties["objectSid"].Value;
+
+            SecurityIdentifier sid = new SecurityIdentifier(domainSid, 0);
+            //bool validUser = UserPrincipal.Current.Sid.IsEqualDomainSid(sid);
+
+            return sid;
+        }
+
+
 
         public static string GetLdapPath()
         {

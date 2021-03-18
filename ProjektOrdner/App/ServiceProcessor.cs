@@ -10,14 +10,14 @@ using System.Threading.Tasks;
 
 namespace ProjektOrdner.App
 {
-    public class ServiceProcessor
+    public class UpdateProjektPermissionsAsync
     {
         private string RootPath { get; set; }
         private AppSettings AppSettings { get; set; }
         private string PickupFolderPath { get; set; }
 
 
-        public ServiceProcessor(string rootPath, AppSettings appSettings)
+        public UpdateProjektPermissionsAsync(string rootPath, AppSettings appSettings)
         {
             RootPath = rootPath;
             AppSettings = appSettings;
@@ -33,7 +33,7 @@ namespace ProjektOrdner.App
             progress.Report($"Verarbeite '{RootPath}'");
 
             await ProcessRequests(progress);
-            await UpdateProjektPermissions(progress);
+            UpdateProjektPermissions(progress);
         }
 
         /// <summary>
@@ -41,18 +41,20 @@ namespace ProjektOrdner.App
         /// Aktualisiert die Projektberechtigungen
         /// 
         /// </summary>
-        private async Task UpdateProjektPermissions(IProgress<string> progress)
+        private void UpdateProjektPermissions(IProgress<string> progress)
         {
-            progress.Report("Aktualisiere Projektberechtigungen ...");
+            progress.Report("Aktualisiere die Projektberechtigungen ...");
 
-            RepositoryProcessor repositoryProcessor = new RepositoryProcessor(AppSettings);
-            RepositoryModel[] repositorys = await repositoryProcessor.GetRepositorysAsync(RootPath, progress);
+            RepositoryRoot repositoryRoot = new RepositoryRoot(RootPath, AppSettings);
+            DirectoryInfo[] repositories = repositoryRoot.GetRepositories();
 
-            foreach (RepositoryModel repository in repositorys)
+            Array.ForEach(repositories, async repository =>
             {
-                PermissionProcessor permissionProcessor = new PermissionProcessor(repository.RepositoryOrga.ProjektPath, AppSettings);
+                PermissionProcessor permissionProcessor = new PermissionProcessor(repository.FullName, AppSettings);
                 await permissionProcessor.UpdatePermissionsAsync(null);
-            }
+            });
+
+            progress.Report("Aktualiserung der Projektberechtigungen abgeschlossen!");
         }
 
         /// <summary>
@@ -128,7 +130,7 @@ namespace ProjektOrdner.App
             // Read Antragfile
             progress.Report($"Verarbeite den Projektantrag...");
             RepositoryOrganization repositoryOrga = new RepositoryOrganization();
-            await repositoryOrga.LoadV1(file.FullName, RootPath);
+            await repositoryOrga.LoadV1(file, RootPath);
             bool isFileValid = repositoryOrga.IsValid();
 
             // Validate Antragfile
@@ -146,11 +148,11 @@ namespace ProjektOrdner.App
             // Create Repository
             progress.Report($"Erstelle den ProjektOrdner...");
 
-            RepositoryProcessor repositoryProcessor = new RepositoryProcessor(AppSettings);
-            RepositoryModel repository = new RepositoryModel(repositoryOrga, new RepositorySettings(), RepositoryVersion.V2);
+            RepositoryFolder repositoryProcessor = new RepositoryFolder(AppSettings);
+            RepositoryFolder repository = new RepositoryFolder(repositoryOrga, new RepositorySettings(), RepositoryVersion.V2, AppSettings);
 
             await repositoryProcessor
-                .AddRepositoryAsync(repository, progress);
+                .CreateAsync(repository, progress);
 
             // Setup Projekt Permissions
             if (repositoryOrga.LegacyPermissions.Count > 0)
@@ -168,7 +170,7 @@ namespace ProjektOrdner.App
                     permTasks.Add(permissionProcessor.AddPermissionAsync(PermissionSource.File, permission));
 
                     // Create Mail
-                    MailTemplateCreator templateCreator = new MailTemplateCreator(permission.User, repository.RepositoryOrga);
+                    MailTemplateCreator templateCreator = new MailTemplateCreator(permission.User, repository.Organization);
                     string mailbody = string.Empty;
                     string mailbetreff = string.Empty;
 

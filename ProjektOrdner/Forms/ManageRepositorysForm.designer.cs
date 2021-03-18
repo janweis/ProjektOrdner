@@ -73,10 +73,7 @@
             this.updateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aktualisiereAlleBerechtigungenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.projektRootToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.test2ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
             this.verwaltenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.projektRootAnlegenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ansichtToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aktualisierenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
@@ -354,24 +351,10 @@
             // projektRootToolStripMenuItem
             // 
             this.projektRootToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.verwaltenToolStripMenuItem,
-            this.projektRootAnlegenToolStripMenuItem,
-            this.toolStripSeparator6,
-            this.test2ToolStripMenuItem});
+            this.verwaltenToolStripMenuItem});
             this.projektRootToolStripMenuItem.Name = "projektRootToolStripMenuItem";
             this.projektRootToolStripMenuItem.Size = new System.Drawing.Size(123, 21);
             this.projektRootToolStripMenuItem.Text = "Stammverzeichnis";
-            // 
-            // test2ToolStripMenuItem
-            // 
-            this.test2ToolStripMenuItem.Name = "test2ToolStripMenuItem";
-            this.test2ToolStripMenuItem.Size = new System.Drawing.Size(251, 22);
-            this.test2ToolStripMenuItem.Text = "Test2";
-            // 
-            // toolStripSeparator6
-            // 
-            this.toolStripSeparator6.Name = "toolStripSeparator6";
-            this.toolStripSeparator6.Size = new System.Drawing.Size(248, 6);
             // 
             // verwaltenToolStripMenuItem
             // 
@@ -379,12 +362,6 @@
             this.verwaltenToolStripMenuItem.Size = new System.Drawing.Size(251, 22);
             this.verwaltenToolStripMenuItem.Text = "Stammverzeichnisse verwalten";
             this.verwaltenToolStripMenuItem.Click += new System.EventHandler(this.verwaltenToolStripMenuItem_Click);
-            // 
-            // projektRootAnlegenToolStripMenuItem
-            // 
-            this.projektRootAnlegenToolStripMenuItem.Name = "projektRootAnlegenToolStripMenuItem";
-            this.projektRootAnlegenToolStripMenuItem.Size = new System.Drawing.Size(251, 22);
-            this.projektRootAnlegenToolStripMenuItem.Text = "Stammverzeichnis anlegen";
             // 
             // ansichtToolStripMenuItem
             // 
@@ -595,8 +572,6 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
         private System.Windows.Forms.ToolStripMenuItem EigenschaftenItem;
         private System.Windows.Forms.ToolStripMenuItem projektRootToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem test2ToolStripMenuItem;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator6;
         private System.Windows.Forms.ToolStripMenuItem verwaltenToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aktualisiereAlleBerechtigungenToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator7;
@@ -607,7 +582,6 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator8;
         private System.Windows.Forms.ToolStripMenuItem zeigeDefekteProjekteToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem ManagePermissionsMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem projektRootAnlegenToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem projekteErneutEinlesenToolStripMenuItem;
     }
 }

@@ -14,7 +14,7 @@ namespace ProjektOrdner.Repository
     public class RepositoryManager
     {
         public string RootFolder { get; set; }
-        RepositoryProcessor Processor { get; set; }
+        RepositoryFolder Processor { get; set; }
         AppSettings AppSettings { get; set; }
 
         public RepositoryManager(string rootFolder, AppSettings appSettings)
@@ -22,7 +22,7 @@ namespace ProjektOrdner.Repository
             RootFolder = rootFolder;
             AppSettings = appSettings;
 
-            Processor = new RepositoryProcessor(appSettings);
+            Processor = new RepositoryFolder(appSettings);
         }
 
 
@@ -56,10 +56,10 @@ namespace ProjektOrdner.Repository
                 Version = RepositoryVersion.V2
             };
 
-            RepositoryModel repository = new RepositoryModel(organisation, new RepositorySettings(), RepositoryVersion.V2);
+            RepositoryFolder repository = new RepositoryFolder(organisation, new RepositorySettings(), RepositoryVersion.V2, AppSettings);
 
             // Add Repository
-            await Processor.AddRepositoryAsync(repository, messageProgress);
+            await Processor.CreateAsync(repository, messageProgress);
 
             // Start PermissionManager
             if(getDataForm.UsePermissionAssistent == true)
@@ -94,8 +94,8 @@ namespace ProjektOrdner.Repository
             string newName = renameProjekt.Name;
 
             // Get & Rename Repository
-            RepositoryModel repository = await Processor.GetRepositoryAsync(folderPath, messageProgress);
-            await Processor.RenameRepositoryAsync(repository, newName,messageProgress);
+            RepositoryFolder repository = await Processor.Get(folderPath, messageProgress);
+            await Processor.RenameAsync(repository, newName,messageProgress);
         }
 
 
@@ -106,8 +106,9 @@ namespace ProjektOrdner.Repository
         /// </summary>
         public async Task RemoveRespositoryAsync(string folderPath, IProgress<string> messageProgress)
         {
-            RepositoryModel repository = await Processor.GetRepositoryAsync(folderPath, messageProgress);
-            Processor.RemoveRepository(repository, messageProgress);
+            RepositoryFolder repositoryFolder = new RepositoryFolder(AppSettings);
+            repositoryFolder = await repositoryFolder.Get(folderPath, messageProgress);
+            repositoryFolder.Remove(messageProgress);
         }
 
     }

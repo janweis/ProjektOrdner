@@ -55,39 +55,21 @@ namespace ProjektOrdner
                 splashScreen.Close();
             }
 
-            // Validate Roots
-            WriteProgress("Verifiziere default RootPath...", messageProgress);
-            await Task.Delay(10);
-
-            do
-            {
-                if (null == Settings.RootPathDefault)
-                {
-                    MessageBox.Show("Der default RootPath ist nicht definiert. Nachfolgend bitte die RootPaths einpflegen","Information",MessageBoxButtons.OK,MessageBoxIcon.Information);
-                    await Settings.ManageRootPathsAsync();
-                }
-                else
-                {
-                    if (Directory.Exists(Settings.RootPathDefault) == true)
-                        break;
-                }
-            } while (true);
-
 
             // Load Projects
             WriteProgress("Lade Projekte ...", messageProgress);
             await Task.Delay(10);
 
-            RepositoryModel[] repositories = null;
-            try
+            RepositoryFolder[] repositories = null;
+            if (null != Settings?.RootPathDefault)
             {
-                RepositoryProcessor repositoryProcessor = new RepositoryProcessor(Settings);
-                repositories = await repositoryProcessor.GetRepositorysAsync((string)Settings?.RootPathDefault, messageProgress, false);
+                RepositoryRoot repositoryRoot = new RepositoryRoot(Settings?.RootPathDefault, Settings);
+                repositories = await repositoryRoot.GetRepositories(false, messageProgress);
             }
-            catch (Exception ex)
+            else
             {
-                MessageBox.Show($"Die Projekte konnten nicht eingelesen werden. {ex.Message}", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                splashScreen.Close();
+                MessageBox.Show("Es wurde kein Stammverzeichnis für Projekte gefunden. Bitte legen Sie eins an.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                await RepositoryRoot.StartRootAssistant(Settings, messageProgress);
             }
 
             // Start ManagerUI

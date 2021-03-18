@@ -15,9 +15,9 @@ namespace ProjektOrdner.Mail
     public class MailProcessor
     {
         private AppSettings AppSettings { get; set; }
-        private RepositoryModel ProjektOrdner { get; set; }
+        private RepositoryFolder ProjektOrdner { get; set; }
 
-        public MailProcessor(AppSettings appSettings, RepositoryModel projektOrdner)
+        public MailProcessor(AppSettings appSettings, RepositoryFolder projektOrdner)
         {
             AppSettings = appSettings;
             ProjektOrdner = projektOrdner;

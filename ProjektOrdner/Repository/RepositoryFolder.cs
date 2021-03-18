@@ -3,6 +3,7 @@ using ProjektOrdner.Permission;
 using ProjektOrdner.Utils;
 using System;
 using System.Collections.Generic;
+using System.DirectoryServices;
 using System.DirectoryServices.AccountManagement;
 using System.IO;
 using System.Linq;
@@ -14,14 +15,20 @@ using System.Threading.Tasks;
 
 namespace ProjektOrdner.Repository
 {
-    public class RepositoryProcessor
+    public class RepositoryFolder
     {
         // // // // // // // // // // // // // // // // // // // // //
         // Variables
         // 
 
-        private AppSettings AppSettings { get; set; }
+        public enum RepositoryStatus { Ok, Corrupted, NotChecked }
 
+        public RepositoryOrganization Organization { get; set; }
+        public RepositorySettings Settings { get; set; }
+        public RepositoryVersion Version { get; set; }
+        public RepositoryStatus Status { get; set; }
+
+        private AppSettings AppSettings { get; set; }
         private ActiveDirectoryUtil ActiveDirectory { get; set; }
 
 
@@ -29,23 +36,63 @@ namespace ProjektOrdner.Repository
         // Constructors
         // 
 
-        public RepositoryProcessor(AppSettings appSettings)
+        public RepositoryFolder(AppSettings appSettings)
         {
             AppSettings = appSettings;
             ActiveDirectory = new ActiveDirectoryUtil(appSettings);
+
+            Version = RepositoryVersion.Unknown;
+            Status = RepositoryStatus.NotChecked;
+        }
+
+        public RepositoryFolder(RepositoryOrganization organization, RepositorySettings settings, RepositoryVersion version, AppSettings appSettings)
+        {
+            AppSettings = appSettings;
+            ActiveDirectory = new ActiveDirectoryUtil(appSettings);
+
+            Organization = organization;
+            Settings = settings;
+            Version = version;
+            Status = RepositoryStatus.NotChecked;
         }
 
 
         // // // // // // // // // // // // // // // // // // // // //
-        // Functions
+        // Main Functions
         // 
+
+        /// <summary>
+        /// 
+        /// Ruft einen ProjektOrdner ab und läd ihn in dieses Objekt
+        /// 
+        /// </summary>
+        public async Task<bool> Load(string folderPath)
+        {
+            try
+            {
+                // Read RepositoryInfoFile
+                Organization = new RepositoryOrganization();
+                await Organization.LoadV2(folderPath);
+
+                // Read ProjektSettings
+                Settings = new RepositorySettings();
+                await Settings.Load(folderPath);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
 
         /// <summary>
         /// 
         /// Ruft einen ProjektOrdner ab
         /// 
         /// </summary>
-        public async Task<RepositoryModel> GetRepositoryAsync(string folderPath, IProgress<string> progressMessage)
+        public async Task<RepositoryFolder> Get(string folderPath, IProgress<string> progressMessage)
         {
             //progressMessage.Report($"Lade Projekt: {folderPath}");
             await Task.Delay(10);
@@ -64,26 +111,26 @@ namespace ProjektOrdner.Repository
                 // Konnte die Organisationsdatei nicht lesen oder verarbeiten!
 
                 DirectoryInfo projektDirectory = new DirectoryInfo(folderPath);
-                return new RepositoryModel
+                return new RepositoryFolder(AppSettings)
                 {
-                    RepositoryOrga = new RepositoryOrganization()
+                    Organization = new RepositoryOrganization()
                     {
                         ProjektName = projektDirectory.Name,
                         RootPath = projektDirectory.Parent.FullName
                     },
                     Settings = new RepositorySettings(),
                     Version = RepositoryVersion.Unknown,
-                    Status = RepositoryModel.RepositoryStatus.Corrupted
+                    Status = RepositoryFolder.RepositoryStatus.Corrupted
                 };
             }
 
             // Setup Object
-            RepositoryModel repository = new RepositoryModel
+            RepositoryFolder repository = new RepositoryFolder(AppSettings)
             {
-                RepositoryOrga = repositoryOrganization,
+                Organization = repositoryOrganization,
                 Settings = repositorySettings,
                 Version = repositoryOrganization.Version,
-                Status = RepositoryModel.RepositoryStatus.Ok
+                Status = RepositoryFolder.RepositoryStatus.Ok
             };
 
             return repository;
@@ -92,68 +139,89 @@ namespace ProjektOrdner.Repository
 
         /// <summary>
         /// 
-        /// Ruft alle vorhanden ProjektOrdner ab
+        /// Fügt einen ProjektOrdner hinzu
         /// 
         /// </summary>
-        public async Task<RepositoryModel[]> GetRepositorysAsync(string rootPath, IProgress<string> progressMessage, bool includeCorrupted = false)
+        public async Task CreateAsync(RepositoryFolder repository, IProgress<string> progressMessage)
         {
-            // Read every Folder
-            await Task.Delay(10);
+            // Create Folder
+            progressMessage.Report("Creating Folder... (1/4)");
+            CreateFolders(repository.Organization.ProjektPath);
 
-            // Get Directories
-            DirectoryInfo directoryInfo = new DirectoryInfo(rootPath);
-            DirectoryInfo[] directories = directoryInfo
-                .GetDirectories()
-                .Where(folder =>
-                    folder.Name.StartsWith("_") == false && // Unterstrich ausblenden
-                    folder.Name.StartsWith(".") == false)  // Punkt ausblenden
-                .ToArray();
+            // Create Files
+            progressMessage.Report("Creating Files... (2/4)");
+            await CreateFilesAsync(repository.Organization);
 
-            // Get Projects from Directories
-            progressMessage.Report("Lade Projekte ...");
-            List<RepositoryModel> repositories = new List<RepositoryModel>();
-            foreach (DirectoryInfo directory in directories)
-            {
-                // Process every Project
-                repositories.Add(
-                    await GetRepositoryAsync(directory.FullName, progressMessage));
-            }
+            // Create adn link Active Directory Groups
+            progressMessage.Report("Creating Active Directory Groups... (3/4)");
+            GroupPrincipal[] adGroups = CreateAdGroups(repository.Organization.ProjektName);
 
-            // Exclude corrupted projects
-            if (includeCorrupted == false)
-                repositories = repositories
-                    .Where(projekt => projekt.Status == RepositoryModel.RepositoryStatus.Ok)
-                    ?.ToList();
-
-            return repositories
-                .Where(projekt => null != projekt)
-                ?.ToArray();  // Exlude Null
+            // Set Permission to Folder
+            progressMessage.Report("Set up Directory ACLs (4/4)");
+            await SetProjektFolderPermissions(repository.Organization.ProjektPath, adGroups);
         }
 
 
         /// <summary>
         /// 
-        /// Fügt einen ProjektOrdner hinzu
+        /// Benennt den Projektordner um.
         /// 
         /// </summary>
-        public async Task AddRepositoryAsync(RepositoryModel repository, IProgress<string> progressMessage)
+        public async Task RenameAsync(RepositoryFolder repository, string newName, IProgress<string> progressMessage)
         {
-            // Create Folder
-            progressMessage.Report("Creating Folder... (1/4)");
-            CreateFolders(repository.RepositoryOrga.ProjektPath);
+            progressMessage.Report("Project sucessfully renamed!");
+            await Task.Delay(1);
 
-            // Create Files
-            progressMessage.Report("Creating Files... (2/4)");
-            await CreateFilesAsync(repository.RepositoryOrga);
-
-            // Create adn link Active Directory Groups
-            progressMessage.Report("Creating Active Directory Groups... (3/4)");
-            GroupPrincipal[] adGroups = CreateAdGroups(repository.RepositoryOrga.ProjektName);
-
-            // Set Permission to Folder
-            progressMessage.Report("Set up Directory ACLs (4/4)");
-            SetFolderPermissions(repository.RepositoryOrga.ProjektPath, adGroups);
+            throw new NotImplementedException();
         }
+
+
+        /// <summary>
+        /// 
+        /// Entfernt einen ProjektOrdner
+        /// 
+        /// </summary>
+        public void Remove(IProgress<string> progressMessage)
+        {
+            // Remove all Files / Folders
+            progressMessage.Report("Deleting projekt data... (1/3)");
+            DeleteProjektData();
+
+            // Remove RepositoryInfoFile
+            progressMessage.Report("Deleting repository data... (2/3)");
+            DeleteRepositoryData();
+
+            // Remove Ad Groups
+            progressMessage.Report("Deleting Active Directory Groups... (3/3)");
+            DeleteAdGroups();
+
+            progressMessage.Report("Project sucessfully deleted!");
+        }
+
+
+        /// <summary>
+        /// 
+        /// 
+        /// 
+        /// </summary>
+        public void Verify() { throw new NotImplementedException(); }
+
+
+        /// <summary>
+        /// 
+        /// 
+        /// 
+        /// </summary>
+        public void Repair() { throw new NotImplementedException(); }
+
+
+
+
+
+        // // // // // // // // // // // // // // // // // // // // //
+        // Sub Functions
+        // 
+
 
         /// <summary>
         /// 
@@ -174,51 +242,11 @@ namespace ProjektOrdner.Repository
         }
 
 
-        private string GetPermissionFileTemplate(PermissionAccessRole permissionAccess)
-        {
-            string accessType = "";
-            switch (permissionAccess)
-            {
-                case PermissionAccessRole.ReadOnly:
-                {
-                    accessType = "Nur Lesen";
-                    break;
-                }
-                case PermissionAccessRole.ReadWrite:
-                {
-                    accessType = "Lesen & Schreiben";
-                    break;
-                }
-                case PermissionAccessRole.Manager:
-                {
-                    accessType = "Manager";
-                    break;
-                }
-            }
-
-            string content = $@"
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# 
-# ProjektOrdner-Berechtigungsdatei - {accessType}
-# 
-# <> WICHTIG <>
-# o Verwenden Sie nur den Windows-Anmeldename, Matrikelnummer oder die Emailadresse, um den Benutzer zu berechtigen.
-# o Berechtigungen werden automatisiert halbstündlich :15 - :45 übernommen und Sie via Mail benachrichtigt.
-# o Verändern Sie den Namen der Datei nicht.
-##
-# <> ANLEITUNGEN <>
-# Die Anleitungen sind unter '_ProjektOrdner beantragen' zu finden.
-#
-# <> BEISPIELE <>
-# stmustera
-# 12345678
-# profmuster
-# max.mustermann@hs-kempten.de
-#
-";
-            return content;
-        }
-
+        /// <summary>
+        /// 
+        /// 
+        /// 
+        /// </summary>
         private async Task CreateFilesAsync(RepositoryOrganization organisation)
         {
             PermissionProcessor permissionProcessor = new PermissionProcessor(organisation.ProjektPath, AppSettings);
@@ -227,21 +255,21 @@ namespace ProjektOrdner.Repository
             string readOnlyFilePath = permissionProcessor.GetPermissionFilePath(PermissionAccessRole.ReadOnly, organisation.ProjektPath);
             using (StreamWriter writer = new StreamWriter(readOnlyFilePath, false, Encoding.UTF8))
             {
-                await writer.WriteAsync(GetPermissionFileTemplate(PermissionAccessRole.ReadOnly));
+                await writer.WriteAsync(PermissionProcessor.GetPermissionTemplate(PermissionAccessRole.ReadOnly));
             }
 
             // Create ReadWrite permission file
             string readWriteFilePath = permissionProcessor.GetPermissionFilePath(PermissionAccessRole.ReadWrite, organisation.ProjektPath);
             using (StreamWriter writer = new StreamWriter(readWriteFilePath, false, Encoding.UTF8))
             {
-                await writer.WriteAsync(GetPermissionFileTemplate(PermissionAccessRole.ReadWrite));
+                await writer.WriteAsync(PermissionProcessor.GetPermissionTemplate(PermissionAccessRole.ReadWrite));
             }
 
             // Create Manager permission file
             string managerFilePath = permissionProcessor.GetPermissionFilePath(PermissionAccessRole.Manager, organisation.ProjektPath);
             using (StreamWriter writer = new StreamWriter(managerFilePath, false, Encoding.UTF8))
             {
-                await writer.WriteAsync(GetPermissionFileTemplate(PermissionAccessRole.Manager));
+                await writer.WriteAsync(PermissionProcessor.GetPermissionTemplate(PermissionAccessRole.Manager));
             }
 
             // Create Organisaion File
@@ -252,6 +280,12 @@ namespace ProjektOrdner.Repository
             await repositorySettings.Save(organisation.ProjektPath);
         }
 
+
+        /// <summary>
+        /// 
+        /// 
+        /// 
+        /// </summary>
         private GroupPrincipal[] CreateAdGroups(string Name)
         {
             string description = $"ProjektOrdner {Name}; Angelegt am {DateTime.Now};";
@@ -259,17 +293,17 @@ namespace ProjektOrdner.Repository
             // Create local Groups
             GroupPrincipal[] adLocalGroups =
             {
-                ActiveDirectory.AddGroup(GroupScope.Local, GetAdGroupName(Name, GroupScope.Local, PermissionAccessRole.Manager), description),
-                ActiveDirectory.AddGroup(GroupScope.Local, GetAdGroupName(Name, GroupScope.Local, PermissionAccessRole.ReadWrite), description),
-                ActiveDirectory.AddGroup(GroupScope.Local, GetAdGroupName(Name, GroupScope.Local, PermissionAccessRole.ReadOnly), description),
+                ActiveDirectory.AddGroup(GroupScope.Local, ActiveDirectory.GetAdGroupName(Name, GroupScope.Local, PermissionAccessRole.Manager), description),
+                ActiveDirectory.AddGroup(GroupScope.Local, ActiveDirectory.GetAdGroupName(Name, GroupScope.Local, PermissionAccessRole.ReadWrite), description),
+                ActiveDirectory.AddGroup(GroupScope.Local, ActiveDirectory.GetAdGroupName(Name, GroupScope.Local, PermissionAccessRole.ReadOnly), description),
             };
 
-            // Create global Groups
+            // Create global Groups                        
             GroupPrincipal[] adGlobalGroups =
             {
-                ActiveDirectory.AddGroup(GroupScope.Global, GetAdGroupName(Name, GroupScope.Global, PermissionAccessRole.Manager), description),
-                ActiveDirectory.AddGroup(GroupScope.Global, GetAdGroupName(Name, GroupScope.Global, PermissionAccessRole.ReadWrite), description),
-                ActiveDirectory.AddGroup(GroupScope.Global, GetAdGroupName(Name, GroupScope.Global, PermissionAccessRole.ReadOnly), description)
+                ActiveDirectory.AddGroup(GroupScope.Global,ActiveDirectory.GetAdGroupName(Name, GroupScope.Global, PermissionAccessRole.Manager), description),
+                ActiveDirectory.AddGroup(GroupScope.Global,ActiveDirectory.GetAdGroupName(Name, GroupScope.Global, PermissionAccessRole.ReadWrite), description),
+                ActiveDirectory.AddGroup(GroupScope.Global,ActiveDirectory.GetAdGroupName(Name, GroupScope.Global, PermissionAccessRole.ReadOnly), description)
             };
 
             // Link local and global Groups
@@ -286,7 +320,13 @@ namespace ProjektOrdner.Repository
             return adLocalGroups;
         }
 
-        private void SetFolderPermissions(string projektPath, GroupPrincipal[] adLocalGroups)
+
+        /// <summary>
+        /// 
+        /// Setzt die Berechtigungen für den ProjektOrdner.
+        /// 
+        /// </summary>
+        private async Task SetProjektFolderPermissions(string projektPath, GroupPrincipal[] adLocalGroups)
         {
             if (null == adLocalGroups)
                 throw new ArgumentNullException();
@@ -401,7 +441,8 @@ namespace ProjektOrdner.Repository
                     }
                     else
                     {
-                        Thread.Sleep(new TimeSpan(0, 0, 5));
+                        await Task.Delay(new TimeSpan(0, 0, 5));
+                        //Thread.Sleep(new TimeSpan(0, 0, 5));
                     }
                 }
 
@@ -414,46 +455,12 @@ namespace ProjektOrdner.Repository
         }
 
 
-        /// <summary>
-        /// 
-        /// Benennt den Projektordner um.
-        /// 
-        /// </summary>
 
-        public async Task RenameRepositoryAsync(RepositoryModel repository, string newName, IProgress<string> progressMessage)
+
+
+        private void DeleteRepositoryData()
         {
-            progressMessage.Report("Project sucessfully renamed!");
-            await Task.Delay(1);
-
-            throw new NotImplementedException();
-        }
-
-
-        /// <summary>
-        /// 
-        /// Entfernt einen ProjektOrdner
-        /// 
-        /// </summary>
-        public void RemoveRepository(RepositoryModel repository, IProgress<string> progressMessage)
-        {
-            // Remove all Files / Folders
-            progressMessage.Report("Deleting projekt data... (1/3)");
-            DeleteProjektData(repository.RepositoryOrga.ProjektPath);
-
-            // Remove RepositoryInfoFile
-            progressMessage.Report("Deleting repository data... (2/3)");
-            DeleteRepositoryData(repository.RepositoryOrga.ProjektPath);
-
-            // Remove Ad Groups
-            progressMessage.Report("Deleting Active Directory Groups... (3/3)");
-            DeleteAdGroups(repository.RepositoryOrga.ProjektName);
-
-            progressMessage.Report("Project sucessfully deleted!");
-        }
-
-        private void DeleteRepositoryData(string projektPath)
-        {
-            DirectoryInfo projekt = new DirectoryInfo(projektPath);
+            DirectoryInfo projekt = new DirectoryInfo(Organization.ProjektPath);
 
             foreach (FileInfo file in projekt.GetFiles("*", SearchOption.AllDirectories))
             {
@@ -468,9 +475,9 @@ namespace ProjektOrdner.Repository
             projekt.Delete();
         }
 
-        private void DeleteProjektData(string projektPath)
+        private void DeleteProjektData()
         {
-            DirectoryInfo projekt = new DirectoryInfo(projektPath);
+            DirectoryInfo projekt = new DirectoryInfo(Organization.ProjektPath);
 
             foreach (FileInfo file in projekt.GetFiles("*", SearchOption.AllDirectories))
             {
@@ -489,9 +496,9 @@ namespace ProjektOrdner.Repository
             }
         }
 
-        private void DeleteAdGroups(string Name)
+        private void DeleteAdGroups()
         {
-            foreach (GroupPrincipal group in GetAdGroups(Name))
+            foreach (GroupPrincipal group in ActiveDirectory.GetAdGroups(Organization.ProjektName))
             {
                 if (null != group)
                 {
@@ -501,78 +508,13 @@ namespace ProjektOrdner.Repository
         }
 
 
-        //
-        // Helper Functions
-        //
-
-        private List<GroupPrincipal> GetAdGroups(string Name)
+        public override string ToString()
         {
-            List<GroupPrincipal> groupList = new List<GroupPrincipal>();
-
-            foreach (string groupNameItem in GetAdGroupNames(Name))
-            {
-                GroupPrincipal group = ActiveDirectory.GetGroup(groupNameItem, IdentityType.SamAccountName);
-
-                if (group != null)
-                {
-                    groupList.Add(group);
-                }
-            }
-
-            return groupList;
-        }
-
-        private string GetAdGroupName(string Name, GroupScope groupScope, PermissionAccessRole PermissionAccessRole)
-        {
-            string groupScopeName = "";
-            switch (groupScope)
-            {
-                case GroupScope.Local:
-                    groupScopeName = AppSettings.AdGroupScopeLocalName;
-                    break;
-
-                case GroupScope.Global:
-                    groupScopeName = AppSettings.AdGroupScopeGlobalName;
-                    break;
-            }
-
-            string adGroupSuffix = "";
-            switch (PermissionAccessRole)
-            {
-                case PermissionAccessRole.Manager:
-                {
-                    adGroupSuffix = AppSettings.AdGroupNameSuffixManager;
-                    break;
-                }
-                case PermissionAccessRole.ReadOnly:
-                {
-                    adGroupSuffix = AppSettings.AdGroupNameSuffixRead;
-                    break;
-                }
-                case PermissionAccessRole.ReadWrite:
-                {
-                    adGroupSuffix = AppSettings.AdGroupNameSuffixWrite;
-                    break;
-                }
-            }
-
-            string NameWithoutSpaces = Name.Replace(" ", "");
-            string adGroupName = $@"{AppSettings.AdGroupNamePrefix}{groupScopeName}{AppSettings.AdGroupNameTopic}{NameWithoutSpaces}{adGroupSuffix}";
-
-            return adGroupName.ToUpper();
-        }
-
-        private List<string> GetAdGroupNames(string Name)
-        {
-            return new List<string>
-            {
-                GetAdGroupName(Name, GroupScope.Local, PermissionAccessRole.ReadOnly),
-                GetAdGroupName(Name, GroupScope.Local, PermissionAccessRole.ReadWrite),
-                GetAdGroupName(Name, GroupScope.Local, PermissionAccessRole.Manager),
-                GetAdGroupName(Name, GroupScope.Global, PermissionAccessRole.ReadOnly),
-                GetAdGroupName(Name, GroupScope.Global, PermissionAccessRole.ReadWrite),
-                GetAdGroupName(Name, GroupScope.Global, PermissionAccessRole.Manager)
-            };
+            return $@"\n
+- Name: '{Organization.ProjektName}'
+- Ende: {Organization.ProjektEnde.ToShortDateString()}
+- Version: {Version.ToString()}
+";
         }
 
     }

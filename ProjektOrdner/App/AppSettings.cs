@@ -104,16 +104,6 @@ namespace ProjektOrdner.App
 
 
         // // // // // // // // // // // // // // // // // // // // // 
-        // Constructors
-        //
-
-        public AppSettings()
-        {
-            RootPaths = new List<string>();
-        }
-
-
-        // // // // // // // // // // // // // // // // // // // // // 
         // Functions
         //
 

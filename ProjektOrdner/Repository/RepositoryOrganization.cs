@@ -63,6 +63,118 @@ namespace ProjektOrdner.Repository
 
         /// <summary>
         /// 
+        /// Lade die Organisations- oder Antragsdatei Version 1
+        /// 
+        /// </summary>
+        public async Task LoadV1(DirectoryInfo directory, string rootPath)
+        {
+            if (null == directory)
+                return;
+
+            if (string.IsNullOrWhiteSpace(rootPath) == true)
+                return;
+
+            string filePath = Path.Combine(directory.FullName, AppConstants.OrganisationFileNameV1);
+
+            if (File.Exists(filePath) == true)
+            {
+                await LoadV1(new FileInfo(filePath), rootPath);
+            }
+        }
+
+
+        /// <summary>
+        /// 
+        /// Lade die Organisations- oder Antragsdatei Version 1
+        /// 
+        /// </summary>
+        public async Task LoadV1(FileInfo file, string rootPath)
+        {
+            using (StreamReader streamReader = new StreamReader(file.FullName, Encoding.UTF8))
+            {
+                string fileText = await streamReader.ReadToEndAsync();
+
+                if (null == fileText)
+                    return;
+
+                string[] fileLines = fileText
+                    .Split(new[] { Environment.NewLine }, StringSplitOptions.None)
+                    .ToArray();
+
+                LoadV1(fileLines);
+            }
+        }
+
+
+        /// <summary>
+        /// 
+        /// Lade die Organisations- oder Antragsdatei Version 1
+        /// 
+        /// </summary>
+        public void LoadV1(string[] fileContent)
+        {
+            if (null == fileContent)
+                return;
+
+            // Process every Line
+            foreach (string lineItem in fileContent)
+            {
+                if (lineItem.Contains("=") == true && lineItem.Contains("#") == false)
+                {
+                    string key = lineItem.Substring(0, lineItem.IndexOf("=")).ToLower().Trim();
+                    string value = lineItem.Substring(lineItem.IndexOf("=") + 1).TrimStart().TrimEnd();
+
+                    if ((string.IsNullOrEmpty(key) == true) || (string.IsNullOrEmpty(value) == true))
+                    {
+                        continue; // Keine Daten vorhanden!
+                    }
+
+                    switch (key)
+                    {
+                        case "Name":
+                        {
+                            ProjektName = value;
+                            break;
+                        }
+                        case "startdatum":
+                        {
+                            if (DateTime.TryParse(value, out DateTime dateTime))
+                            {
+                                ErstelltAm = dateTime;
+                            }
+                            break;
+                        }
+                        case "endedatum":
+                        {
+                            if (DateTime.TryParse(value, out DateTime dateTime))
+                            {
+                                ProjektEnde = dateTime;
+                            }
+                            break;
+                        }
+                        case "projektmanager": // Nur für Projektantrag!
+                        {
+                            CreateLegacyPermission(PermissionAccessRole.Manager, value);
+                            break;
+                        }
+                        case "mitarbeiter": // Nur für Projektantrag!
+                        {
+                            CreateLegacyPermission(PermissionAccessRole.ReadWrite, value);
+                            break;
+                        }
+                        case "gast": // Nur für Projektantrag!
+                        {
+                            CreateLegacyPermission(PermissionAccessRole.ReadOnly, value);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// 
         /// Lade die Organisationsdatei Version 2
         /// 
         /// </summary>
@@ -86,96 +198,6 @@ namespace ProjektOrdner.Repository
                         ProjektEnde = repositoryOrganization.ProjektEnde;
                         //RootPath = repositoryOrganization.RootPath;
                         Version = repositoryOrganization.Version;
-                    }
-                }
-
-                return true;
-            }
-
-            return false;
-        }
-
-
-        /// <summary>
-        /// 
-        /// Lade die Organisations- oder Antragsdatei Version 1
-        /// 
-        /// </summary>
-        public async Task<bool> LoadV1(string fileOrFolder, string rootPath)
-        {
-            RootPath = rootPath;
-
-            if (Path.HasExtension(fileOrFolder) == false)
-                fileOrFolder = Path.Combine(fileOrFolder, AppConstants.OrganisationFileNameV1);
-
-            if (File.Exists(fileOrFolder) == true)
-            {
-                using (StreamReader streamReader = new StreamReader(fileOrFolder, Encoding.UTF8))
-                {
-                    string fileText = await streamReader.ReadToEndAsync();
-
-                    if (null == fileText)
-                        return false;
-
-                    // Split to Array
-                    string[] resultContent = fileText
-                            .Split(new[] { Environment.NewLine }, StringSplitOptions.None)
-                            .Where(x => x.Contains("#") == false)
-                            .ToArray();
-
-                    // Process every Line
-                    foreach (string lineItem in resultContent)
-                    {
-                        if (lineItem.Contains("="))
-                        {
-                            string key = lineItem.Substring(0, lineItem.IndexOf("=")).ToLower().Trim();
-                            string value = lineItem.Substring(lineItem.IndexOf("=") + 1).TrimStart().TrimEnd();
-
-                            if ((string.IsNullOrEmpty(key) == true) || (string.IsNullOrEmpty(value) == true))
-                            {
-                                continue; // Keine Daten vorhanden!
-                            }
-
-                            switch (key)
-                            {
-                                case "Name":
-                                {
-                                    ProjektName = value;
-                                    break;
-                                }
-                                case "startdatum":
-                                {
-                                    if (DateTime.TryParse(value, out DateTime dateTime))
-                                    {
-                                        ErstelltAm = dateTime;
-                                    }
-                                    break;
-                                }
-                                case "endedatum":
-                                {
-                                    if (DateTime.TryParse(value, out DateTime dateTime))
-                                    {
-                                        ProjektEnde = dateTime;
-                                    }
-                                    break;
-                                }
-                                case "projektmanager": // Nur für Projektantrag!
-                                {
-                                    CreateLegacyPermission(PermissionAccessRole.Manager, value);
-                                    break;
-                                }
-                                case "mitarbeiter": // Nur für Projektantrag!
-                                {
-                                    CreateLegacyPermission(PermissionAccessRole.ReadWrite, value);
-                                    break;
-                                }
-                                case "gast": // Nur für Projektantrag!
-                                {
-                                    CreateLegacyPermission(PermissionAccessRole.ReadOnly, value);
-                                    break;
-                                }
-                            }
-                        }
                     }
                 }
 
@@ -220,9 +242,9 @@ namespace ProjektOrdner.Repository
         /// Erstelle einen neuen Text Projektordner Antrag
         /// 
         /// </summary>
-        public static string[] GetTemplate()
+        public static string GetRequestTemplate()
         {
-            return new[] { @"#
+            return @"#
 ## ProjektOrdner - Beantragungsformular
 # 
 
@@ -244,7 +266,21 @@ Mitarbeiter=
 
 # 'Nur Lesen' ist für eingeschränkte Projektmitglieder
 Gast=
-" };
+";
+        }
+
+
+        /// <summary>
+        /// 
+        /// Speichert einen Projektantrag
+        /// 
+        /// </summary>
+        public static async Task SaveRequestTemplateAsync(string filePath, string requestTemplate)
+        {
+            using (StreamWriter streamWriter = new StreamWriter(filePath, false, Encoding.UTF8))
+            {
+                await streamWriter.WriteAsync(requestTemplate);
+            }
         }
 
 
@@ -297,5 +333,6 @@ Gast=
                 });
             });
         }
+
     }
 }

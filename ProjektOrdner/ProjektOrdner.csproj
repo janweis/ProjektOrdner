@@ -89,6 +89,12 @@
     <Compile Include="Forms\ManagerInfoForm.designer.cs">
       <DependentUpon>ManagerInfoForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\RootFolderAssistentForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\RootFolderAssistentForm.Designer.cs">
+      <DependentUpon>RootFolderAssistentForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\SplashScreenForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -137,9 +143,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Repository\RepositoryManager.cs" />
-    <Compile Include="Repository\RepositoryModel.cs" />
     <Compile Include="Repository\RepositoryOrganization.cs" />
-    <Compile Include="Repository\RepositoryProcessor.cs" />
+    <Compile Include="Repository\RepositoryFolder.cs" />
+    <Compile Include="Repository\RepositoryRoot.cs" />
     <Compile Include="Repository\RepositorySettings.cs" />
     <Compile Include="Utils\ActiveDirectoryUtil.cs" />
   </ItemGroup>
@@ -156,6 +162,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\ManagerInfoForm.resx">
       <DependentUpon>ManagerInfoForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\RootFolderAssistentForm.resx">
+      <DependentUpon>RootFolderAssistentForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\SplashScreenForm.resx">
       <DependentUpon>SplashScreenForm.cs</DependentUpon>

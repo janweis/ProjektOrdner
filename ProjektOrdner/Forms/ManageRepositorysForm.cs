@@ -14,12 +14,12 @@ namespace ProjektOrdner.Forms
     public partial class ManageRepositorysForm : Form
     {
         private AppSettings AppSettings { get; set; }
-        private RepositoryModel[] Repositorys { get; set; }
+        private RepositoryFolder[] Repositorys { get; set; }
         private ManagerNodeProcessor NodeProcessor { get; set; }
         private string CurrentRootPath { get; set; }
         private bool IncludeCorruptedProjects { get; set; }
 
-        public ManageRepositorysForm(AppSettings appSettings, RepositoryModel[] repositorys)
+        public ManageRepositorysForm(AppSettings appSettings, RepositoryFolder[] repositorys)
         {
             InitializeComponent();
             Repositorys = repositorys;
@@ -42,13 +42,13 @@ namespace ProjektOrdner.Forms
         /// Ruft ein Repository anhand des Names in einem Node ab
         /// 
         /// </summary>
-        private RepositoryModel GetRepositoryFromNode(TreeNode node)
+        private RepositoryFolder GetRepositoryFromNode(TreeNode node)
         {
             if (null == node)
                 return null;
 
             return Repositorys
-                .Where(repo => node.Name == repo.RepositoryOrga.ProjektName)
+                .Where(repo => node.Name == repo.Organization.ProjektName)
                 .FirstOrDefault();
         }
 
@@ -90,10 +90,10 @@ namespace ProjektOrdner.Forms
         /// Ruft alle Projekte ab.
         /// 
         /// </summary>
-        private async Task<RepositoryModel[]> GetProjectsAsync(IProgress<string> progressMessage, bool includeCorrupted = false)
+        private async Task<RepositoryFolder[]> GetProjectsAsync(IProgress<string> progressMessage, bool includeCorrupted = false)
         {
-            RepositoryProcessor repositoryProcessor = new RepositoryProcessor(AppSettings);
-            return await repositoryProcessor.GetRepositorysAsync(CurrentRootPath, progressMessage, includeCorrupted);
+            RepositoryRoot repositoryRoot = new RepositoryRoot(CurrentRootPath, AppSettings);
+            return await repositoryRoot.GetRepositories(includeCorrupted, progressMessage);
         }
 
 
@@ -238,12 +238,12 @@ namespace ProjektOrdner.Forms
             progress.Report("Update Projektberechtigungen aller Projekte...");
 
             // Aktualisiere für alle Projekte die Berechtigungen
-            foreach (RepositoryModel repository in Repositorys)
+            foreach (RepositoryFolder repository in Repositorys)
             {
-                if (repository.Status == RepositoryModel.RepositoryStatus.Corrupted)
+                if (repository.Status == RepositoryFolder.RepositoryStatus.Corrupted)
                     continue;
 
-                PermissionProcessor permissionProcessor = new PermissionProcessor(repository.RepositoryOrga.ProjektPath, AppSettings);
+                PermissionProcessor permissionProcessor = new PermissionProcessor(repository.Organization.ProjektPath, AppSettings);
                 tasks.Add(
                     permissionProcessor.UpdatePermissionsAsync(null));
             }
@@ -284,8 +284,8 @@ namespace ProjektOrdner.Forms
             if (null != selectedNode.Parent)
                 selectedNode = selectedNode.Parent;
 
-            RepositoryModel repository = GetRepositoryFromNode(selectedNode);
-            if (repository.Status == RepositoryModel.RepositoryStatus.Corrupted)
+            RepositoryFolder repository = GetRepositoryFromNode(selectedNode);
+            if (repository.Status == RepositoryFolder.RepositoryStatus.Corrupted)
             {
                 // Projekt corrupted!
                 MessageBox.Show("Berechtigungen eines defekten Projektes können nicht bearbeitet werden!", "Hinweis", MessageBoxButtons.OK, MessageBoxIcon.Information); ;
@@ -294,7 +294,7 @@ namespace ProjektOrdner.Forms
 
             try
             {
-                PermissionManager permissionManager = new PermissionManager(repository.RepositoryOrga.ProjektPath, AppSettings);
+                PermissionManager permissionManager = new PermissionManager(repository.Organization.ProjektPath, AppSettings);
                 await permissionManager.ManagePermissions();
             }
             catch (Exception ex)
@@ -317,8 +317,8 @@ namespace ProjektOrdner.Forms
             if (null == node || null == node.Parent)
                 return; // Node ist kein Sub-Node!
 
-            RepositoryModel repository = Repositorys
-                .Where(repo => repo.RepositoryOrga.ProjektName == node.Parent.Text)
+            RepositoryFolder repository = Repositorys
+                .Where(repo => repo.Organization.ProjektName == node.Parent.Text)
                 .FirstOrDefault();
 
             if (null == repository)
@@ -459,7 +459,7 @@ namespace ProjektOrdner.Forms
         /// Aktualisiert die Ansicht
         /// 
         /// </summary>
-        private void UpdateViewAsync(IProgress<string> message, RepositoryModel[] repositories)
+        private void UpdateViewAsync(IProgress<string> message, RepositoryFolder[] repositories)
         {
             // Update Nodes
             NodeProcessor.UpdateView(repositories, IncludeCorruptedProjects);
@@ -510,8 +510,8 @@ namespace ProjektOrdner.Forms
         private void aktualisierenToolStripMenuItem_Click(object sender, EventArgs e) =>
             UpdateViewAsync(new Progress<string>(message => UpdateToolStripStatus(message)), Repositorys);
 
-        private async void verwaltenToolStripMenuItem_Click(object sender, EventArgs e) => 
-            await AppSettings.ManageRootPathsAsync();
+        private async void verwaltenToolStripMenuItem_Click(object sender, EventArgs e) =>
+            await RepositoryRoot.StartRootAssistant(AppSettings, new Progress<string>(message => UpdateToolStripStatus(message)));
 
         private async void anlegenToolStripMenuItem_Click(object sender, EventArgs e) =>
             await CreateProjektAsync();
@@ -548,5 +548,6 @@ namespace ProjektOrdner.Forms
 
         private async void projekteErneutEinlesenToolStripMenuItem_Click(object sender, EventArgs e) =>
             await UpdateViewAsync(new Progress<string>(message => UpdateToolStripStatus(message)));
+
     }
 }

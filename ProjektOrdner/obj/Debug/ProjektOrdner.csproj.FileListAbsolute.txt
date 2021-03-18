@@ -28,3 +28,4 @@ C:\Users\jan.weis\Documents\GitHub\ProjektOrdner\ProjektOrdner\obj\Debug\Projekt
 C:\Users\jan.weis\Documents\GitHub\ProjektOrdner\ProjektOrdner\obj\Debug\ProjektOrdner.Forms.GetRepositoryNameForm.resources
 C:\Users\jan.weis\Documents\GitHub\ProjektOrdner\ProjektOrdner\obj\Debug\ProjektOrdner.Forms.SplashScreenForm.resources
 C:\Users\jan.weis\Documents\GitHub\ProjektOrdner\ProjektOrdner\obj\Debug\ProjektOrdner.csprojAssemblyReference.cache
+C:\Users\jan.weis\Documents\GitHub\ProjektOrdner\ProjektOrdner\obj\Debug\ProjektOrdner.Forms.RootFolderAssistentForm.resources
