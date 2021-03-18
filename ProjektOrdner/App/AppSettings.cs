@@ -102,6 +102,15 @@ namespace ProjektOrdner.App
         public int MailPort { get; set; } = 25;
 
 
+        // // // // // // // // // // // // // // // // // // // // // 
+        // Constructors
+        //
+
+        public AppSettings()
+        {
+            RootPaths = new List<string>();
+        }
+
 
         // // // // // // // // // // // // // // // // // // // // // 
         // Functions

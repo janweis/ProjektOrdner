@@ -3,3 +3,5 @@
 *.pdb
 ProjektOrdner/bin/Debug/ProjektOrdner.exe
 ProjektOrdner/bin/Debug/ProjektOrdner.pdb
+ProjektOrdner/.vs/ProjektOrdner/v15/Server/sqlite3/storage.ide-wal
+ProjektOrdner/.vs/ProjektOrdner/v15/.suo
