@@ -61,7 +61,7 @@ namespace ProjektOrdner
             await Task.Delay(10);
 
             RepositoryFolder[] repositories = null;
-            if (null != Settings?.RootPathDefault)
+            if (string.IsNullOrWhiteSpace(Settings.RootPathDefault) == false)
             {
                 RepositoryRoot repositoryRoot = new RepositoryRoot(Settings?.RootPathDefault, Settings);
                 repositories = await repositoryRoot.GetRepositories(false, messageProgress);

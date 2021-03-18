@@ -111,6 +111,7 @@
             // 
             // PfadTextBox
             // 
+            this.PfadTextBox.Enabled = false;
             this.PfadTextBox.Location = new System.Drawing.Point(41, 153);
             this.PfadTextBox.Name = "PfadTextBox";
             this.PfadTextBox.Size = new System.Drawing.Size(404, 25);
@@ -119,6 +120,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
+            this.label3.Enabled = false;
             this.label3.Location = new System.Drawing.Point(38, 133);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(34, 17);
@@ -127,6 +129,7 @@
             // 
             // DurchsuchenButton
             // 
+            this.DurchsuchenButton.Enabled = false;
             this.DurchsuchenButton.Location = new System.Drawing.Point(41, 184);
             this.DurchsuchenButton.Name = "DurchsuchenButton";
             this.DurchsuchenButton.Size = new System.Drawing.Size(145, 26);
