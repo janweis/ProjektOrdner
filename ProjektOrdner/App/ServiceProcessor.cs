@@ -130,7 +130,7 @@ namespace ProjektOrdner.App
             // Read Antragfile
             progress.Report($"Verarbeite den Projektantrag...");
             RepositoryOrganization repositoryOrga = new RepositoryOrganization();
-            await repositoryOrga.LoadV1(file, RootPath);
+            await repositoryOrga.LoadV1(file);
             bool isFileValid = repositoryOrga.IsValid();
 
             // Validate Antragfile

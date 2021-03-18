@@ -28,8 +28,6 @@ namespace ProjektOrdner.Forms
             IncludeCorruptedProjects = false;
 
             NodeProcessor = new ManagerNodeProcessor(ProjektsTree, ContextMenu2);
-
-            //if (null != repositorys)
             UpdateViewAsync(new Progress<string>(message => UpdateToolStripStatus(message)), repositorys);
         }
 

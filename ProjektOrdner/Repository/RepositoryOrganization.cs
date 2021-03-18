@@ -71,13 +71,10 @@ namespace ProjektOrdner.Repository
             if (Directory.Exists(folderPath) == false)
                 return;
 
-            string rootPath = Directory.GetParent(folderPath).FullName;
+            RootPath = Directory.GetParent(folderPath).FullName;
             string filePath = Path.Combine(folderPath, AppConstants.OrganisationFileNameV1);
 
-            if (File.Exists(filePath) == true)
-            {
-                await LoadV1(new FileInfo(filePath), rootPath);
-            }
+            await LoadV1(new FileInfo(filePath));
         }
 
 
@@ -86,8 +83,13 @@ namespace ProjektOrdner.Repository
         /// Lade die Organisations- oder Antragsdatei Version 1
         /// 
         /// </summary>
-        public async Task LoadV1(FileInfo file, string rootPath)
+        public async Task LoadV1(FileInfo file)
         {
+            if (File.Exists(file.FullName) == false)
+                return;
+
+            RootPath = Directory.GetParent(file.DirectoryName).FullName;
+
             using (StreamReader streamReader = new StreamReader(file.FullName, Encoding.UTF8))
             {
                 string fileText = await streamReader.ReadToEndAsync();
@@ -114,6 +116,8 @@ namespace ProjektOrdner.Repository
             if (null == fileContent)
                 return;
 
+            Version = RepositoryVersion.V1;
+
             // Process every Line
             foreach (string lineItem in fileContent)
             {
@@ -129,7 +133,7 @@ namespace ProjektOrdner.Repository
 
                     switch (key)
                     {
-                        case "Name":
+                        case "projektname":
                         {
                             ProjektName = value;
                             break;
@@ -142,7 +146,7 @@ namespace ProjektOrdner.Repository
                             }
                             break;
                         }
-                        case "endedatum":
+                        case "enddatum":
                         {
                             if (DateTime.TryParse(value, out DateTime dateTime))
                             {
@@ -155,12 +159,12 @@ namespace ProjektOrdner.Repository
                             CreateLegacyPermission(PermissionAccessRole.Manager, value);
                             break;
                         }
-                        case "mitarbeiter": // Nur für Projektantrag!
+                        case "readwrite": // Nur für Projektantrag!
                         {
                             CreateLegacyPermission(PermissionAccessRole.ReadWrite, value);
                             break;
                         }
-                        case "gast": // Nur für Projektantrag!
+                        case "read": // Nur für Projektantrag!
                         {
                             CreateLegacyPermission(PermissionAccessRole.ReadOnly, value);
                             break;
@@ -315,13 +319,13 @@ Gast=
             string orgaVersion1FilePath = Path.Combine(folderPath, AppConstants.OrganisationFileNameV1);
             string orgaVersion2FilePath = Path.Combine(folderPath, Path.Combine(AppConstants.OrganisationFolderName, AppConstants.OrganisationFileNameV2));
 
-            if(File.Exists(orgaVersion2FilePath) == true)
+            if (File.Exists(orgaVersion2FilePath) == true)
             {
                 return RepositoryVersion.V2;
             }
             else
             {
-                if(File.Exists(orgaVersion1FilePath) == true)
+                if (File.Exists(orgaVersion1FilePath) == true)
                 {
                     return RepositoryVersion.V1;
                 }
