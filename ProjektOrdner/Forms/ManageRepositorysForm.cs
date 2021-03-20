@@ -14,7 +14,7 @@ namespace ProjektOrdner.Forms
     public partial class ManageRepositorysForm : Form
     {
         private AppSettings AppSettings { get; set; }
-        private RepositoryFolder[] Repositorys { get; set; }
+        private RepositoryFolder[] Repositories { get; set; }
         private ManagerNodeProcessor NodeProcessor { get; set; }
         private string CurrentRootPath { get; set; }
         private bool IncludeCorruptedProjects { get; set; }
@@ -22,12 +22,24 @@ namespace ProjektOrdner.Forms
         public ManageRepositorysForm(AppSettings appSettings, RepositoryFolder[] repositorys)
         {
             InitializeComponent();
-            Repositorys = repositorys;
+            Repositories = repositorys;
             AppSettings = appSettings;
             CurrentRootPath = AppSettings.RootPathDefault;
             IncludeCorruptedProjects = false;
 
             NodeProcessor = new ManagerNodeProcessor(ProjektsTree, ContextMenu2);
+            appSettings.RootPaths.ForEach(path =>
+            {
+                if (path == appSettings.RootPathDefault)
+                {
+                    AddRootMenuItem(path, true);
+                }
+                else
+                {
+                    AddRootMenuItem(path, false);
+                }
+            });
+
             UpdateViewAsync(new Progress<string>(message => UpdateToolStripStatus(message)), repositorys);
         }
 
@@ -45,7 +57,7 @@ namespace ProjektOrdner.Forms
             if (null == node)
                 return null;
 
-            return Repositorys
+            return Repositories
                 .Where(repo => node.Name == repo.Organization.ProjektName)
                 .FirstOrDefault();
         }
@@ -236,7 +248,7 @@ namespace ProjektOrdner.Forms
             progress.Report("Update Projektberechtigungen aller Projekte...");
 
             // Aktualisiere für alle Projekte die Berechtigungen
-            foreach (RepositoryFolder repository in Repositorys)
+            foreach (RepositoryFolder repository in Repositories)
             {
                 if (repository.Status == RepositoryFolder.RepositoryStatus.Corrupted)
                     continue;
@@ -315,7 +327,7 @@ namespace ProjektOrdner.Forms
             if (null == node || null == node.Parent)
                 return; // Node ist kein Sub-Node!
 
-            RepositoryFolder repository = Repositorys
+            RepositoryFolder repository = Repositories
                 .Where(repo => repo.Organization.ProjektName == node.Parent.Text)
                 .FirstOrDefault();
 
@@ -398,7 +410,7 @@ namespace ProjektOrdner.Forms
         /// </summary>
         private void ProcessFilterButtonStatus()
         {
-            NodeProcessor.SetFilterView(textBox1.Text, Repositorys);
+            NodeProcessor.SetFilterView(textBox1.Text, Repositories);
             if (textBox1.Text.Length > 0)
             {
                 button1.Enabled = true;
@@ -441,11 +453,11 @@ namespace ProjektOrdner.Forms
         private async Task UpdateViewAsync(IProgress<string> message)
         {
             // Update Nodes
-            Repositorys = await GetProjectsAsync(message, IncludeCorruptedProjects);
-            NodeProcessor.UpdateView(Repositorys, IncludeCorruptedProjects);  // Update Nodes
+            Repositories = await GetProjectsAsync(message, IncludeCorruptedProjects);
+            NodeProcessor.UpdateView(Repositories, IncludeCorruptedProjects);  // Update Nodes
 
             // Update Projektanzahl Anzeige
-            toolStripStatusProjektZahl.Text = $"{Repositorys.Count()} Projekt(e)";
+            toolStripStatusProjektZahl.Text = $"{Repositories.Count()} Projekt(e)";
 
             // Update Status
             message.Report("Aktualisierung abgeschlossen!");
@@ -466,17 +478,74 @@ namespace ProjektOrdner.Forms
             NodeProcessor.UpdateView(repositories, IncludeCorruptedProjects);
 
             // Update Projektanzahl Anzeige
-            toolStripStatusProjektZahl.Text = $"{Repositorys.Count()} Projekt(e)";
+            toolStripStatusProjektZahl.Text = $"{Repositories.Count()} Projekt(e)";
 
             // Update Status
             message.Report("Aktualisierung abgeschlossen!");
         }
 
 
+        /// <summary>
+        /// 
+        /// Fügt ein Menüeintrag der Stammverzeichnisse hinzu
+        /// 
+        /// </summary>
+        private void AddRootMenuItem(string rootPath, bool isCurrentRootPath = false)
+        {
+            var tempMenuName = rootPath.Split('\\');
+            var menuName = $@"{tempMenuName[tempMenuName.Length - 1]}\{tempMenuName[tempMenuName.Length - 2]}";
+
+            ToolStripMenuItem menuRootItem = new ToolStripMenuItem(menuName)
+            {
+                Tag = rootPath,
+                ToolTipText = rootPath,
+                Checked = isCurrentRootPath
+            };
+            menuRootItem.Click += MenuRootItem_Click;
+
+            // Add Menu
+            projektRootToolStripMenuItem.DropDownItems.Add(menuRootItem);
+        }
+
+
+        /// <summary>
+        /// 
+        /// Ändert den Rootpfad und läd diese
+        /// 
+        /// </summary>
+        private async Task ChangeRootPath(string rootPath)
+        {
+            CurrentRootPath = rootPath;
+            Repositories = null;
+            NodeProcessor.ClearView();
+            await UpdateViewAsync(new Progress<string>(message => UpdateToolStripStatus(message)));
+        }
+
 
         //
         // Controls
         // ---------------------------------------------------------------------------------
+
+        private async void MenuRootItem_Click(object sender, EventArgs e)
+        {
+            ToolStripMenuItem menuItem = sender as ToolStripMenuItem;
+
+            // Clear Checked
+            for (int i = 1; i <= (projektRootToolStripMenuItem.DropDownItems.Count - 1); i++)
+            {
+                if (projektRootToolStripMenuItem.DropDownItems[i].GetType() == typeof(ToolStripMenuItem))
+                {
+                    ToolStripMenuItem selectedMenuItem = projektRootToolStripMenuItem.DropDownItems[i] as ToolStripMenuItem;
+
+                    if (selectedMenuItem.Checked == true)
+                        selectedMenuItem.Checked = false;
+                }
+            }
+
+            // Check new Root
+            menuItem.Checked = true;
+            await ChangeRootPath(menuItem.Tag.ToString());
+        }
 
         private void ProjektsTree_DoubleClick(object sender, EventArgs e) =>
             OpenProjektFile();
@@ -509,7 +578,7 @@ namespace ProjektOrdner.Forms
         }
 
         private void aktualisierenToolStripMenuItem_Click(object sender, EventArgs e) =>
-            UpdateViewAsync(new Progress<string>(message => UpdateToolStripStatus(message)), Repositorys);
+            UpdateViewAsync(new Progress<string>(message => UpdateToolStripStatus(message)), Repositories);
 
         private async void verwaltenToolStripMenuItem_Click(object sender, EventArgs e) =>
             await RepositoryRoot.StartRootAssistant(AppSettings, new Progress<string>(message => UpdateToolStripStatus(message)));

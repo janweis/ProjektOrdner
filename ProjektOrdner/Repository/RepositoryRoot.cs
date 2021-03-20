@@ -127,7 +127,7 @@ namespace ProjektOrdner.Repository
             foreach (string folderPath in folderList)
             {
                 i++;
-                progress.Report($"Lade Projekt {i.ToString()}/{folderList.Count().ToString()}");
+                progress.Report($"Lade Projekt {i.ToString()}/{folderList.Count().ToString()} - {new DirectoryInfo(folderPath).Name}");
                 repositories.Add(await repositoryFolder.Get(folderPath, progress));
             }
 

@@ -88,6 +88,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.button1 = new System.Windows.Forms.Button();
+            this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
             this.ContextMenu2.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.MainMenu.SuspendLayout();
@@ -351,7 +352,8 @@
             // projektRootToolStripMenuItem
             // 
             this.projektRootToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.verwaltenToolStripMenuItem});
+            this.verwaltenToolStripMenuItem,
+            this.toolStripSeparator6});
             this.projektRootToolStripMenuItem.Name = "projektRootToolStripMenuItem";
             this.projektRootToolStripMenuItem.Size = new System.Drawing.Size(123, 21);
             this.projektRootToolStripMenuItem.Text = "Stammverzeichnis";
@@ -505,6 +507,11 @@
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
+            // toolStripSeparator6
+            // 
+            this.toolStripSeparator6.Name = "toolStripSeparator6";
+            this.toolStripSeparator6.Size = new System.Drawing.Size(248, 6);
+            // 
             // ManageRepositorysForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
@@ -583,5 +590,6 @@
         private System.Windows.Forms.ToolStripMenuItem zeigeDefekteProjekteToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem ManagePermissionsMenuItem;
         private System.Windows.Forms.ToolStripMenuItem projekteErneutEinlesenToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator6;
     }
 }

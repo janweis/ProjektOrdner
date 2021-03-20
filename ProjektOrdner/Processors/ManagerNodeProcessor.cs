@@ -145,6 +145,18 @@ namespace ProjektOrdner.Processors
                 View.Nodes.Remove(node);
         }
 
+        //
+        // CLEAR
+        //
+
+        public void ClearView()
+        {
+            View.BeginUpdate();
+            View.Nodes.Clear();
+            View.EndUpdate();
+        }
+
+
 
         //
         // Special Functions

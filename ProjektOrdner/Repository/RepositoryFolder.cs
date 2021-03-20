@@ -94,9 +94,6 @@ namespace ProjektOrdner.Repository
         /// </summary>
         public async Task<RepositoryFolder> Get(string folderPath, IProgress<string> progressMessage)
         {
-            //progressMessage.Report($"Lade Projekt: {folderPath}");
-            await Task.Delay(10);
-
             // Read RepositoryInfoFile
             RepositoryOrganization repositoryOrganization = new RepositoryOrganization();
             RepositoryVersion repositoryVersion = repositoryOrganization.GetRepositoryVersion(folderPath);
