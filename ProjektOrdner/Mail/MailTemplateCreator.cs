@@ -109,7 +109,7 @@ der Zugriff auf das Projekt '{RepositoryOrga.ProjektName}' wurde Ihnen entzogen.
         /// Mail > ProjektManager
         /// 
         /// </summary>
-        public string PermissionChangeReportTemplate(PermissionModel[] addedUsers, PermissionModel[] removedUsers)
+        public string PermissionChangeReportTemplate(RepositoryPermission[] addedUsers, RepositoryPermission[] removedUsers)
         {
             StringBuilder report = new StringBuilder();
 
@@ -119,9 +119,9 @@ der Zugriff auf das Projekt '{RepositoryOrga.ProjektName}' wurde Ihnen entzogen.
             {
                 i = 1;
                 report.AppendLine("## Benutzer hinzugefügt:");
-                foreach (PermissionModel permission in addedUsers)
+                foreach (RepositoryPermission permission in addedUsers)
                 {
-                    report.AppendLine($"\t{i.ToString()}) {permission.User.Vorname} {permission.User.Nachname}; {permission.AccessRole.ToString()}");
+                    report.AppendLine($"\t{i.ToString()}) {permission.User.Vorname} {permission.User.Nachname}; {permission.Role.ToString()}");
                     i++;
                 }
             }
@@ -134,7 +134,7 @@ der Zugriff auf das Projekt '{RepositoryOrga.ProjektName}' wurde Ihnen entzogen.
 
                 i = 1;
                 report.AppendLine("## Benutzer entfernt:");
-                foreach (PermissionModel permission in removedUsers)
+                foreach (RepositoryPermission permission in removedUsers)
                 {
                     report.AppendLine($"\t{i.ToString()}) {permission.User.Vorname} {permission.User.Nachname}");
                     i++;

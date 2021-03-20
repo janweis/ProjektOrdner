@@ -28,7 +28,7 @@ namespace ProjektOrdner.Permission
         {
             // Get current permissions
             PermissionProcessor permissionProcessor = new PermissionProcessor(FolderPath, AppSettings);
-            PermissionModel[] projektPermissions = null;
+            RepositoryPermission[] projektPermissions = null;
             try
             {
                 projektPermissions = await permissionProcessor.GetPermissionsAsync(PermissionSource.File);
@@ -40,7 +40,7 @@ namespace ProjektOrdner.Permission
             }
 
             // Manage permissions
-            List<PermissionModel> editedPermissions = new List<PermissionModel>();
+            List<RepositoryPermission> editedPermissions = new List<RepositoryPermission>();
             if (null != projektPermissions)
             {
                 editedPermissions.AddRange(projektPermissions);

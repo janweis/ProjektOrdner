@@ -58,16 +58,16 @@ namespace ProjektOrdner.Permission
         /// 
         /// </summary>
 
-        public void UpdateView(PermissionModel[] permissions, bool advancedView)
+        public void UpdateView(RepositoryPermission[] permissions, bool advancedView)
         {
             ResetView();
             View.BeginUpdate();
 
-            foreach (PermissionModel permission in permissions)
+            foreach (RepositoryPermission permission in permissions)
             {
                 // Process every permission
 
-                switch (permission.AccessRole)
+                switch (permission.Role)
                 {
                     case PermissionRole.Undefined:
                     {

@@ -36,7 +36,7 @@ namespace ProjektOrdner.Repository
 
         public RepositoryVersion Version { get; set; }
 
-        public List<PermissionModel> LegacyPermissions { get; private set; }
+        public List<RepositoryPermission> LegacyPermissions { get; private set; }
 
 
         // // // // // // // // // // // // // // // // // // // // //
@@ -51,7 +51,7 @@ namespace ProjektOrdner.Repository
             ErstelltAm = DateTime.MinValue;
             ProjektEnde = DateTime.MinValue;
             Version = RepositoryVersion.Unknown;
-            LegacyPermissions = new List<PermissionModel>();
+            LegacyPermissions = new List<RepositoryPermission>();
         }
 
 
@@ -354,9 +354,9 @@ Gast=
 
             usernames.ForEach(username =>
             {
-                LegacyPermissions.Add(new PermissionModel()
+                LegacyPermissions.Add(new RepositoryPermission()
                 {
-                    AccessRole = accessRole,
+                    Role = accessRole,
                     Source = PermissionSource.File,
                     User = new AdUser(username),
                     ProjektPath = ProjektPath

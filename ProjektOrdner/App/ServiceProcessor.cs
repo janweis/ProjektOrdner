@@ -164,28 +164,29 @@ namespace ProjektOrdner.App
 
                 List<Task> permTasks = new List<Task>();
                 List<MimeMessage> mails = new List<MimeMessage>();
-                foreach (PermissionModel permission in repositoryOrga.LegacyPermissions)
+                foreach (RepositoryPermission permission in repositoryOrga.LegacyPermissions)
                 {
                     // Add Permissions
-                    permTasks.Add(permissionProcessor.AddPermissionAsync(PermissionSource.File, permission));
+                    await permission.AddToRepositoryAsync(repository);
+                    //permTasks.Add(permissionProcessor.AddPermissionAsync(PermissionSource.File, permission));
 
                     // Create Mail
                     MailTemplateCreator templateCreator = new MailTemplateCreator(permission.User, repository.Organization);
                     string mailbody = string.Empty;
                     string mailbetreff = string.Empty;
 
-                    switch (permission.AccessRole)
+                    switch (permission.Role)
                     {
                         case PermissionRole.ReadOnly:
                         {
                             mailbetreff = "Willkommen im neuen Projekt!";
-                            mailbody = templateCreator.PermissionUserAdded(permission.AccessRole);
+                            mailbody = templateCreator.PermissionUserAdded(permission.Role);
                             break;
                         }
                         case PermissionRole.ReadWrite:
                         {
                             mailbetreff = "Willkommen im neuen Projekt!";
-                            mailbody = templateCreator.PermissionUserAdded(permission.AccessRole);
+                            mailbody = templateCreator.PermissionUserAdded(permission.Role);
                             break;
                         }
                         case PermissionRole.Manager:

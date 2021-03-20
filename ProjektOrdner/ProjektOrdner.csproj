@@ -134,7 +134,7 @@
     <Compile Include="Permission\AdUser.cs" />
     <Compile Include="Permission\PermissionManager.cs" />
     <Compile Include="Permission\PermissionComparer.cs" />
-    <Compile Include="Permission\PermissionModel.cs" />
+    <Compile Include="Permission\RepositoryPermission.cs" />
     <Compile Include="Permission\PermissionNodeProcessor.cs" />
     <Compile Include="Permission\PermissionProcessor.cs" />
     <Compile Include="Processors\ManagerNodeProcessor.cs" />

@@ -6,16 +6,16 @@ using System.Threading.Tasks;
 
 namespace ProjektOrdner.Permission
 {
-    public class PermissionComparer : IEqualityComparer<PermissionModel>
+    public class PermissionComparer : IEqualityComparer<RepositoryPermission>
     {
-        public bool Equals(PermissionModel x, PermissionModel y)
+        public bool Equals(RepositoryPermission x, RepositoryPermission y)
         {
 
             if (x.User.SamAccountName.ToLower().Equals(y.User.SamAccountName.ToLower()) == true)
             {
                 // Benutzername gleich
 
-                if (x.AccessRole == y.AccessRole)
+                if (x.Role == y.Role)
                 {
                     // Berechtigung gleich
                     return true;
@@ -25,10 +25,10 @@ namespace ProjektOrdner.Permission
             return false;
         }
 
-        public int GetHashCode(PermissionModel obj)
+        public int GetHashCode(RepositoryPermission obj)
         {
             int hashSamAccountName = obj.User.SamAccountName.ToLower().GetHashCode();
-            int hashAccess = obj.AccessRole.GetHashCode();
+            int hashAccess = obj.Role.GetHashCode();
 
             return (hashAccess + hashSamAccountName).GetHashCode();
         }

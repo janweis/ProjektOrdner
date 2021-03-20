@@ -40,9 +40,9 @@ namespace ProjektOrdner.Permission
         /// Ruft die Projektberechtigungen ab
         /// 
         /// </summary>
-        public async Task<PermissionModel[]> GetPermissionsAsync(PermissionSource source)
+        public async Task<RepositoryPermission[]> GetPermissionsAsync(PermissionSource source)
         {
-            List<PermissionModel> permissions = new List<PermissionModel>();
+            List<RepositoryPermission> permissions = new List<RepositoryPermission>();
 
             switch (source)
             {
@@ -77,7 +77,7 @@ namespace ProjektOrdner.Permission
             return permissions.ToArray();
         }
 
-        private List<PermissionModel> GetUsersFromGroup(PermissionRole accessRole)
+        private List<RepositoryPermission> GetUsersFromGroup(PermissionRole accessRole)
         {
             string Name = GetDirectoryNameFromPath(ProjektPath);
             string groupName = AdUtil.GetAdGroupName(Name, GroupScope.Global, accessRole);
@@ -85,17 +85,17 @@ namespace ProjektOrdner.Permission
 
             if (null != groupMembers)
             {
-                List<PermissionModel> permissions = new List<PermissionModel>();
+                List<RepositoryPermission> permissions = new List<RepositoryPermission>();
 
                 foreach (Principal userItem in groupMembers)
                 {
                     if (userItem.GetType() == typeof(UserPrincipal))
                     {
-                        permissions.Add(new PermissionModel()
+                        permissions.Add(new RepositoryPermission(AppSettings)
                         {
                             User = new AdUser(userItem as UserPrincipal),
                             Source = PermissionSource.ActiveDirectory,
-                            AccessRole = accessRole
+                            Role = accessRole
                         });
                     }
                 }
@@ -106,9 +106,9 @@ namespace ProjektOrdner.Permission
             return null;
         }
 
-        private async Task<List<PermissionModel>> GetUsersFromFileAsync(PermissionRole permissionAccess)
+        private async Task<List<RepositoryPermission>> GetUsersFromFileAsync(PermissionRole permissionAccess)
         {
-            List<PermissionModel> projektPermissions = new List<PermissionModel>();
+            List<RepositoryPermission> projektPermissions = new List<RepositoryPermission>();
 
             // Get File Path
             string filePath = GetPermissionFilePath(permissionAccess, ProjektPath);
@@ -142,9 +142,9 @@ namespace ProjektOrdner.Permission
 
                 if (user.IsValidated == true)
                 {
-                    projektPermissions.Add(new PermissionModel
+                    projektPermissions.Add(new RepositoryPermission(AppSettings)
                     {
-                        AccessRole = permissionAccess,
+                        Role = permissionAccess,
                         User = user,
                         Source = PermissionSource.File
                     });
@@ -203,7 +203,7 @@ namespace ProjektOrdner.Permission
         /// Fügt Berechtigungen dem Projekt hinzu
         /// 
         /// </summary>
-        public async Task AddPermissionAsync(PermissionSource source, PermissionModel permission)
+        public async Task AddPermissionAsync(PermissionSource source, RepositoryPermission permission)
         {
             switch (source)
             {
@@ -220,13 +220,13 @@ namespace ProjektOrdner.Permission
             }
         }
 
-        private void AddUserToGroup(PermissionModel permission)
+        private void AddUserToGroup(RepositoryPermission permission)
         {
             if (null == permission)
                 throw new ArgumentNullException();
 
             string Name = GetDirectoryNameFromPath(ProjektPath);
-            string groupName = AdUtil.GetAdGroupName(Name, GroupScope.Global, permission.AccessRole);
+            string groupName = AdUtil.GetAdGroupName(Name, GroupScope.Global, permission.Role);
 
             GroupPrincipal group = AdUtil.GetGroup(groupName, IdentityType.SamAccountName);
             UserPrincipal user = AdUtil.GetUser(permission.User.SamAccountName, IdentityType.SamAccountName);
@@ -249,13 +249,13 @@ namespace ProjektOrdner.Permission
             }
         }
 
-        private async Task AddUserToFileAsync(PermissionModel permission)
+        private async Task AddUserToFileAsync(RepositoryPermission permission)
         {
             if (null == permission)
                 throw new ArgumentNullException();
 
             // Get FilePath
-            string permissionFilePath = GetPermissionFilePath(permission.AccessRole, ProjektPath);
+            string permissionFilePath = GetPermissionFilePath(permission.Role, ProjektPath);
 
             // Get Content
             string[] fileContentLine = await GetFileContentAsync(permissionFilePath);
@@ -275,7 +275,7 @@ namespace ProjektOrdner.Permission
         /// Entfernt Berechtigungen vom Projekt
         /// 
         /// </summary>
-        public async Task RemovePermissionAsync(PermissionSource source, PermissionModel permission)
+        public async Task RemovePermissionAsync(PermissionSource source, RepositoryPermission permission)
         {
             if (null == permission)
                 return; // Kein Argument übergeben!
@@ -295,13 +295,13 @@ namespace ProjektOrdner.Permission
             }
         }
 
-        private void RemoveUserFromGroup(PermissionModel permission)
+        private void RemoveUserFromGroup(RepositoryPermission permission)
         {
             if (null == permission)
                 return; // Kein Argument übergeben!
 
             string Name = GetDirectoryNameFromPath(ProjektPath);
-            string groupName = AdUtil.GetAdGroupName(Name, GroupScope.Global, permission.AccessRole);
+            string groupName = AdUtil.GetAdGroupName(Name, GroupScope.Global, permission.Role);
             GroupPrincipal group = AdUtil.GetGroup(groupName, IdentityType.SamAccountName);
             Principal userItem = group.Members
                 .Where(user => user.SamAccountName == permission.User.SamAccountName)
@@ -325,13 +325,13 @@ namespace ProjektOrdner.Permission
             }
         }
 
-        private async Task RemoveUserFromFileAsync(PermissionModel permission)
+        private async Task RemoveUserFromFileAsync(RepositoryPermission permission)
         {
             if (null == permission)
                 return; // Kein Argument übergeben!
 
             // Get Content
-            string filePath = GetPermissionFilePath(permission.AccessRole, ProjektPath);
+            string filePath = GetPermissionFilePath(permission.Role, ProjektPath);
             string[] fileContent = await GetFileContentAsync(filePath);
 
             // Remove Entry
@@ -356,18 +356,18 @@ namespace ProjektOrdner.Permission
         /// Überschreibt die aktuellen Berechtigungen.
         /// 
         /// </summary>
-        private async Task OverwritePermissionsAsync(PermissionSource source, PermissionModel[] permissions)
+        private async Task OverwritePermissionsAsync(PermissionSource source, RepositoryPermission[] permissions)
         {
-            PermissionModel[] filePermissions = await GetPermissionsAsync(PermissionSource.File);
+            RepositoryPermission[] filePermissions = await GetPermissionsAsync(PermissionSource.File);
 
             // Remove all permissions
-            foreach (PermissionModel permission in filePermissions)
+            foreach (RepositoryPermission permission in filePermissions)
             {
                 await RemovePermissionAsync(PermissionSource.File, permission);
             }
 
             // Overwrite with new permissions
-            foreach (PermissionModel permission in permissions)
+            foreach (RepositoryPermission permission in permissions)
             {
                 await AddPermissionAsync(PermissionSource.File, permission);
             }
@@ -379,12 +379,12 @@ namespace ProjektOrdner.Permission
         /// Aktualisiert die Berechtigungen auf ein Projekt
         /// 
         /// </summary>
-        public async Task UpdatePermissionsAsync(PermissionModel[] newPermissions)
+        public async Task UpdatePermissionsAsync(RepositoryPermission[] newPermissions)
         {
             List<Task> permissionTasks = new List<Task>();
 
-            PermissionModel[] adPermissions = await GetPermissionsAsync(PermissionSource.ActiveDirectory);
-            PermissionModel[] filePermissions = null;
+            RepositoryPermission[] adPermissions = await GetPermissionsAsync(PermissionSource.ActiveDirectory);
+            RepositoryPermission[] filePermissions = null;
             if (null != newPermissions)
             {
                 filePermissions = newPermissions;
@@ -400,16 +400,16 @@ namespace ProjektOrdner.Permission
 
 
             // Add permissions
-            IEnumerable<PermissionModel> permissionsToAdd = filePermissions.Except(adPermissions, new PermissionComparer());
-            foreach (PermissionModel permission in permissionsToAdd)
+            IEnumerable<RepositoryPermission> permissionsToAdd = filePermissions.Except(adPermissions, new PermissionComparer());
+            foreach (RepositoryPermission permission in permissionsToAdd)
             {
                 permissionTasks.Add(
                     AddPermissionAsync(PermissionSource.ActiveDirectory, permission));
             }
 
             // Remove permissions
-            IEnumerable<PermissionModel> permissionsToRemove = adPermissions.Except(filePermissions, new PermissionComparer());
-            foreach (PermissionModel permission in permissionsToRemove)
+            IEnumerable<RepositoryPermission> permissionsToRemove = adPermissions.Except(filePermissions, new PermissionComparer());
+            foreach (RepositoryPermission permission in permissionsToRemove)
             {
                 permissionTasks.Add(
                     RemovePermissionAsync(PermissionSource.ActiveDirectory, permission));
