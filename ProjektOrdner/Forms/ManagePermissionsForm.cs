@@ -112,7 +112,7 @@ namespace ProjektOrdner.Forms
                 Permissions.Add(new PermissionModel()
                 {
                     User = adUser,
-                    AccessRole = PermissionAccessRole.Undefined,
+                    AccessRole = PermissionRole.Undefined,
                     Source = PermissionSource.File
                 });
             }
@@ -164,19 +164,19 @@ namespace ProjektOrdner.Forms
                 case 1:
                 {
                     NodeProcessor.MoveNodeTo(selectedNode, MasterNode.Unbestimmt);
-                    foundPermission.AccessRole = PermissionAccessRole.Undefined;
+                    foundPermission.AccessRole = PermissionRole.Undefined;
                     break;
                 }
                 case 2:
                 {
                     NodeProcessor.MoveNodeTo(selectedNode, MasterNode.Manager);
-                    foundPermission.AccessRole = PermissionAccessRole.Manager;
+                    foundPermission.AccessRole = PermissionRole.Manager;
                     break;
                 }
                 case 3:
                 {
                     NodeProcessor.MoveNodeTo(selectedNode, MasterNode.Mitarbeiter);
-                    foundPermission.AccessRole = PermissionAccessRole.ReadWrite;
+                    foundPermission.AccessRole = PermissionRole.ReadWrite;
                     break;
                 }
             }
@@ -206,19 +206,19 @@ namespace ProjektOrdner.Forms
                 case 0:
                 {
                     NodeProcessor.MoveNodeTo(selectedNode, MasterNode.Manager);
-                    foundPermission.AccessRole = PermissionAccessRole.Manager;
+                    foundPermission.AccessRole = PermissionRole.Manager;
                     break;
                 }
                 case 1:
                 {
                     NodeProcessor.MoveNodeTo(selectedNode, MasterNode.Mitarbeiter);
-                    foundPermission.AccessRole = PermissionAccessRole.ReadWrite;
+                    foundPermission.AccessRole = PermissionRole.ReadWrite;
                     break;
                 }
                 case 2:
                 {
                     NodeProcessor.MoveNodeTo(selectedNode, MasterNode.NurLesen);
-                    foundPermission.AccessRole = PermissionAccessRole.ReadOnly;
+                    foundPermission.AccessRole = PermissionRole.ReadOnly;
                     break;
                 }
             }
@@ -237,7 +237,7 @@ namespace ProjektOrdner.Forms
         {
             // Aktualisiere Berechtigungen
             Permissions = Permissions
-                .Where(permission => permission.AccessRole != PermissionAccessRole.Undefined)
+                .Where(permission => permission.AccessRole != PermissionRole.Undefined)
                 .ToList();
 
             Close();

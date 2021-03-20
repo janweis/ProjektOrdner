@@ -9,7 +9,7 @@ namespace ProjektOrdner.App
 {
     public enum PermissionSource { ActiveDirectory, File }
 
-    public enum PermissionAccessRole
+    public enum PermissionRole
     {
         [Description("Nur Lesen")]
         ReadOnly,

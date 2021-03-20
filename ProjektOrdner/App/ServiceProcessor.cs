@@ -176,19 +176,19 @@ namespace ProjektOrdner.App
 
                     switch (permission.AccessRole)
                     {
-                        case PermissionAccessRole.ReadOnly:
+                        case PermissionRole.ReadOnly:
                         {
                             mailbetreff = "Willkommen im neuen Projekt!";
                             mailbody = templateCreator.PermissionUserAdded(permission.AccessRole);
                             break;
                         }
-                        case PermissionAccessRole.ReadWrite:
+                        case PermissionRole.ReadWrite:
                         {
                             mailbetreff = "Willkommen im neuen Projekt!";
                             mailbody = templateCreator.PermissionUserAdded(permission.AccessRole);
                             break;
                         }
-                        case PermissionAccessRole.Manager:
+                        case PermissionRole.Manager:
                         {
                             mailbetreff = "ProjektOrdner wurde angelegt!";
                             mailbody = templateCreator.ProjektCreatedTemplate();

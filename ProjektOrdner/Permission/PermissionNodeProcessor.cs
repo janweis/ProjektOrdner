@@ -69,7 +69,7 @@ namespace ProjektOrdner.Permission
 
                 switch (permission.AccessRole)
                 {
-                    case PermissionAccessRole.Undefined:
+                    case PermissionRole.Undefined:
                     {
                         if (advancedView == true)
                         {
@@ -82,7 +82,7 @@ namespace ProjektOrdner.Permission
 
                         break;
                     }
-                    case PermissionAccessRole.ReadOnly:
+                    case PermissionRole.ReadOnly:
                     {
                         if (advancedView == true)
                         {
@@ -95,7 +95,7 @@ namespace ProjektOrdner.Permission
 
                         break;
                     }
-                    case PermissionAccessRole.ReadWrite:
+                    case PermissionRole.ReadWrite:
                     {
                         if (advancedView == true)
                         {
@@ -108,7 +108,7 @@ namespace ProjektOrdner.Permission
 
                         break;
                     }
-                    case PermissionAccessRole.Manager:
+                    case PermissionRole.Manager:
                     {
                         if (advancedView == true)
                         {

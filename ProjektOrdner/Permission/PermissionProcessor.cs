@@ -49,26 +49,26 @@ namespace ProjektOrdner.Permission
                 case PermissionSource.ActiveDirectory:
                 {
                     // ReadOnly
-                    permissions.AddRange(GetUsersFromGroup(PermissionAccessRole.ReadOnly));
+                    permissions.AddRange(GetUsersFromGroup(PermissionRole.ReadOnly));
 
                     // ReadWrite
-                    permissions.AddRange(GetUsersFromGroup(PermissionAccessRole.ReadWrite));
+                    permissions.AddRange(GetUsersFromGroup(PermissionRole.ReadWrite));
 
                     // Manager
-                    permissions.AddRange(GetUsersFromGroup(PermissionAccessRole.Manager));
+                    permissions.AddRange(GetUsersFromGroup(PermissionRole.Manager));
 
                     break;
                 }
                 case PermissionSource.File:
                 {
                     // ReadOnly
-                    permissions.AddRange(await GetUsersFromFileAsync(PermissionAccessRole.ReadOnly));
+                    permissions.AddRange(await GetUsersFromFileAsync(PermissionRole.ReadOnly));
 
                     // ReadWrite
-                    permissions.AddRange(await GetUsersFromFileAsync(PermissionAccessRole.ReadWrite));
+                    permissions.AddRange(await GetUsersFromFileAsync(PermissionRole.ReadWrite));
 
                     // Manager
-                    permissions.AddRange(await GetUsersFromFileAsync(PermissionAccessRole.Manager));
+                    permissions.AddRange(await GetUsersFromFileAsync(PermissionRole.Manager));
 
                     break;
                 }
@@ -77,7 +77,7 @@ namespace ProjektOrdner.Permission
             return permissions.ToArray();
         }
 
-        private List<PermissionModel> GetUsersFromGroup(PermissionAccessRole accessRole)
+        private List<PermissionModel> GetUsersFromGroup(PermissionRole accessRole)
         {
             string Name = GetDirectoryNameFromPath(ProjektPath);
             string groupName = AdUtil.GetAdGroupName(Name, GroupScope.Global, accessRole);
@@ -106,7 +106,7 @@ namespace ProjektOrdner.Permission
             return null;
         }
 
-        private async Task<List<PermissionModel>> GetUsersFromFileAsync(PermissionAccessRole permissionAccess)
+        private async Task<List<PermissionModel>> GetUsersFromFileAsync(PermissionRole permissionAccess)
         {
             List<PermissionModel> projektPermissions = new List<PermissionModel>();
 
@@ -154,22 +154,22 @@ namespace ProjektOrdner.Permission
             return projektPermissions;
         }
 
-        public string GetPermissionFilePath(PermissionAccessRole permissionAccess, string projektPath)
+        public string GetPermissionFilePath(PermissionRole permissionAccess, string projektPath)
         {
             string fileName = string.Empty;
             switch (permissionAccess)
             {
-                case PermissionAccessRole.ReadOnly:
+                case PermissionRole.ReadOnly:
                 {
                     fileName = AppConstants.PermissionFileReadOnlyName;
                     break;
                 }
-                case PermissionAccessRole.ReadWrite:
+                case PermissionRole.ReadWrite:
                 {
                     fileName = AppConstants.PermissionFileReadWriteName;
                     break;
                 }
-                case PermissionAccessRole.Manager:
+                case PermissionRole.Manager:
                 {
                     fileName = AppConstants.PermissionFileManagerName;
                     break;
@@ -424,22 +424,22 @@ namespace ProjektOrdner.Permission
         /// 
         /// 
         /// </summary>
-        public static string GetPermissionTemplate(PermissionAccessRole permissionAccess)
+        public static string GetPermissionTemplate(PermissionRole permissionAccess)
         {
             string accessType = "";
             switch (permissionAccess)
             {
-                case PermissionAccessRole.ReadOnly:
+                case PermissionRole.ReadOnly:
                 {
                     accessType = "Nur Lesen";
                     break;
                 }
-                case PermissionAccessRole.ReadWrite:
+                case PermissionRole.ReadWrite:
                 {
                     accessType = "Lesen & Schreiben";
                     break;
                 }
-                case PermissionAccessRole.Manager:
+                case PermissionRole.Manager:
                 {
                     accessType = "Manager";
                     break;

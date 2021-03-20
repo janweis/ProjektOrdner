@@ -143,7 +143,7 @@ namespace ProjektOrdner.Utils
             return null;
         }
 
-        public string GetAdGroupName(string Name, GroupScope groupScope, PermissionAccessRole accessRole)
+        public string GetAdGroupName(string Name, GroupScope groupScope, PermissionRole accessRole)
         {
             string groupScopeName = "";
             switch (groupScope)
@@ -160,17 +160,17 @@ namespace ProjektOrdner.Utils
             string adGroupSuffix = "";
             switch (accessRole)
             {
-                case PermissionAccessRole.Manager:
+                case PermissionRole.Manager:
                 {
                     adGroupSuffix = AppSettings.AdGroupNameSuffixManager;
                     break;
                 }
-                case PermissionAccessRole.ReadOnly:
+                case PermissionRole.ReadOnly:
                 {
                     adGroupSuffix = AppSettings.AdGroupNameSuffixRead;
                     break;
                 }
-                case PermissionAccessRole.ReadWrite:
+                case PermissionRole.ReadWrite:
                 {
                     adGroupSuffix = AppSettings.AdGroupNameSuffixWrite;
                     break;
@@ -187,12 +187,12 @@ namespace ProjektOrdner.Utils
         {
             return new List<string>
             {
-                GetAdGroupName(Name, GroupScope.Local, PermissionAccessRole.ReadOnly),
-                GetAdGroupName(Name, GroupScope.Local, PermissionAccessRole.ReadWrite),
-                GetAdGroupName(Name, GroupScope.Local, PermissionAccessRole.Manager),
-                GetAdGroupName(Name, GroupScope.Global, PermissionAccessRole.ReadOnly),
-                GetAdGroupName(Name, GroupScope.Global, PermissionAccessRole.ReadWrite),
-                GetAdGroupName(Name, GroupScope.Global, PermissionAccessRole.Manager)
+                GetAdGroupName(Name, GroupScope.Local, PermissionRole.ReadOnly),
+                GetAdGroupName(Name, GroupScope.Local, PermissionRole.ReadWrite),
+                GetAdGroupName(Name, GroupScope.Local, PermissionRole.Manager),
+                GetAdGroupName(Name, GroupScope.Global, PermissionRole.ReadOnly),
+                GetAdGroupName(Name, GroupScope.Global, PermissionRole.ReadWrite),
+                GetAdGroupName(Name, GroupScope.Global, PermissionRole.Manager)
             };
         }
 

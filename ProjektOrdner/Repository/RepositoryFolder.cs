@@ -259,24 +259,24 @@ namespace ProjektOrdner.Repository
             PermissionProcessor permissionProcessor = new PermissionProcessor(organisation.ProjektPath, AppSettings);
 
             // Create ReadOnly permission file
-            string readOnlyFilePath = permissionProcessor.GetPermissionFilePath(PermissionAccessRole.ReadOnly, organisation.ProjektPath);
+            string readOnlyFilePath = permissionProcessor.GetPermissionFilePath(PermissionRole.ReadOnly, organisation.ProjektPath);
             using (StreamWriter writer = new StreamWriter(readOnlyFilePath, false, Encoding.UTF8))
             {
-                await writer.WriteAsync(PermissionProcessor.GetPermissionTemplate(PermissionAccessRole.ReadOnly));
+                await writer.WriteAsync(PermissionProcessor.GetPermissionTemplate(PermissionRole.ReadOnly));
             }
 
             // Create ReadWrite permission file
-            string readWriteFilePath = permissionProcessor.GetPermissionFilePath(PermissionAccessRole.ReadWrite, organisation.ProjektPath);
+            string readWriteFilePath = permissionProcessor.GetPermissionFilePath(PermissionRole.ReadWrite, organisation.ProjektPath);
             using (StreamWriter writer = new StreamWriter(readWriteFilePath, false, Encoding.UTF8))
             {
-                await writer.WriteAsync(PermissionProcessor.GetPermissionTemplate(PermissionAccessRole.ReadWrite));
+                await writer.WriteAsync(PermissionProcessor.GetPermissionTemplate(PermissionRole.ReadWrite));
             }
 
             // Create Manager permission file
-            string managerFilePath = permissionProcessor.GetPermissionFilePath(PermissionAccessRole.Manager, organisation.ProjektPath);
+            string managerFilePath = permissionProcessor.GetPermissionFilePath(PermissionRole.Manager, organisation.ProjektPath);
             using (StreamWriter writer = new StreamWriter(managerFilePath, false, Encoding.UTF8))
             {
-                await writer.WriteAsync(PermissionProcessor.GetPermissionTemplate(PermissionAccessRole.Manager));
+                await writer.WriteAsync(PermissionProcessor.GetPermissionTemplate(PermissionRole.Manager));
             }
 
             // Create Organisaion File
@@ -300,17 +300,17 @@ namespace ProjektOrdner.Repository
             // Create local Groups
             GroupPrincipal[] adLocalGroups =
             {
-                ActiveDirectory.AddGroup(GroupScope.Local, ActiveDirectory.GetAdGroupName(Name, GroupScope.Local, PermissionAccessRole.Manager), description),
-                ActiveDirectory.AddGroup(GroupScope.Local, ActiveDirectory.GetAdGroupName(Name, GroupScope.Local, PermissionAccessRole.ReadWrite), description),
-                ActiveDirectory.AddGroup(GroupScope.Local, ActiveDirectory.GetAdGroupName(Name, GroupScope.Local, PermissionAccessRole.ReadOnly), description),
+                ActiveDirectory.AddGroup(GroupScope.Local, ActiveDirectory.GetAdGroupName(Name, GroupScope.Local, PermissionRole.Manager), description),
+                ActiveDirectory.AddGroup(GroupScope.Local, ActiveDirectory.GetAdGroupName(Name, GroupScope.Local, PermissionRole.ReadWrite), description),
+                ActiveDirectory.AddGroup(GroupScope.Local, ActiveDirectory.GetAdGroupName(Name, GroupScope.Local, PermissionRole.ReadOnly), description),
             };
 
             // Create global Groups                        
             GroupPrincipal[] adGlobalGroups =
             {
-                ActiveDirectory.AddGroup(GroupScope.Global,ActiveDirectory.GetAdGroupName(Name, GroupScope.Global, PermissionAccessRole.Manager), description),
-                ActiveDirectory.AddGroup(GroupScope.Global,ActiveDirectory.GetAdGroupName(Name, GroupScope.Global, PermissionAccessRole.ReadWrite), description),
-                ActiveDirectory.AddGroup(GroupScope.Global,ActiveDirectory.GetAdGroupName(Name, GroupScope.Global, PermissionAccessRole.ReadOnly), description)
+                ActiveDirectory.AddGroup(GroupScope.Global,ActiveDirectory.GetAdGroupName(Name, GroupScope.Global, PermissionRole.Manager), description),
+                ActiveDirectory.AddGroup(GroupScope.Global,ActiveDirectory.GetAdGroupName(Name, GroupScope.Global, PermissionRole.ReadWrite), description),
+                ActiveDirectory.AddGroup(GroupScope.Global,ActiveDirectory.GetAdGroupName(Name, GroupScope.Global, PermissionRole.ReadOnly), description)
             };
 
             // Link local and global Groups

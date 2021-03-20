@@ -156,17 +156,17 @@ namespace ProjektOrdner.Repository
                         }
                         case "projektmanager": // Nur für Projektantrag!
                         {
-                            CreateLegacyPermission(PermissionAccessRole.Manager, value);
+                            CreateLegacyPermission(PermissionRole.Manager, value);
                             break;
                         }
                         case "readwrite": // Nur für Projektantrag!
                         {
-                            CreateLegacyPermission(PermissionAccessRole.ReadWrite, value);
+                            CreateLegacyPermission(PermissionRole.ReadWrite, value);
                             break;
                         }
                         case "read": // Nur für Projektantrag!
                         {
-                            CreateLegacyPermission(PermissionAccessRole.ReadOnly, value);
+                            CreateLegacyPermission(PermissionRole.ReadOnly, value);
                             break;
                         }
                     }
@@ -342,7 +342,7 @@ Gast=
         /// Erstellt eine alte Berechtigung, falls diese in einer Datei vorhanden ist.
         /// 
         /// </summary>
-        private void CreateLegacyPermission(PermissionAccessRole accessRole, string line)
+        private void CreateLegacyPermission(PermissionRole accessRole, string line)
         {
             List<string> usernames = line
                 .Split(',')

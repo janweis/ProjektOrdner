@@ -15,7 +15,7 @@ namespace ProjektOrdner.Permission
 
         public AdUser User { get; set; }
 
-        public PermissionAccessRole AccessRole { get; set; }
+        public PermissionRole AccessRole { get; set; }
 
         public PermissionSource Source { get; set; }
     }

@@ -33,7 +33,7 @@ es wurde ein neues Projekt angelegt, indem Sie als ProjektManager angegeben wurd
 
 {ProjektPfadeBlock()}
 
-{ProjektOrgaDataBlock(PermissionAccessRole.Manager)}
+{ProjektOrgaDataBlock(PermissionRole.Manager)}
 {ProjektInformationenBlock()}
 
 {AbschlussBlock()}";
@@ -49,7 +49,7 @@ es wurde ein neues Projekt angelegt, indem Sie als ProjektManager angegeben wurd
             return $@"{BegrüßungBlock()}
 
 der ProjektOrdner {RepositoryOrga.ProjektName}, auf dem Sie ProjektManager waren, wurde gelöscht. Ein weiterer Zugriff ist nicht möglich.
-{ProjektOrgaDataBlock(PermissionAccessRole.Manager)}
+{ProjektOrgaDataBlock(PermissionRole.Manager)}
 
 {AbschlussBlock()}";
         }
@@ -64,7 +64,7 @@ der ProjektOrdner {RepositoryOrga.ProjektName}, auf dem Sie ProjektManager waren
             return $@"{BegrüßungBlock()}
 
 der ProjektOrdner {RepositoryOrga.ProjektName}, in dem Sie ProjektManager sind, wird in {days.ToString()} um 22 Uhr gelöscht. Bitte kümmern Sie sich frühzeitig um ein Backup Ihrer Projektdaten. Projektverlängerungen können Sie in der IT-Abteilung beantragen.
-{ProjektOrgaDataBlock(PermissionAccessRole.Manager)}
+{ProjektOrgaDataBlock(PermissionRole.Manager)}
 
 {AbschlussBlock()}";
         }
@@ -74,7 +74,7 @@ der ProjektOrdner {RepositoryOrga.ProjektName}, in dem Sie ProjektManager sind, 
         /// Mail > Mitglied
         /// 
         /// </summary>
-        public string PermissionUserAdded(PermissionAccessRole accessRole)
+        public string PermissionUserAdded(PermissionRole accessRole)
         {
             return $@"{BegrüßungBlock()}
 
@@ -158,7 +158,7 @@ diese Mail informiert Sie über die Berechtigungsanpassungen an einem ProjektOrd
         // Generisch
         // 
 
-        private string ProjektBerechtigungBlock(PermissionAccessRole accessRole)
+        private string ProjektBerechtigungBlock(PermissionRole accessRole)
         {
             return $"Ihre Berechtigungen: {accessRole.ToString()}";
         }
@@ -170,7 +170,7 @@ diese Mail informiert Sie über die Berechtigungsanpassungen an einem ProjektOrd
     (2) '\\ifmsrvfile.institut-ifm.de\data\02_IFM Projekte\{RepositoryOrga.ProjektName}'";
         }
 
-        private string ProjektOrgaDataBlock(PermissionAccessRole accessRole)
+        private string ProjektOrgaDataBlock(PermissionRole accessRole)
         {
             return $@"## ProjektOrdner - Organisation:
     Name: {RepositoryOrga.ProjektName}
