@@ -1,13 +1,23 @@
-﻿using System.IO;
+﻿using System;
+using System.Diagnostics;
+using System.IO;
 using System.Text;
 
-namespace ProjektOrdnerLib.Processors
+namespace ProjektOrdner.App
 {
     public class LogProcessor
     {
+        // // // // // // // // // // // // // // // // // // // // //
+        // Variables
+        // 
+
         private string FilePath { get; set; }
         private StreamWriter Writer { get; set; }
 
+
+        // // // // // // // // // // // // // // // // // // // // //
+        // Constructors
+        // 
 
         public LogProcessor(string filePath)
         {
@@ -17,8 +27,14 @@ namespace ProjektOrdnerLib.Processors
                 OpenFile();
         }
 
+
+        // // // // // // // // // // // // // // // // // // // // //
+        // Public Functions
+        // 
+
         /// <summary>
         /// 
+        /// Initalisiert das Log
         /// 
         /// </summary>
         private void OpenFile()
@@ -29,8 +45,10 @@ namespace ProjektOrdnerLib.Processors
             };
         }
 
+
         /// <summary>
         /// 
+        /// Schreibt einen Eintrag in das Log
         /// 
         /// </summary>
         public void Write(string message)
@@ -41,13 +59,29 @@ namespace ProjektOrdnerLib.Processors
             Writer.WriteLine(message);
         }
 
+
         /// <summary>
         /// 
+        /// Schließt das Log
         /// 
         /// </summary>
         public void Close()
         {
             Writer.Close();
         }
+
+
+        /// <summary>
+        /// 
+        /// Öffnet das Log mit dem jeweils verbunden Programm
+        /// 
+        /// </summary>
+        public void ShowLog()
+        {
+            Process process = new Process();
+            process.StartInfo.FileName = FilePath;
+            process.Start();
+        }
+
     }
 }

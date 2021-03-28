@@ -521,6 +521,64 @@ namespace ProjektOrdner.Forms
             await UpdateViewAsync(new Progress<string>(message => UpdateToolStripStatus(message)));
         }
 
+        /// <summary>
+        /// 
+        /// Start Update Service
+        /// 
+        /// </summary>
+        private async Task StartUpdateServiceAsync()
+        {
+            // Init
+            bool init = RepositoryUpdateService.Initialization(AppSettings, new Progress<string>(message => UpdateToolStripStatus(message)));
+
+            if (init)
+            {
+                // Set Menu Controls
+                beendenToolStripMenuItem1.Enabled = true;
+                startenToolStripMenuItem.Enabled = false;
+
+                try
+                {
+                    await RepositoryUpdateService.Run();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Es ist ein Fehler im UpdateService aufgetreten! {ex.Message}");
+                    StopUpdateService();
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// 
+        /// Beendet Update Service
+        /// 
+        /// </summary>
+        private void StopUpdateService()
+        {
+            // Set Menu Controls
+            startenToolStripMenuItem.Enabled = true;
+            beendenToolStripMenuItem1.Enabled = false;
+
+            if (RepositoryUpdateService.State == RepositoryUpdateService.ServiceState.Running)
+            {
+                RepositoryUpdateService.Stop();
+            }
+
+        }
+
+
+        /// <summary>
+        /// 
+        /// Zeigt die Ausgabe des Update Service
+        /// 
+        /// </summary>
+        private void ShowServiceOutput()
+        {
+            throw new NotImplementedException();
+        }
+
 
         //
         // Controls
@@ -618,6 +676,15 @@ namespace ProjektOrdner.Forms
 
         private async void projekteErneutEinlesenToolStripMenuItem_Click(object sender, EventArgs e) =>
             await UpdateViewAsync(new Progress<string>(message => UpdateToolStripStatus(message)));
+
+        private async void startenToolStripMenuItem_Click(object sender, EventArgs e) =>
+            await StartUpdateServiceAsync();
+
+        private void beendenToolStripMenuItem1_Click(object sender, EventArgs e) =>
+            StopUpdateService();
+
+        private void ausgabeEinblendenToolStripMenuItem_Click(object sender, EventArgs e) =>
+            ShowServiceOutput();
 
     }
 }

@@ -20,6 +20,7 @@ namespace ProjektOrdner.Repository
         private static bool IsInitializedSuccessfully { get; set; }
         private static AppSettings AppSettings { get; set; }
         private static IProgress<string> Progress { get; set; }
+        private static LogProcessor Log { get; set; }
 
 
         // // // // // // // // // // // // // // // // // // // // //
@@ -45,9 +46,7 @@ namespace ProjektOrdner.Repository
             if (null == progress)
                 return false;
 
-
-
-
+            Log = new LogProcessor(appSettings.LogPath);
 
             IsInitializedSuccessfully = true;
             return true;
@@ -100,6 +99,16 @@ namespace ProjektOrdner.Repository
         {
             StopService = true;
             State = ServiceState.Stopped;
+        }
+
+
+        /// <summary>
+        /// 
+        /// 
+        /// 
+        /// </summary>
+        public static void ShowResults()
+        {
         }
 
 
