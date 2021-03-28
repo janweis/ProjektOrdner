@@ -64,12 +64,12 @@ namespace ProjektOrdner
             if (string.IsNullOrWhiteSpace(Settings.RootPathDefault) == false)
             {
                 RepositoryRoot repositoryRoot = new RepositoryRoot(Settings?.RootPathDefault, Settings);
-                repositories = await repositoryRoot.GetRepositories(false, messageProgress);
+                repositories = await repositoryRoot.GetRepositoriesAsync(false, messageProgress);
             }
             else
             {
                 MessageBox.Show("Es wurde kein Stammverzeichnis für Projekte gefunden. Bitte legen Sie eins an.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                await RepositoryRoot.StartRootAssistant(Settings, messageProgress);
+                await RepositoryRoot.StartRootAssistantAsync(Settings, messageProgress);
             }
 
             // Start ManagerUI

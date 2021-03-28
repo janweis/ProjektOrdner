@@ -1,4 +1,5 @@
 ﻿using ProjektOrdner.App;
+using ProjektOrdner.Permission;
 using ProjektOrdner.Repository;
 using ProjektOrdner.Utils;
 using System;
@@ -11,7 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-namespace ProjektOrdner.Permission
+namespace ProjektOrdner.Repository
 {
     public class RepositoryPermission
     {
@@ -32,9 +33,13 @@ namespace ProjektOrdner.Permission
         // Constructors
         // 
 
-        public RepositoryPermission(AppSettings settings)
+        public RepositoryPermission(AdUser user, PermissionRole role, PermissionSource source, AppSettings settings)
         {
+            User = user;
+            Role = role;
+            Source = source;
             Settings = settings;
+
             DirectoryUtil = new ActiveDirectoryUtil(settings);
         }
 
@@ -269,13 +274,35 @@ namespace ProjektOrdner.Permission
         private void AddToActiveDirectoryV2(RepositoryOrganization organization)
         {
             string adGroupName = DirectoryUtil.GetAdGroupName(organization.ProjektName, GroupScope.Global, Role);
-            GroupPrincipal adGroup = DirectoryUtil.GetGroup(adGroupName, IdentityType.SamAccountName);
-            UserPrincipal adUser = DirectoryUtil.GetUser(User.SamAccountName, IdentityType.SamAccountName);
-
-            if (adGroup.Members.Contains(adUser) == false)
+            if (string.IsNullOrWhiteSpace(adGroupName) == true)
             {
-                adGroup.Members.Add(adUser);
-                adGroup.Save();
+                throw new Exception($"Could not get Active Directory Group Name '{organization.ProjektName}'!");
+            }
+            else
+            {
+                GroupPrincipal adGroup = DirectoryUtil.GetGroup(adGroupName, IdentityType.SamAccountName);
+
+                if (null == adGroup)
+                {
+                    throw new Exception($"Could not get Active Directory Group Object '{adGroupName}'!");
+                }
+                else
+                {
+                    UserPrincipal adUser = DirectoryUtil.GetUser(User.SamAccountName, IdentityType.SamAccountName);
+
+                    if (null == adUser)
+                    {
+                        throw new Exception($"Could not get Active Directory User Object '{User.SamAccountName}'!");
+                    }
+                    else
+                    {
+                        if (adGroup.Members.Contains(adUser) == false)
+                        {
+                            adGroup.Members.Add(adUser);
+                            adGroup.Save();
+                        }
+                    }
+                }
             }
         }
 
@@ -303,13 +330,35 @@ namespace ProjektOrdner.Permission
         private void AddToActiveDirectoryV1(RepositoryOrganization organization)
         {
             string adGroupName = DirectoryUtil.GetAdGroupName(organization.ProjektName, GroupScope.Global, Role);
-            GroupPrincipal adGroup = DirectoryUtil.GetGroup(adGroupName, IdentityType.SamAccountName);
-            UserPrincipal adUser = DirectoryUtil.GetUser(User.SamAccountName, IdentityType.SamAccountName);
-
-            if (adGroup.Members.Contains(adUser) == false)
+            if (string.IsNullOrWhiteSpace(adGroupName) == true)
             {
-                adGroup.Members.Add(adUser);
-                adGroup.Save();
+                throw new Exception($"Could not get Active Directory Group Name '{organization.ProjektName}'!");
+            }
+            else
+            {
+                GroupPrincipal adGroup = DirectoryUtil.GetGroup(adGroupName, IdentityType.SamAccountName);
+
+                if (null == adGroup)
+                {
+                    throw new Exception($"Could not get Active Directory Group Object '{adGroupName}'!");
+                }
+                else
+                {
+                    UserPrincipal adUser = DirectoryUtil.GetUser(User.SamAccountName, IdentityType.SamAccountName);
+
+                    if (null == adUser)
+                    {
+                        throw new Exception($"Could not get Active Directory User Object '{User.SamAccountName}'!");
+                    }
+                    else
+                    {
+                        if (adGroup.Members.Contains(adUser) == false)
+                        {
+                            adGroup.Members.Add(adUser);
+                            adGroup.Save();
+                        }
+                    }
+                }
             }
         }
 
@@ -501,6 +550,8 @@ namespace ProjektOrdner.Permission
 
         /// <summary>
         /// 
+        /// Ließt Daten aus einer Datei.
+        /// 
         /// </summary>
         private async Task<string> ReadFileContent(string filePath)
         {
@@ -515,6 +566,8 @@ namespace ProjektOrdner.Permission
 
 
         /// <summary>
+        /// 
+        /// Schreibt Daten in eine Datei.
         /// 
         /// </summary>
         private async Task WriteFileContent(string filePath, string fileContent)

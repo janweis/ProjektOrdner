@@ -1,4 +1,5 @@
 ﻿using MimeKit;
+using ProjektOrdner.App;
 using ProjektOrdner.Mail;
 using ProjektOrdner.Permission;
 using ProjektOrdner.Repository;
@@ -8,113 +9,158 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ProjektOrdner.App
+namespace ProjektOrdner.Repository
 {
-    public class UpdateProjektPermissionsAsync
+    public static class RepositoryUpdateService
     {
-        private string RootPath { get; set; }
-        private AppSettings AppSettings { get; set; }
-        private string PickupFolderPath { get; set; }
+        // // // // // // // // // // // // // // // // // // // // //
+        // Variables
+        // 
+
+        public enum ServiceState { Running, Stopped };
+        public static ServiceState State { get; set; }
+
+        private static bool StopService { get; set; }
+        private static bool IsInitializedSuccessfully { get; set; }
+        private static AppSettings AppSettings { get; set; }
+        private static IProgress<string> Progress { get; set; }
 
 
-        public UpdateProjektPermissionsAsync(string rootPath, AppSettings appSettings)
+        // // // // // // // // // // // // // // // // // // // // //
+        // Public Functions
+        // 
+
+        /// <summary>
+        /// 
+        /// Initialisierung...
+        /// 
+        /// </summary>
+        public static bool Initialization(AppSettings appSettings, IProgress<string> progress)
         {
-            RootPath = rootPath;
+            StopService = false;
+            State = ServiceState.Stopped;
+            IsInitializedSuccessfully = false;
             AppSettings = appSettings;
+            Progress = progress;
+
+            if (null == appSettings)
+                return false;
+
+            if (null == progress)
+                return false;
+
+
+
+
+
+            IsInitializedSuccessfully = true;
+            return true;
         }
+
 
         /// <summary>
         /// 
         /// Startet das Programm
         /// 
         /// </summary>
-        public async Task Run(IProgress<string> progress)
+        public static async Task Run()
         {
-            progress.Report($"Verarbeite '{RootPath}'");
+            if (IsInitializedSuccessfully == false)
+                throw new Exception("Is not successfully initalized!");
 
-            await ProcessRequests(progress);
-            UpdateProjektPermissions(progress);
+            TimeSpan waitForMe = new TimeSpan(0, 15, 0);
+            int rootCounter = AppSettings.RootPaths.Count;
+
+            do
+            {
+                for (int i = 0; i < rootCounter; i++)
+                {
+                    RepositoryRoot root = new RepositoryRoot(AppSettings.RootPaths[i], AppSettings);
+                    Progress.Report($"[{(i + 1).ToString()}/{rootCounter.ToString()}] Verarbeite '{root.RootPath}'");
+
+                    try
+                    {
+                        await ProcessRequestsAsync(root);
+                        await UpdateRepositoryPermissionsAsync(root);
+                    }
+                    catch (Exception)
+                    {
+
+                        throw;
+                    }
+                }
+
+                await Task.Delay(waitForMe);
+            } while (StopService == false);
         }
+
+
+        /// <summary>
+        /// 
+        /// Stoppt den UpdateService
+        /// 
+        /// </summary>
+        public static void Stop()
+        {
+            StopService = true;
+            State = ServiceState.Stopped;
+        }
+
+
+        // // // // // // // // // // // // // // // // // // // // //
+        // Private Functions
+        // 
+
 
         /// <summary>
         /// 
         /// Aktualisiert die Projektberechtigungen
         /// 
         /// </summary>
-        private void UpdateProjektPermissions(IProgress<string> progress)
+        private static async Task UpdateRepositoryPermissionsAsync(RepositoryRoot root)
         {
-            progress.Report("Aktualisiere die Projektberechtigungen ...");
+            Progress.Report("Aktualisiere die Projektberechtigungen ...");
+            DirectoryInfo[] repositories = root.GetRepositories();
 
-            RepositoryRoot repositoryRoot = new RepositoryRoot(RootPath, AppSettings);
-            DirectoryInfo[] repositories = repositoryRoot.GetRepositories();
-
-            Array.ForEach(repositories, async repository =>
+            foreach (DirectoryInfo repository in repositories)
             {
                 PermissionProcessor permissionProcessor = new PermissionProcessor(repository.FullName, AppSettings);
-                await permissionProcessor.UpdatePermissionsAsync(null);
-            });
+                try
+                {
+                    await permissionProcessor.UpdatePermissionsAsync(null);
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+            }
 
-            progress.Report("Aktualiserung der Projektberechtigungen abgeschlossen!");
+            Progress.Report("Aktualiserung der Projektberechtigungen abgeschlossen!");
         }
+
 
         /// <summary>
         /// 
         /// Verarbeitet die Projektanträge
         /// 
         /// </summary>
-        private async Task ProcessRequests(IProgress<string> progress)
+        private static async Task ProcessRequestsAsync(RepositoryRoot root)
         {
-            // Check PickupFolder
-            string pickupFolderName = "_Projekt beantragen";
-            PickupFolderPath = Path.Combine(RootPath, pickupFolderName);
+            RepositoryOrganization[] requests = await root.GetRepositoryRequestsAsync();
 
-            if (Directory.Exists(PickupFolderPath) == false)
-            {
-                progress.Report($"Der Pickup Ordner unter '{PickupFolderPath}' wurde nicht gefunden!");
+            if (null == requests || requests.Count() == 0)
                 return;
-            }
 
-            progress.Report($"Prüfe auf Anträge ...");
-
-            // Get Files
-            string[] requestFiles = Directory.GetFiles(PickupFolderPath);
-
-            IEnumerable<FileInfo> validRequestFiles = null;
-            if (null == requestFiles)
+            foreach (RepositoryOrganization organization in requests)
             {
-                return;
-            }
-            else
-            {
-                validRequestFiles = requestFiles
-                    .Select(file => new FileInfo(file))
-                    .Where(file => file.Name.StartsWith("_") == false)
-                    .Where(file => file.Extension == ".txt");
-
-                if (null == validRequestFiles || validRequestFiles.Count() == 0)
-                {
-                    return;
-                }
-            }
-
-
-            // Process Files
-            var foundJobFiles = validRequestFiles.GetEnumerator();
-            while (foundJobFiles.MoveNext())
-            {
-                FileInfo selectedFile = foundJobFiles.Current;
-
                 try
                 {
-                    progress.Report($"Antrag gefunden: {selectedFile.FullName}");
-                    await CreateProjekt(selectedFile, progress);
+                    RepositoryFolder repository = new RepositoryFolder(organization, new RepositorySettings(), RepositoryVersion.V2, AppSettings);
+                    await repository.CreateAsync(Progress);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    progress.Report($"Fehler: {ex.Message}");
-
-                    // Rename defekt file
-                    selectedFile.MoveTo($@"{selectedFile.Directory.FullName}\_fehler_{selectedFile.Name}");
+                    throw;
                 }
             }
         }
@@ -125,7 +171,7 @@ namespace ProjektOrdner.App
         /// Create ProjektOrdner
         /// 
         /// </summary>
-        private async Task CreateProjekt(FileInfo file, IProgress<string> progress)
+        private static async Task CreateProjekt(FileInfo file, IProgress<string> progress)
         {
             // Read Antragfile
             progress.Report($"Verarbeite den Projektantrag...");

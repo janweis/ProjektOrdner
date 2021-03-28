@@ -81,10 +81,14 @@ namespace ProjektOrdner.Permission
 
 
         // // // // // // // // // // // // // // // // // // // // //
-        // Functions
+        // Public Functions
         // 
 
-        public void UpdateUser()
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void UpdateUserData()
         {
             DirectoryEntry foundUser = ActiveDirectoryUtil.GetUser(Identification, IdentificationType);
 
@@ -109,8 +113,14 @@ namespace ProjektOrdner.Permission
         }
 
 
+        // // // // // // // // // // // // // // // // // // // // //
+        // Private Functions
+        // 
 
 
+        /// <summary>
+        /// 
+        /// </summary>
         private IdentificationTypes GetIdentType(string identString)
         {
             if (uint.TryParse(identString, out uint output))
@@ -125,7 +135,6 @@ namespace ProjektOrdner.Permission
 
             return IdentificationTypes.SamAccountName;
         }
-
 
     }
 }

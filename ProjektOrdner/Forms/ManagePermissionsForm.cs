@@ -109,12 +109,7 @@ namespace ProjektOrdner.Forms
                     NodeProcessor.AddNodeSimple(adUser, MasterNode.Unbestimmt);
                 }
 
-                Permissions.Add(new RepositoryPermission(AppSettings)
-                {
-                    User = adUser,
-                    Role = PermissionRole.Undefined,
-                    Source = PermissionSource.File
-                });
+                Permissions.Add(new RepositoryPermission(adUser, PermissionRole.Undefined, PermissionSource.File,null));
             }
 
             // Finish
@@ -262,18 +257,25 @@ namespace ProjektOrdner.Forms
             NodeProcessor.UpdateView(Permissions.ToArray(), NodeAdvancedMode);
         }
 
-        private void AbbrechenButton_Click(object sender, EventArgs e) => Close();
+        private void AbbrechenButton_Click(object sender, EventArgs e) => 
+            Close();
 
-        private void ÜbernehmenButton_Click(object sender, EventArgs e) => ApplyPermissions();
+        private void ÜbernehmenButton_Click(object sender, EventArgs e) => 
+            ApplyPermissions();
 
-        private void ResetButton_Click(object sender, EventArgs e) => NodeProcessor.UpdateView(Permissions.ToArray(), NodeAdvancedMode);
+        private void ResetButton_Click(object sender, EventArgs e) => 
+            NodeProcessor.UpdateView(Permissions.ToArray(), NodeAdvancedMode);
 
-        private void AddUserButton_Click(object sender, EventArgs e) => AddUserToView();
+        private void AddUserButton_Click(object sender, EventArgs e) => 
+            AddUserToView();
 
-        private void EntfernenButton_Click(object sender, EventArgs e) => RemoveSelectedUser();
+        private void EntfernenButton_Click(object sender, EventArgs e) => 
+            RemoveSelectedUser();
 
-        private void SetUpButton_Click(object sender, EventArgs e) => MoveEntryUp();
+        private void SetUpButton_Click(object sender, EventArgs e) => 
+            MoveEntryUp();
 
-        private void SetDownButton_Click(object sender, EventArgs e) => MoveEntryDown();
+        private void SetDownButton_Click(object sender, EventArgs e) => 
+            MoveEntryDown();
     }
 }

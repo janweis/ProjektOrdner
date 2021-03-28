@@ -73,7 +73,7 @@
     <Compile Include="App\AppSettings.cs" />
     <Compile Include="App\EnumModel.cs" />
     <Compile Include="App\LogProcessor.cs" />
-    <Compile Include="App\ServiceProcessor.cs" />
+    <Compile Include="Repository\RepositoryUpdateService.cs" />
     <Compile Include="Forms\FindAdUserForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -134,7 +134,7 @@
     <Compile Include="Permission\AdUser.cs" />
     <Compile Include="Permission\PermissionManager.cs" />
     <Compile Include="Permission\PermissionComparer.cs" />
-    <Compile Include="Permission\RepositoryPermission.cs" />
+    <Compile Include="Repository\RepositoryPermission.cs" />
     <Compile Include="Permission\PermissionNodeProcessor.cs" />
     <Compile Include="Permission\PermissionProcessor.cs" />
     <Compile Include="Processors\ManagerNodeProcessor.cs" />

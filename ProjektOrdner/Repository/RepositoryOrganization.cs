@@ -354,13 +354,7 @@ Gast=
 
             usernames.ForEach(username =>
             {
-                LegacyPermissions.Add(new RepositoryPermission()
-                {
-                    Role = accessRole,
-                    Source = PermissionSource.File,
-                    User = new AdUser(username),
-                    ProjektPath = ProjektPath
-                });
+                LegacyPermissions.Add(new RepositoryPermission(new AdUser(username), accessRole, PermissionSource.File, null));
             });
         }
 

@@ -103,7 +103,7 @@ namespace ProjektOrdner.Forms
         private async Task<RepositoryFolder[]> GetProjectsAsync(IProgress<string> progressMessage, bool includeCorrupted = false)
         {
             RepositoryRoot repositoryRoot = new RepositoryRoot(CurrentRootPath, AppSettings);
-            return await repositoryRoot.GetRepositories(includeCorrupted, progressMessage);
+            return await repositoryRoot.GetRepositoriesAsync(includeCorrupted, progressMessage);
         }
 
 
@@ -581,7 +581,7 @@ namespace ProjektOrdner.Forms
             UpdateViewAsync(new Progress<string>(message => UpdateToolStripStatus(message)), Repositories);
 
         private async void verwaltenToolStripMenuItem_Click(object sender, EventArgs e) =>
-            await RepositoryRoot.StartRootAssistant(AppSettings, new Progress<string>(message => UpdateToolStripStatus(message)));
+            await RepositoryRoot.StartRootAssistantAsync(AppSettings, new Progress<string>(message => UpdateToolStripStatus(message)));
 
         private async void anlegenToolStripMenuItem_Click(object sender, EventArgs e) =>
             await CreateProjektAsync();

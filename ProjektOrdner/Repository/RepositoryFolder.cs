@@ -58,8 +58,9 @@ namespace ProjektOrdner.Repository
 
 
         // // // // // // // // // // // // // // // // // // // // //
-        // Main Functions
+        // Public Functions
         // 
+
 
         /// <summary>
         /// 
@@ -149,23 +150,27 @@ namespace ProjektOrdner.Repository
         /// Fügt einen ProjektOrdner hinzu
         /// 
         /// </summary>
-        public async Task CreateAsync(RepositoryFolder repository, IProgress<string> progressMessage)
+        public async Task CreateAsync(IProgress<string> progressMessage)
         {
             // Create Folder
-            progressMessage.Report("Creating Folder... (1/4)");
-            CreateFolders(repository.Organization.ProjektPath);
+            progressMessage.Report("Creating Folder... (1/5)");
+            CreateFolders(Organization.ProjektPath);
 
             // Create Files
-            progressMessage.Report("Creating Files... (2/4)");
-            await CreateFilesAsync(repository.Organization);
+            progressMessage.Report("Creating Files... (2/5)");
+            await CreateFilesAsync(Organization);
 
             // Create adn link Active Directory Groups
-            progressMessage.Report("Creating Active Directory Groups... (3/4)");
-            GroupPrincipal[] adGroups = CreateAdGroups(repository.Organization.ProjektName);
+            progressMessage.Report("Creating Active Directory Groups... (3/5)");
+            GroupPrincipal[] adGroups = CreateAdGroups(Organization.ProjektName);
 
             // Set Permission to Folder
-            progressMessage.Report("Set up Directory ACLs (4/4)");
-            await SetProjektFolderPermissions(repository.Organization.ProjektPath, adGroups);
+            progressMessage.Report("Set up Directory ACLs (4/5)");
+            await SetProjektFolderPermissions(Organization.ProjektPath, adGroups);
+
+            // Inform Users via Mail
+            progressMessage.Report("Send Mailmessages to inform users (5/5)");
+            SendMailmessages();
         }
 
 
@@ -222,11 +227,8 @@ namespace ProjektOrdner.Repository
         public void Repair() { throw new NotImplementedException(); }
 
 
-
-
-
         // // // // // // // // // // // // // // // // // // // // //
-        // Sub Functions
+        // Private Functions
         // 
 
 
@@ -251,7 +253,7 @@ namespace ProjektOrdner.Repository
 
         /// <summary>
         /// 
-        /// 
+        /// Erstellt die Repositorydateien
         /// 
         /// </summary>
         private async Task CreateFilesAsync(RepositoryOrganization organisation)
@@ -290,7 +292,7 @@ namespace ProjektOrdner.Repository
 
         /// <summary>
         /// 
-        /// 
+        /// Erstellt die Active Directory Gruppen
         /// 
         /// </summary>
         private GroupPrincipal[] CreateAdGroups(string Name)
@@ -461,6 +463,18 @@ namespace ProjektOrdner.Repository
             Directory.SetAccessControl(projektPath, folderSecurtiy);
         }
 
+
+        /// <summary>
+        /// 
+        /// Informiert die Benutzer über die Projektanlage
+        /// 
+        /// </summary>
+        private void SendMailmessages()
+        {
+
+
+
+        }
 
 
 

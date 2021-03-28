@@ -56,10 +56,9 @@ namespace ProjektOrdner.Repository
                 Version = RepositoryVersion.V2
             };
 
-            RepositoryFolder repository = new RepositoryFolder(organisation, new RepositorySettings(), RepositoryVersion.V2, AppSettings);
-
             // Add Repository
-            await Processor.CreateAsync(repository, messageProgress);
+            RepositoryFolder repository = new RepositoryFolder(organisation, new RepositorySettings(), RepositoryVersion.V2, AppSettings);
+            await repository.CreateAsync(messageProgress);
 
             // Start PermissionManager
             if(getDataForm.UsePermissionAssistent == true)

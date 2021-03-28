@@ -36,7 +36,7 @@ namespace ProjektOrdner.Repository
 
 
         // // // // // // // // // // // // // // // // // // // // //
-        // Functions
+        // Public Functions
         // 
 
 
@@ -50,7 +50,7 @@ namespace ProjektOrdner.Repository
             progress.Report("Creating root folder...");
             CreateFolders();
             await CreateFilesAsync();
-            await SetFolderAccessPermissions();
+            await SetFolderAccessPermissionsAsync();
 
             progress.Report("Rootfolder successfully created!");
         }
@@ -68,7 +68,7 @@ namespace ProjektOrdner.Repository
 
             if (includeProjectsCleanup == true)
             {
-                RepositoryFolder[] repositories = await GetRepositories(true, progress);
+                RepositoryFolder[] repositories = await GetRepositoriesAsync(true, progress);
                 Array.ForEach(repositories, repository =>
                 {
                     progress.Report($"Removing Projekt {repository.Organization.ProjektName}");
@@ -80,6 +80,22 @@ namespace ProjektOrdner.Repository
             Directory.Delete(RootPath, true);
 
             progress.Report($"Deleting completet!");
+        }
+
+
+        /// <summary>
+        /// 
+        /// 
+        /// 
+        /// </summary>
+        public async Task<RepositoryFolder> GetRepositoryAsync(string folderName)
+        {
+            string folderPath = Path.Combine(RootPath, folderName);
+
+            RepositoryFolder repository = new RepositoryFolder(AppSettings);
+            await repository.Load(folderPath);
+
+            return repository;
         }
 
 
@@ -102,7 +118,7 @@ namespace ProjektOrdner.Repository
         /// Listet die vorhanden Projekte auf.
         /// 
         /// </summary>
-        public async Task<RepositoryFolder[]> GetRepositories(bool includeCorrupted, IProgress<string> progress)
+        public async Task<RepositoryFolder[]> GetRepositoriesAsync(bool includeCorrupted, IProgress<string> progress)
         {
             progress.Report("Lade Projektliste...");
             string[] folderList;
@@ -148,10 +164,53 @@ namespace ProjektOrdner.Repository
 
         /// <summary>
         /// 
+        /// Ruft die Anträge eines Repositorys ab.
+        /// 
+        /// </summary>
+        public async Task<RepositoryOrganization[]> GetRepositoryRequestsAsync()
+        {
+            // Check PickupFolder
+            string requestFolderPath = Path.Combine(RootPath, AppConstants.RequestFolderName);
+
+            if (Directory.Exists(requestFolderPath) == false)
+                return null;
+
+            // Get Files
+            string[] requestFiles = Directory.GetFiles(requestFolderPath);
+            if (null == requestFiles)
+                return null;
+
+            // Filter Files
+            IEnumerable<FileInfo> validRequestFiles = requestFiles
+                    .Select(file => new FileInfo(file))
+                    .Where(file => file.Name.StartsWith("_") == false)
+                    .Where(file => file.Extension == ".txt");
+
+            if (null == validRequestFiles || validRequestFiles.Count() == 0)
+                return null;
+
+
+            // Process Files
+            List<RepositoryOrganization> requests = new List<RepositoryOrganization>();
+            foreach(FileInfo file in validRequestFiles)
+            {
+                RepositoryOrganization organization = new RepositoryOrganization();
+                await organization.LoadV1(file);
+
+                if (organization.IsValid() == true)
+                    requests.Add(organization);
+            }
+
+            return requests.ToArray();
+        }
+
+
+        /// <summary>
+        /// 
         /// 
         /// 
         /// </summary>
-        public static async Task StartRootAssistant(AppSettings appSettings, IProgress<string> progress)
+        public static async Task StartRootAssistantAsync(AppSettings appSettings, IProgress<string> progress)
         {
             RootFolderAssistentForm rootFolderAssistent = new RootFolderAssistentForm();
             DialogResult result = rootFolderAssistent.ShowDialog();
@@ -190,6 +249,10 @@ namespace ProjektOrdner.Repository
 
 
 
+        // // // // // // // // // // // // // // // // // // // // //
+        // Private Functions
+        // 
+
         /// <summary>
         /// 
         /// Erstellt das Ordnerkonstrukt
@@ -223,7 +286,7 @@ namespace ProjektOrdner.Repository
         /// Setzt die Berchtigungen für den Rootordner.
         /// 
         /// </summary>
-        private async Task SetFolderAccessPermissions(GroupPrincipal ownEntryGroup = null)
+        private async Task SetFolderAccessPermissionsAsync(GroupPrincipal ownEntryGroup = null)
         {
             if (Directory.Exists(RootPath) == false)
                 throw new DirectoryNotFoundException(RootPath);
@@ -303,10 +366,6 @@ namespace ProjektOrdner.Repository
             // Apply AccessRules
             Directory.SetAccessControl(RootPath, directorySecurity);
         }
-
-
-
-
 
 
     }
