@@ -1,10 +1,6 @@
-﻿using MimeKit;
-using ProjektOrdner.App;
-using ProjektOrdner.Mail;
+﻿using ProjektOrdner.App;
 using ProjektOrdner.Permission;
-using ProjektOrdner.Repository;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -141,7 +137,7 @@ namespace ProjektOrdner.Repository
 
         /// <summary>
         /// 
-        /// Verarbeitet die Projektanträge
+        /// Verarbeitet die Projektanträge und erstellt ggf. das Repository und die Berechtigung
         /// 
         /// </summary>
         private static async Task ProcessRequestsAsync(RepositoryRoot root)
@@ -153,124 +149,30 @@ namespace ProjektOrdner.Repository
 
             foreach (RepositoryOrganization organization in requests)
             {
+                RepositoryFolder repository = new RepositoryFolder(organization, new RepositorySettings(), RepositoryVersion.V2, AppSettings);
                 try
                 {
-                    RepositoryFolder repository = new RepositoryFolder(organization, new RepositorySettings(), RepositoryVersion.V2, AppSettings);
                     await repository.CreateAsync(Progress);
                 }
                 catch (Exception)
                 {
                     throw;
                 }
-            }
-        }
 
-
-        /// <summary>
-        /// 
-        /// Create ProjektOrdner
-        /// 
-        /// </summary>
-        private static async Task CreateProjekt(FileInfo file, IProgress<string> progress)
-        {
-            // Read Antragfile
-            progress.Report($"Verarbeite den Projektantrag...");
-            RepositoryOrganization repositoryOrga = new RepositoryOrganization();
-            await repositoryOrga.LoadV1(file);
-            bool isFileValid = repositoryOrga.IsValid();
-
-            // Validate Antragfile
-            if (isFileValid == false)
-            {
-                throw new Exception($"Der Antrag ist ungültig!; {file.FullName}");
-            }
-
-            // Validate Directorypath
-            if (Directory.Exists(repositoryOrga.ProjektPath) == true)
-            {
-                throw new Exception("Das Projekt existiert bereits!");
-            }
-
-            // Create Repository
-            progress.Report($"Erstelle den ProjektOrdner...");
-
-            RepositoryFolder repositoryProcessor = new RepositoryFolder(AppSettings);
-            RepositoryFolder repository = new RepositoryFolder(repositoryOrga, new RepositorySettings(), RepositoryVersion.V2, AppSettings);
-
-            await repositoryProcessor
-                .CreateAsync(repository, progress);
-
-            // Setup Projekt Permissions
-            if (repositoryOrga.LegacyPermissions.Count > 0)
-            {
-                progress.Report("Mitglieder werden berechtigt ...");
-
-                PermissionProcessor permissionProcessor = new PermissionProcessor(repositoryOrga.ProjektPath, AppSettings);
-                MailProcessor mailProcessor = new MailProcessor(AppSettings, repository);
-
-                List<Task> permTasks = new List<Task>();
-                List<MimeMessage> mails = new List<MimeMessage>();
-                foreach (RepositoryPermission permission in repositoryOrga.LegacyPermissions)
-                {
-                    // Add Permissions
-                    await permission.AddToRepositoryAsync(repository);
-                    //permTasks.Add(permissionProcessor.AddPermissionAsync(PermissionSource.File, permission));
-
-                    // Create Mail
-                    MailTemplateCreator templateCreator = new MailTemplateCreator(permission.User, repository.Organization);
-                    string mailbody = string.Empty;
-                    string mailbetreff = string.Empty;
-
-                    switch (permission.Role)
-                    {
-                        case PermissionRole.ReadOnly:
-                        {
-                            mailbetreff = "Willkommen im neuen Projekt!";
-                            mailbody = templateCreator.PermissionUserAdded(permission.Role);
-                            break;
-                        }
-                        case PermissionRole.ReadWrite:
-                        {
-                            mailbetreff = "Willkommen im neuen Projekt!";
-                            mailbody = templateCreator.PermissionUserAdded(permission.Role);
-                            break;
-                        }
-                        case PermissionRole.Manager:
-                        {
-                            mailbetreff = "ProjektOrdner wurde angelegt!";
-                            mailbody = templateCreator.ProjektCreatedTemplate();
-                            break;
-                        }
-                    }
-
-                    // Craete and add Mail to List
-                    mails.Add(mailProcessor.CreateMail(mailbody, mailbetreff, permission.User));
-
-                    await Task.WhenAll(permTasks.ToArray());
-                }
-                progress.Report("Berechtigungen abgeschlossen!");
-
-                // Inform via Mail
-                progress.Report("Sende Benachrichtigungen via Mail...");
-                mails.ForEach(mail =>
+                foreach (RepositoryPermission permission in organization.LegacyPermissions)
                 {
                     try
                     {
-                        //mailProcessor.SendMail(mail);
+                        await permission.AddToRepositoryAsync(repository);
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
-                        progress.Report($"Fehler: {ex.Message}");
+                        throw;
                     }
-                });
-
-                // Cleanup
-                progress.Report("Cleanup ...");
-                File.Delete(file.FullName);
-
-                // ENDE
-                progress.Report("ProjektOrdner erfolgreich erstellt!");
+                }
             }
         }
+
+
     }
 }

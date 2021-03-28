@@ -1,4 +1,6 @@
-﻿using ProjektOrdner.App;
+﻿using MimeKit;
+using ProjektOrdner.App;
+using ProjektOrdner.Mail;
 using ProjektOrdner.Permission;
 using ProjektOrdner.Utils;
 using System;
@@ -153,24 +155,24 @@ namespace ProjektOrdner.Repository
         public async Task CreateAsync(IProgress<string> progressMessage)
         {
             // Create Folder
-            progressMessage.Report("Creating Folder... (1/5)");
+            progressMessage.Report("(1/5) Creating Folder...");
             CreateFolders(Organization.ProjektPath);
 
             // Create Files
-            progressMessage.Report("Creating Files... (2/5)");
+            progressMessage.Report("(2/5) Creating Files...");
             await CreateFilesAsync(Organization);
 
             // Create adn link Active Directory Groups
-            progressMessage.Report("Creating Active Directory Groups... (3/5)");
+            progressMessage.Report("(3/5) Creating Active Directory Groups...");
             GroupPrincipal[] adGroups = CreateAdGroups(Organization.ProjektName);
 
             // Set Permission to Folder
-            progressMessage.Report("Set up Directory ACLs (4/5)");
+            progressMessage.Report("(4/5) Set up Directory ACLs");
             await SetProjektFolderPermissions(Organization.ProjektPath, adGroups);
 
             // Inform Users via Mail
-            progressMessage.Report("Send Mailmessages to inform users (5/5)");
-            SendMailmessages();
+            progressMessage.Report("(5/5) Send Mailmessages to inform users");
+            //SendMailmessages();
         }
 
 
@@ -466,14 +468,39 @@ namespace ProjektOrdner.Repository
 
         /// <summary>
         /// 
-        /// Informiert die Benutzer über die Projektanlage
+        /// Informiert die Manager über die Projektanlage
         /// 
         /// </summary>
         private void SendMailmessages()
         {
+            string subject = "Ihr ProjektOrdner wurde angelegt!";
+            MailProcessor mailProcessor = new MailProcessor(AppSettings, this);
 
+            // Create Mails
+            List<MimeMessage> mails = new List<MimeMessage>();
+            foreach (AdUser user in Organization.LegacyPermissions
+                .Where(permission => permission.Role == PermissionRole.Manager)
+                .Select(permission => permission.User))
+            {
+                MailTemplateCreator templateCreator = new MailTemplateCreator(user, Organization);
+                string mailtext = templateCreator.ProjektCreatedTemplate();
 
+                // Craete and add Mail to List
+                mails.Add(mailProcessor.CreateMail(mailtext, subject, user));
+            }
 
+            // Send Mails
+            foreach(MimeMessage mail in mails)
+            {
+                try
+                {
+                    mailProcessor.SendMail(mail);
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+            }
         }
 
 
