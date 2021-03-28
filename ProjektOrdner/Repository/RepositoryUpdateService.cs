@@ -104,12 +104,11 @@ namespace ProjektOrdner.Repository
 
         /// <summary>
         /// 
-        /// 
+        /// Öffnet das Log
         /// 
         /// </summary>
-        public static void ShowResults()
-        {
-        }
+        public static void ShowResults() => 
+            Log.ShowLog();
 
 
         // // // // // // // // // // // // // // // // // // // // //

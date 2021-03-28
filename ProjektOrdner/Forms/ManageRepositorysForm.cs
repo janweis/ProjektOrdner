@@ -521,6 +521,7 @@ namespace ProjektOrdner.Forms
             await UpdateViewAsync(new Progress<string>(message => UpdateToolStripStatus(message)));
         }
 
+
         /// <summary>
         /// 
         /// Start Update Service
@@ -576,7 +577,14 @@ namespace ProjektOrdner.Forms
         /// </summary>
         private void ShowServiceOutput()
         {
-            throw new NotImplementedException();
+            try
+            {
+                RepositoryUpdateService.ShowResults();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Es ist ein Fehler aufgetreten! {ex.Message}");
+            }
         }
 
 
