@@ -51,16 +51,23 @@ namespace ProjektOrdner.Processors
 
         public TreeNode GetNodeBySelection(bool onlyMasterNode = false)
         {
-            if(onlyMasterNode == false)
+            if (onlyMasterNode == false)
                 return View.SelectedNode;
 
-            if (null == View.SelectedNode.Parent)
+            if (null == View.SelectedNode)
             {
-                return View.SelectedNode;
+                return null;
             }
             else
             {
-                return View.SelectedNode.Parent;
+                if (null == View.SelectedNode.Parent)
+                {
+                    return View.SelectedNode;
+                }
+                else
+                {
+                    return View.SelectedNode.Parent;
+                }
             }
         }
 

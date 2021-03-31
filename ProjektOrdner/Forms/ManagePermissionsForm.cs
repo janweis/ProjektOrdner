@@ -1,5 +1,6 @@
 ﻿using ProjektOrdner.App;
 using ProjektOrdner.Permission;
+using ProjektOrdner.Repository;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -40,7 +41,6 @@ namespace ProjektOrdner.Forms
         /// Initialise Controls
         /// 
         /// </summary>
-
         private void InitializeControls()
         {
             NodeProcessor.ResetView();
@@ -53,7 +53,6 @@ namespace ProjektOrdner.Forms
         /// Sucht das verknüfte Objekt aus der Berechtigungsliste heraus.
         /// 
         /// </summary>
-
         private RepositoryPermission GetPermissionFromNode(TreeNode treeNode)
         {
             if (null == treeNode)
@@ -70,7 +69,6 @@ namespace ProjektOrdner.Forms
         /// Add User
         /// 
         /// </summary>
-
         private void AddUserToView()
         {
             List<AdUser> adUsers = new List<AdUser>();
@@ -109,7 +107,7 @@ namespace ProjektOrdner.Forms
                     NodeProcessor.AddNodeSimple(adUser, MasterNode.Unbestimmt);
                 }
 
-                Permissions.Add(new RepositoryPermission(adUser, PermissionRole.Undefined, PermissionSource.File,null));
+                Permissions.Add(new RepositoryPermission(adUser, PermissionRole.Undefined, PermissionSource.File, AppSettings));
             }
 
             // Finish
@@ -122,7 +120,6 @@ namespace ProjektOrdner.Forms
         /// Remove User
         /// 
         /// </summary>
-
         private void RemoveSelectedUser()
         {
             TreeNode selectedNode = NodeProcessor.GetNodeBySelection();
@@ -143,7 +140,6 @@ namespace ProjektOrdner.Forms
         /// Das Objekt im TreeView wird eine Berechtigungsstufe höher gesetzt.
         /// 
         /// </summary>
-
         private void MoveEntryUp()
         {
             TreeNode selectedNode = NodeProcessor.GetNodeBySelection();
@@ -185,7 +181,6 @@ namespace ProjektOrdner.Forms
         /// Das Objekt im TreeView wird eine Berechtigungsstufe tiefer gesetzt.
         /// 
         /// </summary>
-
         private void MoveEntryDown()
         {
             TreeNode selectedNode = NodeProcessor.GetNodeBySelection();
@@ -227,7 +222,6 @@ namespace ProjektOrdner.Forms
         /// Schmeißt die ungültigen Berechtigungen aus der Berechtigungsliste und schließt das Fenster.
         /// 
         /// </summary>
-
         private void ApplyPermissions()
         {
             // Aktualisiere Berechtigungen
@@ -257,25 +251,25 @@ namespace ProjektOrdner.Forms
             NodeProcessor.UpdateView(Permissions.ToArray(), NodeAdvancedMode);
         }
 
-        private void AbbrechenButton_Click(object sender, EventArgs e) => 
+        private void AbbrechenButton_Click(object sender, EventArgs e) =>
             Close();
 
-        private void ÜbernehmenButton_Click(object sender, EventArgs e) => 
+        private void ÜbernehmenButton_Click(object sender, EventArgs e) =>
             ApplyPermissions();
 
-        private void ResetButton_Click(object sender, EventArgs e) => 
+        private void ResetButton_Click(object sender, EventArgs e) =>
             NodeProcessor.UpdateView(Permissions.ToArray(), NodeAdvancedMode);
 
-        private void AddUserButton_Click(object sender, EventArgs e) => 
+        private void AddUserButton_Click(object sender, EventArgs e) =>
             AddUserToView();
 
-        private void EntfernenButton_Click(object sender, EventArgs e) => 
+        private void EntfernenButton_Click(object sender, EventArgs e) =>
             RemoveSelectedUser();
 
-        private void SetUpButton_Click(object sender, EventArgs e) => 
+        private void SetUpButton_Click(object sender, EventArgs e) =>
             MoveEntryUp();
 
-        private void SetDownButton_Click(object sender, EventArgs e) => 
+        private void SetDownButton_Click(object sender, EventArgs e) =>
             MoveEntryDown();
     }
 }

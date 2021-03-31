@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace ProjektOrdner.Permission
 {
     public class PermissionProcessor
-    {        
+    {
         // // // // // // // // // // // // // // // // // // // // //
         // Variables
         // 
@@ -20,7 +20,7 @@ namespace ProjektOrdner.Permission
         private AppSettings AppSettings { get; set; }
         private ActiveDirectoryUtil AdUtil { get; set; }
         private string ProjektPath { get; set; }
-        private RepositoryVersion OrdnerVersion { get; set; }
+        private RepositoryVersion Version = RepositoryVersion.Unknown;
 
 
         // // // // // // // // // // // // // // // // // // // // //
@@ -31,151 +31,71 @@ namespace ProjektOrdner.Permission
         {
             ProjektPath = projektPath;
             AppSettings = appSettings;
-            OrdnerVersion = RepositoryVersion.V2;
 
             AdUtil = new ActiveDirectoryUtil(appSettings);
+            DetectRepositoryVersion();
         }
 
         public PermissionProcessor(string projektPath, AppSettings appSettings, RepositoryVersion version)
         {
             ProjektPath = projektPath;
             AppSettings = appSettings;
-            OrdnerVersion = version;
+            Version = version;
 
             AdUtil = new ActiveDirectoryUtil(appSettings);
+            DetectRepositoryVersion();
         }
-
 
         // // // // // // // // // // // // // // // // // // // // //
         // Public Functions
         // 
 
+
         /// <summary>
         /// 
-        /// Ruft die Projektberechtigungen ab
+        /// Gibt die Repository Berechtigungen aus
         /// 
         /// </summary>
-        public async Task<RepositoryPermission[]> GetPermissionsAsync(PermissionSource source)
+        public async Task<RepositoryPermission[]> GetPermissionsAsync()
         {
-            List<RepositoryPermission> permissions = new List<RepositoryPermission>();
-
-            switch (source)
-            {
-                case PermissionSource.ActiveDirectory:
-                {
-                    permissions.AddRange(GetUsersFromGroup(PermissionRole.ReadOnly));
-                    permissions.AddRange(GetUsersFromGroup(PermissionRole.ReadWrite));
-                    permissions.AddRange(GetUsersFromGroup(PermissionRole.Manager));
-
-                    break;
-                }
-                case PermissionSource.File:
-                {
-                    permissions.AddRange(await GetUsersFromFileAsync(PermissionRole.ReadOnly));
-                    permissions.AddRange(await GetUsersFromFileAsync(PermissionRole.ReadWrite));
-                    permissions.AddRange(await GetUsersFromFileAsync(PermissionRole.Manager));
-
-                    break;
-                }
-            }
-
-            return permissions.ToArray();
+            return await GetPermissionsFromFileAsync();
         }
 
 
-
         /// <summary>
         /// 
-        /// </summary>
-        public string GetPermissionFilePath(PermissionRole permissionAccess, string projektPath)
-        {
-            string fileName = string.Empty;
-            switch (permissionAccess)
-            {
-                case PermissionRole.ReadOnly:
-                {
-                    fileName = AppConstants.PermissionFileReadOnlyName;
-                    break;
-                }
-                case PermissionRole.ReadWrite:
-                {
-                    fileName = AppConstants.PermissionFileReadWriteName;
-                    break;
-                }
-                case PermissionRole.Manager:
-                {
-                    fileName = AppConstants.PermissionFileManagerName;
-                    break;
-                }
-            }
-
-            string organisationPath = string.Empty;
-            switch (OrdnerVersion)
-            {
-                case RepositoryVersion.V1:
-                {
-                    organisationPath = projektPath;
-                    break;
-                }
-                case RepositoryVersion.V2:
-                {
-                    organisationPath = Path.Combine(projektPath, AppConstants.OrganisationFolderName);
-                    break;
-                }
-                case RepositoryVersion.Unknown:
-                    break;
-            }
-
-            // FilePath
-            return Path.Combine(organisationPath, fileName);
-        }
-
-
-
-        /// <summary>
-        /// 
-        /// Aktualisiert die Berechtigungen auf ein Projekt
+        /// Aktualisiert die Gruppenmitgliedschaften im Active Directory
         /// 
         /// </summary>
-        public async Task UpdatePermissionsAsync(RepositoryPermission[] newPermissions)
+        public async Task SyncPermissionsAsync(RepositoryPermission[] newPermissions = null)
         {
-            List<Task> permissionTasks = new List<Task>();
-
-            RepositoryPermission[] adPermissions = await GetPermissionsAsync(PermissionSource.ActiveDirectory);
-            RepositoryPermission[] filePermissions = null;
+            RepositoryPermission[] permissionsFromFile;
             if (null != newPermissions)
             {
-                filePermissions = newPermissions;
-
-                // Overwrite file permissions
-                permissionTasks.Add(
-                    OverwritePermissionsAsync(PermissionSource.File, newPermissions));
+                permissionsFromFile = newPermissions;
             }
             else
             {
-                filePermissions = await GetPermissionsAsync(PermissionSource.File);
+                permissionsFromFile = await GetPermissionsFromFileAsync();
             }
+            RepositoryPermission[] permissionsFromAD = GetPermissionsFromAD();
 
+            List<RepositoryPermission> permissionsToAdd = permissionsFromFile
+                .Except(permissionsFromAD, new PermissionComparer())
+                .ToList();
 
-            // Add permissions
-            IEnumerable<RepositoryPermission> permissionsToAdd = filePermissions.Except(adPermissions, new PermissionComparer());
-            foreach (RepositoryPermission permission in permissionsToAdd)
-            {
-                permission.AddToRepositoryAsync
+            List<RepositoryPermission> permissionsToRemove = permissionsFromAD
+                .Except(permissionsFromFile, new PermissionComparer())
+                .ToList();
 
-                permissionTasks.Add(
-                    AddPermissionAsync(PermissionSource.ActiveDirectory, permission));
-            }
+            RepositoryOrganization repositoryOrganization = new RepositoryOrganization();
+            await repositoryOrganization.LoadAuto(ProjektPath);
 
-            // Remove permissions
-            IEnumerable<RepositoryPermission> permissionsToRemove = adPermissions.Except(filePermissions, new PermissionComparer());
-            foreach (RepositoryPermission permission in permissionsToRemove)
-            {
-                permissionTasks.Add(
-                    RemovePermissionAsync(PermissionSource.ActiveDirectory, permission));
-            }
+            if (null != permissionsToAdd && permissionsToAdd.Count > 0)
+                permissionsToAdd.ForEach(async permission => await permission.ApplyTo(repositoryOrganization));
 
-            await Task.WhenAll(permissionTasks.ToArray());
+            if (null != permissionsToRemove && permissionsToRemove.Count > 0)
+                permissionsToRemove.ForEach(async permission => await permission.RemoveFrom(repositoryOrganization));
         }
 
 
@@ -228,15 +148,259 @@ namespace ProjektOrdner.Permission
         }
 
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public string GetPermissionFilePath(PermissionRole permissionAccess, string projektPath)
+        {
+            string fileName = string.Empty;
+            switch (permissionAccess)
+            {
+                case PermissionRole.ReadOnly:
+                {
+                    if (Version == RepositoryVersion.V1)
+                    {
+                        fileName = AppConstants.PermissionFileReadOnlyNameV1;
+                    }
+                    else if (Version == RepositoryVersion.V2)
+                    {
+                        fileName = AppConstants.PermissionFileReadOnlyName;
+                    }
+                    break;
+                }
+                case PermissionRole.ReadWrite:
+                {
+                    if (Version == RepositoryVersion.V1)
+                    {
+                        fileName = AppConstants.PermissionFileReadWriteNameV1;
+                    }
+                    else if (Version == RepositoryVersion.V2)
+                    {
+                        fileName = AppConstants.PermissionFileReadWriteName;
+                    }
+                    break;
+                }
+                case PermissionRole.Manager:
+                {
+                    if (Version == RepositoryVersion.V1)
+                    {
+                        fileName = AppConstants.OrganisationFileNameV1;
+                    }
+                    else if (Version == RepositoryVersion.V2)
+                    {
+                        fileName = AppConstants.PermissionFileManagerName;
+                    }
+                    break;
+                }
+            }
 
 
+            string organisationPath = string.Empty;
+            switch (Version)
+            {
+                case RepositoryVersion.V1:
+                {
+                    organisationPath = projektPath;
+                    break;
+                }
+                case RepositoryVersion.V2:
+                {
+                    organisationPath = Path.Combine(projektPath, AppConstants.OrganisationFolderName);
+                    break;
+                }
+                case RepositoryVersion.Unknown:
+                    break;
+            }
 
+            // FilePath
+            return Path.Combine(organisationPath, fileName);
+        }
 
 
         // // // // // // // // // // // // // // // // // // // // //
-        // Private Functions
+        // File IO
         // 
 
+        /// <summary>
+        /// 
+        /// Ruft die Berechtigungen in den Berechtigungsdateien des Projektes ab.
+        /// 
+        /// </summary>
+        private async Task<RepositoryPermission[]> GetPermissionsFromFileAsync()
+        {
+            List<RepositoryPermission> permissions = new List<RepositoryPermission>();
+
+            // Get Content
+            if (Version == RepositoryVersion.Unknown)
+            {
+                return null;
+            }
+            else
+            {
+                if (Version == RepositoryVersion.V1)
+                {
+                    string managerFilePath = GetPermissionFilePath(PermissionRole.Manager, ProjektPath);
+                    if (File.Exists(managerFilePath) == false)
+                        return null;
+
+                    // Extract ProjektManager Users
+                    string managerFileContent = await GetFileContentAsync(managerFilePath);
+                    string filteredLine = managerFileContent
+                        .Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)
+                        .Where(line => line.ToLower().Contains("projektmanager=") == true)
+                        .FirstOrDefault();
+
+                    if (string.IsNullOrWhiteSpace(filteredLine) == true)
+                        return null;
+
+                    string[] managerUsers = filteredLine
+                        .Substring(filteredLine.IndexOf("=")+1)
+                        .Split(',');
+
+                    // Create Objects
+                    foreach (string manager in managerUsers)
+                    {
+                        RepositoryPermission permission = new RepositoryPermission(
+                            new AdUser(manager), PermissionRole.Manager, PermissionSource.File, AppSettings);
+
+                        permission.User.UpdateUserData();
+
+                        if (permission.User.IsValidated == true)
+                            permissions.Add(permission);
+                    }
+                }
+            }
+
+            string memberFilePath = GetPermissionFilePath(PermissionRole.ReadWrite, ProjektPath);
+            if (File.Exists(memberFilePath) == false)
+                return null;
+
+            string guestFilePath = GetPermissionFilePath(PermissionRole.ReadOnly, ProjektPath);
+            if (File.Exists(guestFilePath) == false)
+                return null;
+
+            string memberFileContent = await GetFileContentAsync(memberFilePath);
+            string guestFileContent = await GetFileContentAsync(guestFilePath);
+
+            // Filter Content
+            string[] memberUsers = memberFileContent
+                .Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)
+                .Where(line => line.Contains('#') == false &&
+                line.StartsWith("_") == false)
+                .ToArray();
+
+            string[] guestUsers = guestFileContent
+                .Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)
+                .Where(line => line.Contains('#') == false &&
+                line.StartsWith("_") == false)
+                .ToArray();
+
+            // Create Permissions
+            foreach (string member in memberUsers)
+            {
+                RepositoryPermission permission = new RepositoryPermission(
+                    new AdUser(member), PermissionRole.ReadWrite, PermissionSource.File, AppSettings);
+
+                permission.User.UpdateUserData();
+
+                if (permission.User.IsValidated == true)
+                    permissions.Add(permission);
+
+            }
+
+            foreach (string guest in guestUsers)
+            {
+                RepositoryPermission permission = new RepositoryPermission(
+                    new AdUser(guest), PermissionRole.ReadOnly, PermissionSource.File, AppSettings);
+
+                permission.User.UpdateUserData();
+
+                if (permission.User.IsValidated == true)
+                    permissions.Add(permission);
+            }
+
+            return permissions.ToArray();
+        }
+
+
+        /// <summary>
+        /// 
+        /// Ließt den Dateiinhalt
+        /// 
+        /// </summary>
+        private async Task<string> GetFileContentAsync(string filePath)
+        {
+            string fileContent = string.Empty;
+            using (StreamReader reader = new StreamReader(filePath, Encoding.UTF8))
+            {
+                fileContent = await reader.ReadToEndAsync();
+            }
+
+            return fileContent;
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private void DetectRepositoryVersion()
+        {
+            // Detect Repository Version
+            RepositoryOrganization organization = new RepositoryOrganization();
+            RepositoryVersion repositoryVersion = organization.GetRepositoryVersion(ProjektPath);
+
+            Version = repositoryVersion;
+        }
+
+
+        // // // // // // // // // // // // // // // // // // // // //
+        // Active Directory IO
+        // 
+
+        /// <summary>
+        /// 
+        /// Ruft die Berechtigungen auf Basis der AD Gruppenmitgliedschaften ab
+        /// 
+        /// </summary>
+        private RepositoryPermission[] GetPermissionsFromAD()
+        {
+            string projektName = new DirectoryInfo(ProjektPath).Name;
+            List<RepositoryPermission> permissions = new List<RepositoryPermission>();
+
+            string managerAdGroupName = AdUtil.GetAdGroupName(projektName, GroupScope.Global, PermissionRole.Manager);
+            string memberAdGroupName = AdUtil.GetAdGroupName(projektName, GroupScope.Global, PermissionRole.ReadWrite);
+            string guestAdGroupName = AdUtil.GetAdGroupName(projektName, GroupScope.Global, PermissionRole.ReadOnly);
+
+            PrincipalCollection managerUsers = AdUtil.GetGroupMembers(managerAdGroupName, IdentityType.SamAccountName);
+            PrincipalCollection memberUsers = AdUtil.GetGroupMembers(memberAdGroupName, IdentityType.SamAccountName);
+            PrincipalCollection guestUsers = AdUtil.GetGroupMembers(guestAdGroupName, IdentityType.SamAccountName);
+
+            foreach (UserPrincipal manager in managerUsers)
+                permissions.Add(
+                    new RepositoryPermission(
+                        new AdUser(manager),
+                        PermissionRole.Manager,
+                        PermissionSource.ActiveDirectory,
+                        AppSettings));
+
+            foreach (UserPrincipal member in memberUsers)
+                permissions.Add(
+                    new RepositoryPermission(
+                        new AdUser(member),
+                        PermissionRole.ReadWrite,
+                        PermissionSource.ActiveDirectory,
+                        AppSettings));
+
+            foreach (UserPrincipal guest in guestUsers)
+                permissions.Add(
+                    new RepositoryPermission(
+                        new AdUser(guest),
+                        PermissionRole.ReadOnly,
+                        PermissionSource.ActiveDirectory,
+                        AppSettings));
+
+            return permissions.ToArray();
+        }
 
     }
 }

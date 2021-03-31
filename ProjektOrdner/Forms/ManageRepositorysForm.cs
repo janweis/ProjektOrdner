@@ -227,13 +227,20 @@ namespace ProjektOrdner.Forms
 
             if (null == node)
             {
-                MessageBox.Show("Es wurde kein Projekt zum entfernen ausgewählt!", "Hinweis", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Es wurde kein Projekt zum Aktualisieren ausgewählt!", "Hinweis", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
-            // Aktualisiere das aktuelle Projekt
-            PermissionProcessor permissionProcessor = new PermissionProcessor(node.Tag.ToString(), AppSettings);
-            await permissionProcessor.UpdatePermissionsAsync(null);
+            // Aktualisiere das aktuelle Projektt
+            try
+            {
+                PermissionProcessor permissionProcessor = new PermissionProcessor(node.Tag.ToString(), AppSettings);
+                await permissionProcessor.SyncPermissionsAsync();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Es ist ein Fehler aufgetreten! {ex.Message}", "Update-Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
 
@@ -255,7 +262,7 @@ namespace ProjektOrdner.Forms
 
                 PermissionProcessor permissionProcessor = new PermissionProcessor(repository.Organization.ProjektPath, AppSettings);
                 tasks.Add(
-                    permissionProcessor.UpdatePermissionsAsync(null));
+                    permissionProcessor.SyncPermissionsAsync());
             }
 
             await Task.WhenAll(tasks);
@@ -529,24 +536,23 @@ namespace ProjektOrdner.Forms
         /// </summary>
         private async Task StartUpdateServiceAsync()
         {
-            // Init
-            bool init = RepositoryUpdateService.Initialization(AppSettings, new Progress<string>(message => UpdateToolStripStatus(message)));
+            // Set Menu Controls
+            beendenToolStripMenuItem1.Enabled = true;
+            startenToolStripMenuItem.Enabled = false;
 
-            if (init)
+            try
             {
-                // Set Menu Controls
-                beendenToolStripMenuItem1.Enabled = true;
-                startenToolStripMenuItem.Enabled = false;
+                bool init = RepositoryUpdateService.Initialization(AppSettings, new Progress<string>(message => UpdateToolStripStatus(message)));
 
-                try
+                if (init)
                 {
                     await RepositoryUpdateService.Run();
                 }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Es ist ein Fehler im UpdateService aufgetreten! {ex.Message}");
-                    StopUpdateService();
-                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Es ist ein Fehler im UpdateService aufgetreten! {ex.Message}");
+                StopUpdateService();
             }
         }
 

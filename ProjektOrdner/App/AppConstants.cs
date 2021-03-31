@@ -14,9 +14,13 @@ namespace ProjektOrdner.App
 
         public static string OrganisationFileNameV2 = "ProjektOrdner.json";
         public static string OrganisationFileNameV1 = "_ProjektInfo";
+
         public static string PermissionFileManagerName = "_Manager-Zugriff.txt";
         public static string PermissionFileReadWriteName = "_Mitarbeiter-Zugriff.txt";
         public static string PermissionFileReadOnlyName = "_Gast-Zugriff.txt";
+        public static string PermissionFileReadWriteNameV1 = "_RW-Ordnerzugriff.txt";
+        public static string PermissionFileReadOnlyNameV1 = "_R-Ordnerzugriff.txt";
+
         public static string RepositorySettingsFileName = "Einstellungen.json";
         public static string AppSettingsFileName = "AppSettings.json";
         public static string RequestFolderName = "_Projekt beantragen";

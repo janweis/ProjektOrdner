@@ -260,7 +260,7 @@ namespace ProjektOrdner.Repository
         /// </summary>
         private async Task CreateFilesAsync(RepositoryOrganization organisation)
         {
-            PermissionProcessor permissionProcessor = new PermissionProcessor(organisation.ProjektPath, AppSettings);
+            PermissionProcessor permissionProcessor = new PermissionProcessor(organisation.ProjektPath, AppSettings,RepositoryVersion.V2);
 
             // Create ReadOnly permission file
             string readOnlyFilePath = permissionProcessor.GetPermissionFilePath(PermissionRole.ReadOnly, organisation.ProjektPath);

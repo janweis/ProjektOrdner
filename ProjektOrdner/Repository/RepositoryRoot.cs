@@ -107,7 +107,10 @@ namespace ProjektOrdner.Repository
         public DirectoryInfo[] GetRepositories()
         {
             DirectoryInfo rootDirectory = new DirectoryInfo(RootPath);
-            DirectoryInfo[] projektList = rootDirectory.GetDirectories();
+            DirectoryInfo[] projektList = rootDirectory
+                .GetDirectories()
+                .Where(directory => directory.Name.StartsWith("_") == false)
+                .ToArray();
 
             return projektList;
         }

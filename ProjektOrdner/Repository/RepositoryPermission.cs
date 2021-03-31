@@ -1,13 +1,9 @@
 ﻿using ProjektOrdner.App;
 using ProjektOrdner.Permission;
-using ProjektOrdner.Repository;
 using ProjektOrdner.Utils;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.DirectoryServices.AccountManagement;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -48,23 +44,51 @@ namespace ProjektOrdner.Repository
         // Public Functions
         // 
 
+
         /// <summary>
         /// 
         /// </summary>
-        public async Task AddToRepositoryAsync(RepositoryFolder repository)
+        public async Task ApplyTo(RepositoryOrganization organization)
         {
-            switch (repository.Version)
+            switch (organization.Version)
             {
                 case RepositoryVersion.V1:
                 {
-                    await AddToFileV1Async(repository.Organization.ProjektPath);
-                    AddToActiveDirectoryV1(repository.Organization);
+                    await AddUserToPermissionFileV1(organization.ProjektPath);
                     break;
                 }
                 case RepositoryVersion.V2:
                 {
-                    await AddToFileV2Async(repository.Organization.ProjektPath);
-                    AddToActiveDirectoryV2(repository.Organization);
+                    await AddUserToPermissionFileV2(organization.ProjektPath);
+                    break;
+                }
+                case RepositoryVersion.Unknown:
+                {
+                    throw new ArgumentException("Unknown Repository Version!");
+                }
+            }
+
+            AddUserToADGroup(organization);
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public async Task RemoveFrom(RepositoryOrganization organization)
+        {
+            switch (organization.Version)
+            {
+                case RepositoryVersion.V1:
+                {
+                    await RemoveFromFileV1Async(organization.ProjektPath);
+                    RemoveFromActiveDirectoryV1(organization);
+                    break;
+                }
+                case RepositoryVersion.V2:
+                {
+                    await RemoveFromFileV2Async(organization.ProjektPath);
+                    RemoveFromActiveDirectoryV2(organization);
                     break;
                 }
                 case RepositoryVersion.Unknown:
@@ -73,141 +97,15 @@ namespace ProjektOrdner.Repository
                 }
             }
         }
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public async Task AddToRepositoryAsync(string projektPath)
-        {
-            RepositoryFolder repository = new RepositoryFolder(Settings);
-            await repository.Load(projektPath);
-            await AddToRepositoryAsync(repository);
-        }
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public async Task RemoveFromRepositoryAsync(RepositoryFolder repository)
-        {
-            switch (repository.Version)
-            {
-                case RepositoryVersion.V1:
-                {
-                    await RemoveFromFileV1Async(repository.Organization.ProjektPath);
-                    RemoveFromActiveDirectoryV1(repository.Organization);
-                    break;
-                }
-                case RepositoryVersion.V2:
-                {
-                    await RemoveFromFileV2Async(repository.Organization.ProjektPath);
-                    RemoveFromActiveDirectoryV2(repository.Organization);
-                    break;
-                }
-                case RepositoryVersion.Unknown:
-                {
-                    throw new ArgumentException("Unknown Repository Version!");
-                }
-            }
-        }
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public async Task RemoveFromRepositoryAsync(string projektPath)
-        {
-            RepositoryFolder repository = new RepositoryFolder(Settings);
-            await repository.Load(projektPath);
-            await RemoveFromRepositoryAsync(repository);
-        }
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public async Task UpdatePermission(RepositoryFolder repository)
-        {
-            PermissionRole fileRole = await GetPermissionRoleFromFilesAsync(repository.Organization.ProjektPath, repository.Organization.Version);
-
-            //PermissionRole adRole = GetPermissionRoleFromActiveDirectory(repository.Organization);
-
-            // Remove User
-            //if(fileRole == PermissionRole.Undefined && adRole != PermissionRole.Undefined)
-            //{
-            //    if(repository.Organization.Version == RepositoryVersion.V1)
-            //    {
-            //        RemoveFromActiveDirectoryV1(repository.Organization);
-            //    }
-            //    else if(repository.Organization.Version == RepositoryVersion.V2)
-            //    {
-            //        RemoveFromActiveDirectoryV2(repository.Organization);
-            //    }
-            //    else
-            //    {
-            //        throw new ArgumentException("Unknown Repository Version!");
-            //    }
-
-            //    return;
-            //}
-
-            // Add User
-            //if(fileRole != PermissionRole.Undefined && adRole == PermissionRole.Undefined)
-            //{
-            //    if (repository.Organization.Version == RepositoryVersion.V1)
-            //    {
-            //        AddToActiveDirectoryV1(repository.Organization);
-            //    }
-            //    else if (repository.Organization.Version == RepositoryVersion.V2)
-            //    {
-            //        AddToActiveDirectoryV2(repository.Organization);
-            //    }
-            //    else
-            //    {
-            //        throw new ArgumentException("Unknown Repository Version!");
-            //    }
-
-            //    return;
-            //}
-
-            // If User has new Permission
-            if (Role != fileRole)
-            {
-                switch (repository.Version)
-                {
-                    case RepositoryVersion.V1:
-                    {
-                        await RemoveFromFileV1Async(repository.Organization.ProjektPath, fileRole);
-                        RemoveFromActiveDirectoryV1(repository.Organization, fileRole);
-
-                        await AddToFileV1Async(repository.Organization.ProjektPath);
-                        AddToActiveDirectoryV1(repository.Organization);
-
-                        break;
-                    }
-                    case RepositoryVersion.V2:
-                    {
-                        await RemoveFromFileV2Async(repository.Organization.ProjektPath, fileRole);
-                        RemoveFromActiveDirectoryV2(repository.Organization, fileRole);
-
-                        await AddToFileV2Async(repository.Organization.ProjektPath);
-                        AddToActiveDirectoryV2(repository.Organization);
-
-                        break;
-                    }
-                    case RepositoryVersion.Unknown:
-                        throw new ArgumentException("Unknown Repository Version!");
-                }
-            }
-        }
-
 
 
         // // // // // // // // // // // // // // // // // // // // //
         // Private Functions
         // 
 
+        // // // // // // // // // // // // // // // // // // // // //
+        // Active Directory IO
+        //
 
         /// <summary>
         /// 
@@ -244,34 +142,7 @@ namespace ProjektOrdner.Repository
         /// <summary>
         /// 
         /// </summary>
-        private async Task<PermissionRole> GetPermissionRoleFromFilesAsync(string projektPath, RepositoryVersion version)
-        {
-            // ReadWrite
-            string readWriteFileContent = await ReadFileContent(Path.Combine(projektPath, GetPermissionFileName(PermissionRole.ReadWrite, version)));
-
-            if (readWriteFileContent.Contains(User.SamAccountName) == true)
-                return PermissionRole.ReadWrite;
-
-            // Manager
-            string managerFileContent = await ReadFileContent(Path.Combine(projektPath, GetPermissionFileName(PermissionRole.Manager, version)));
-
-            if (managerFileContent.Contains(User.SamAccountName) == true)
-                return PermissionRole.Manager;
-
-            // ReadOnly
-            string readOnlyFileContent = await ReadFileContent(Path.Combine(projektPath, GetPermissionFileName(PermissionRole.ReadOnly, version)));
-
-            if (readOnlyFileContent.Contains(User.SamAccountName) == true)
-                return PermissionRole.ReadOnly;
-
-            return PermissionRole.Undefined;
-        }
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        private void AddToActiveDirectoryV2(RepositoryOrganization organization)
+        private void AddUserToADGroup(RepositoryOrganization organization)
         {
             string adGroupName = DirectoryUtil.GetAdGroupName(organization.ProjektName, GroupScope.Global, Role);
             if (string.IsNullOrWhiteSpace(adGroupName) == true)
@@ -304,79 +175,6 @@ namespace ProjektOrdner.Repository
                     }
                 }
             }
-        }
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        private async Task AddToFileV2Async(string projektPath)
-        {
-            string filePath = Path.Combine(projektPath, Path.Combine(AppConstants.OrganisationFolderName, GetPermissionFileName(Role, RepositoryVersion.V2)));
-            string fileContent = await ReadFileContent(filePath);
-
-            if (fileContent.Contains(User.SamAccountName) == false)
-            {
-                fileContent = fileContent + Environment.NewLine + User.SamAccountName;
-            }
-
-            await WriteFileContent(filePath, fileContent);
-        }
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        private void AddToActiveDirectoryV1(RepositoryOrganization organization)
-        {
-            string adGroupName = DirectoryUtil.GetAdGroupName(organization.ProjektName, GroupScope.Global, Role);
-            if (string.IsNullOrWhiteSpace(adGroupName) == true)
-            {
-                throw new Exception($"Could not get Active Directory Group Name '{organization.ProjektName}'!");
-            }
-            else
-            {
-                GroupPrincipal adGroup = DirectoryUtil.GetGroup(adGroupName, IdentityType.SamAccountName);
-
-                if (null == adGroup)
-                {
-                    throw new Exception($"Could not get Active Directory Group Object '{adGroupName}'!");
-                }
-                else
-                {
-                    UserPrincipal adUser = DirectoryUtil.GetUser(User.SamAccountName, IdentityType.SamAccountName);
-
-                    if (null == adUser)
-                    {
-                        throw new Exception($"Could not get Active Directory User Object '{User.SamAccountName}'!");
-                    }
-                    else
-                    {
-                        if (adGroup.Members.Contains(adUser) == false)
-                        {
-                            adGroup.Members.Add(adUser);
-                            adGroup.Save();
-                        }
-                    }
-                }
-            }
-        }
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        private async Task AddToFileV1Async(string projektPath)
-        {
-            string filePath = Path.Combine(projektPath, GetPermissionFileName(Role, RepositoryVersion.V1));
-            string fileContent = await ReadFileContent(filePath);
-
-            if (fileContent.Contains(User.SamAccountName) == false)
-            {
-                fileContent = fileContent + Environment.NewLine + User.SamAccountName;
-            }
-
-            await WriteFileContent(filePath, fileContent);
         }
 
 
@@ -407,30 +205,6 @@ namespace ProjektOrdner.Repository
         /// <summary>
         /// 
         /// </summary>
-        private async Task RemoveFromFileV2Async(string projektPath) =>
-            await RemoveFromFileV2Async(projektPath, Role);
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        private async Task RemoveFromFileV2Async(string projektPath, PermissionRole role)
-        {
-            string filePath = Path.Combine(projektPath, Path.Combine(AppConstants.OrganisationFolderName, GetPermissionFileName(role, RepositoryVersion.V2)));
-            string fileContent = await ReadFileContent(filePath);
-
-            if (fileContent.Contains(User.SamAccountName) == true)
-            {
-                fileContent = fileContent.Replace(User.SamAccountName, "");
-            }
-
-            await WriteFileContent(filePath, fileContent);
-        }
-
-
-        /// <summary>
-        /// 
-        /// </summary>
         private void RemoveFromActiveDirectoryV1(RepositoryOrganization organization) =>
             RemoveFromActiveDirectoryV1(organization, Role);
 
@@ -451,6 +225,94 @@ namespace ProjektOrdner.Repository
             }
         }
 
+
+        // // // // // // // // // // // // // // // // // // // // //
+        // File IO
+        //
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private async Task<PermissionRole> GetPermissionRoleFromFilesAsync(string projektPath, RepositoryVersion version)
+        {
+            // ReadWrite
+            string readWriteFileContent = await ReadFileContent(Path.Combine(projektPath, GetPermissionFileName(PermissionRole.ReadWrite, version)));
+
+            if (readWriteFileContent.Contains(User.SamAccountName) == true)
+                return PermissionRole.ReadWrite;
+
+            // Manager
+            string managerFileContent = await ReadFileContent(Path.Combine(projektPath, GetPermissionFileName(PermissionRole.Manager, version)));
+
+            if (managerFileContent.Contains(User.SamAccountName) == true)
+                return PermissionRole.Manager;
+
+            // ReadOnly
+            string readOnlyFileContent = await ReadFileContent(Path.Combine(projektPath, GetPermissionFileName(PermissionRole.ReadOnly, version)));
+
+            if (readOnlyFileContent.Contains(User.SamAccountName) == true)
+                return PermissionRole.ReadOnly;
+
+            return PermissionRole.Undefined;
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private async Task AddUserToPermissionFileV2(string projektPath)
+        {
+            string filePath = Path.Combine(projektPath, Path.Combine(AppConstants.OrganisationFolderName, GetPermissionFileName(Role, RepositoryVersion.V2)));
+            string fileContent = await ReadFileContent(filePath);
+
+            if (fileContent.Contains(User.SamAccountName) == false)
+            {
+                fileContent = fileContent + Environment.NewLine + User.SamAccountName;
+            }
+
+            await WriteFileContent(filePath, fileContent);
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private async Task AddUserToPermissionFileV1(string projektPath)
+        {
+            string filePath = Path.Combine(projektPath, GetPermissionFileName(Role, RepositoryVersion.V1));
+            string fileContent = await ReadFileContent(filePath);
+
+            if (fileContent.Contains(User.SamAccountName) == false)
+            {
+                fileContent = fileContent + Environment.NewLine + User.SamAccountName;
+            }
+
+            await WriteFileContent(filePath, fileContent);
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private async Task RemoveFromFileV2Async(string projektPath) =>
+            await RemoveFromFileV2Async(projektPath, Role);
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private async Task RemoveFromFileV2Async(string projektPath, PermissionRole role)
+        {
+            string filePath = Path.Combine(projektPath, Path.Combine(AppConstants.OrganisationFolderName, GetPermissionFileName(role, RepositoryVersion.V2)));
+            string fileContent = await ReadFileContent(filePath);
+
+            if (fileContent.Contains(User.SamAccountName) == true)
+            {
+                fileContent = fileContent.Replace(User.SamAccountName, "");
+            }
+
+            await WriteFileContent(filePath, fileContent);
+        }
 
         /// <summary>
         /// 
@@ -543,10 +405,6 @@ namespace ProjektOrdner.Repository
             return fileName;
         }
 
-
-        // // // // // // // // // // // // // // // // // // // // //
-        // File IO
-        // 
 
         /// <summary>
         /// 

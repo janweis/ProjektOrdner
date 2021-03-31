@@ -47,6 +47,7 @@ namespace ProjektOrdner.Repository
                 return false;
 
             Log = new LogProcessor(appSettings.LogPath);
+            Log.Write("Start Logging");
 
             IsInitializedSuccessfully = true;
             return true;
@@ -63,28 +64,33 @@ namespace ProjektOrdner.Repository
             if (IsInitializedSuccessfully == false)
                 throw new Exception("Is not successfully initalized!");
 
-            TimeSpan waitForMe = new TimeSpan(0, 15, 0);
+            State = ServiceState.Running;
+            TimeSpan waitForMe = new TimeSpan(0, 1, 0);
             int rootCounter = AppSettings.RootPaths.Count;
+            string stage = string.Empty;
 
             do
             {
                 for (int i = 0; i < rootCounter; i++)
                 {
                     RepositoryRoot root = new RepositoryRoot(AppSettings.RootPaths[i], AppSettings);
-                    Progress.Report($"[{(i + 1).ToString()}/{rootCounter.ToString()}] Verarbeite '{root.RootPath}'");
+                    WriteProgress($"[{(i + 1).ToString()}/{rootCounter.ToString()}] Verarbeite '{root.RootPath}'");
 
                     try
                     {
+                        stage = "Process Requests";
                         await ProcessRequestsAsync(root);
+
+                        stage = "Sync Permissions";
                         await UpdateRepositoryPermissionsAsync(root);
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
-
-                        throw;
+                        WriteProgress($"Error in stage {stage}: {ex.Message}");
                     }
                 }
 
+                WriteProgress($"ServiceTask abgeschlossen! Warte eine Minute...");
                 await Task.Delay(waitForMe);
             } while (StopService == false);
         }
@@ -97,8 +103,10 @@ namespace ProjektOrdner.Repository
         /// </summary>
         public static void Stop()
         {
+            WriteProgress("ServiceTask wurde gestoppt!");
             StopService = true;
             State = ServiceState.Stopped;
+            Log.Close();
         }
 
 
@@ -107,7 +115,7 @@ namespace ProjektOrdner.Repository
         /// Öffnet das Log
         /// 
         /// </summary>
-        public static void ShowResults() => 
+        public static void ShowResults() =>
             Log.ShowLog();
 
 
@@ -123,23 +131,20 @@ namespace ProjektOrdner.Repository
         /// </summary>
         private static async Task UpdateRepositoryPermissionsAsync(RepositoryRoot root)
         {
-            Progress.Report("Aktualisiere die Projektberechtigungen ...");
             DirectoryInfo[] repositories = root.GetRepositories();
 
             foreach (DirectoryInfo repository in repositories)
             {
-                PermissionProcessor permissionProcessor = new PermissionProcessor(repository.FullName, AppSettings);
                 try
                 {
-                    await permissionProcessor.UpdatePermissionsAsync(null);
+                    PermissionProcessor permissionProcessor = new PermissionProcessor(repository.FullName, AppSettings);
+                    await permissionProcessor.SyncPermissionsAsync();
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    throw;
+                    WriteProgress($"Es ist ein Fehler in der Synchronisierung der Berechtigungen für das Projekt {repository.FullName} aufgetreten! {ex.Message}");
                 }
             }
-
-            Progress.Report("Aktualiserung der Projektberechtigungen abgeschlossen!");
         }
 
 
@@ -171,7 +176,7 @@ namespace ProjektOrdner.Repository
                 {
                     try
                     {
-                        await permission.AddToRepositoryAsync(repository);
+                        await permission.ApplyTo(organization);
                     }
                     catch (Exception)
                     {
@@ -181,6 +186,17 @@ namespace ProjektOrdner.Repository
             }
         }
 
+
+        /// <summary>
+        /// 
+        /// Write Messages
+        /// 
+        /// </summary>
+        private static void WriteProgress(string message)
+        {
+            Log.Write(message);
+            Progress.Report(message);
+        }
 
     }
 }

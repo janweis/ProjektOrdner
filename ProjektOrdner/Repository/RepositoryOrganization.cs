@@ -63,6 +63,35 @@ namespace ProjektOrdner.Repository
 
         /// <summary>
         /// 
+        /// 
+        /// 
+        /// </summary>
+        public async Task LoadAuto(string folderPath)
+        {
+            RepositoryVersion version = GetRepositoryVersion(folderPath);
+
+            switch (version)
+            {
+                case RepositoryVersion.V1:
+                {
+                    await LoadV1(folderPath);
+                    break;
+                }
+                case RepositoryVersion.V2:
+                {
+                    await LoadV2(folderPath);
+                    break;
+                }
+                case RepositoryVersion.Unknown:
+                {
+                    throw new Exception("Repository Version is not present!");
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// 
         /// Lade die Organisations- oder Antragsdatei Version 1
         /// 
         /// </summary>
@@ -352,10 +381,9 @@ Gast=
             if (usernames.Count == 0)
                 return;
 
-            usernames.ForEach(username =>
-            {
-                LegacyPermissions.Add(new RepositoryPermission(new AdUser(username), accessRole, PermissionSource.File, null));
-            });
+            //foreach(string user in usernames)
+            //LegacyPermissions.Add(new RepositoryPermission(new AdUser(user), accessRole, PermissionSource.File, null));
+
         }
 
     }

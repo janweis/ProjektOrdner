@@ -41,7 +41,7 @@ namespace ProjektOrdner.App
         {
             Writer = new StreamWriter(FilePath, true, Encoding.UTF8)
             {
-                AutoFlush = true
+                AutoFlush = true,
             };
         }
 

@@ -1,5 +1,6 @@
 ﻿using ProjektOrdner.App;
 using ProjektOrdner.Forms;
+using ProjektOrdner.Repository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,41 +29,23 @@ namespace ProjektOrdner.Permission
         {
             // Get current permissions
             PermissionProcessor permissionProcessor = new PermissionProcessor(FolderPath, AppSettings);
-            RepositoryPermission[] projektPermissions = null;
-            try
-            {
-                projektPermissions = await permissionProcessor.GetPermissionsAsync(PermissionSource.File);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Es ist ein Fehler beim Lesen der Projektberechtigungen aufgetreten!\n{ex.Message}", "Hinweis", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
+            RepositoryPermission[] projektPermissions = await permissionProcessor.GetPermissionsAsync();
 
-            // Manage permissions
+            // Prepare second Permission List
             List<RepositoryPermission> editedPermissions = new List<RepositoryPermission>();
             if (null != projektPermissions)
             {
                 editedPermissions.AddRange(projektPermissions);
             }
 
+            ManagePermissionsForm permissionManage = new ManagePermissionsForm(editedPermissions, AppSettings);
+            DialogResult dialogResult = permissionManage.ShowDialog();
 
-            try
-            {
-                ManagePermissionsForm permissionManage = new ManagePermissionsForm(editedPermissions, AppSettings);
-                DialogResult dialogResult = permissionManage.ShowDialog();
-
-                if (dialogResult == DialogResult.Cancel)
-                    return;
-
-                // Update Permission
-                await permissionProcessor.UpdatePermissionsAsync(editedPermissions.ToArray());
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Es ist ein Fehler aufgetreten!\n{ex.Message}");
+            if (dialogResult == DialogResult.Cancel)
                 return;
-            }
+
+            // Update Permission
+            await permissionProcessor.SyncPermissionsAsync(editedPermissions.ToArray());
         }
 
     }
