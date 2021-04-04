@@ -276,26 +276,30 @@ namespace ProjektOrdner.Repository
         public static string GetRequestTemplate()
         {
             return @"#
-## ProjektOrdner - Beantragungsformular
+# ProjektOrdner - Beantragungsformular
 # 
 
-## PROJEKT BEZEICHNUNG
-# Leerzeichen sind im Ordnernamen erlaubt, sollten aber nicht direkt nach dem '=' erfolgen.
-# den Unterstrich am Beginn des Dateinamens löschen.
-# Maximal darf der ProjektOrdner 45 Zeichen (a-z A-Z 0-9 und Leerzeichen) beinhalten.
-Name=
 
-## PROJEKT ORGANISATION
-EndeDatum=
+#> ORGANISATION <#
+#
+# 'ProjektName' darf bis zu 45 Zeichen (a-z A-Z 0-9 und Leerzeichen) beinhalten. (Eingabe erforderlich!)
+# 'EndDatum' geben Sie bitte im Format TT.MM.JJJJ an. (Eingabe erforderlich!)
+#
+ProjektName=
+EndDatum=
 
-## PROJEKT BERECHTIGUNGEN
-# Der Projekt Manager kann Projektdateien Lesen, Schreiben und Projektberechtigungen anpassen.
+
+#> BERECHTIGUNGEN <#
+#
+# Sie können den Anmeldenamen, die eMail-Adresse oder die Matrikelnummer des Mitarbeiters/Studenten
+# kommagetrennt (,) angeben.
+#
+# 'ProjektManager'  -> Lesen, Dateien bearbeiten und Andere in´s Projekt einladen (Eingabe erforderlich!)
+# 'Mitarbeiter'     -> Lesen u. Dateien bearbeiten
+# 'Gast'            -> Nur lesen und nichts verändern
+#
 ProjektManager=
-
-# 'Lesen & Schreiben' ist die Berechtigung für normale Projektmitglieder
 Mitarbeiter=
-
-# 'Nur Lesen' ist für eingeschränkte Projektmitglieder
 Gast=
 ";
         }

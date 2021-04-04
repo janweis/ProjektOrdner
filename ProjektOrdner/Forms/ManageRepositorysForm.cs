@@ -97,18 +97,6 @@ namespace ProjektOrdner.Forms
 
         /// <summary>
         /// 
-        /// Ruft alle Projekte ab.
-        /// 
-        /// </summary>
-        private async Task<RepositoryFolder[]> GetProjectsAsync(IProgress<string> progressMessage, bool includeCorrupted = false)
-        {
-            RepositoryRoot repositoryRoot = new RepositoryRoot(CurrentRootPath, AppSettings);
-            return await repositoryRoot.GetRepositoriesAsync(includeCorrupted, progressMessage);
-        }
-
-
-        /// <summary>
-        /// 
         /// Legt ein Projekt an.
         /// 
         /// </summary>
@@ -460,11 +448,18 @@ namespace ProjektOrdner.Forms
         private async Task UpdateViewAsync(IProgress<string> message)
         {
             // Update Nodes
-            Repositories = await GetProjectsAsync(message, IncludeCorruptedProjects);
-            NodeProcessor.UpdateView(Repositories, IncludeCorruptedProjects);  // Update Nodes
+            RepositoryRoot repositoryRoot = new RepositoryRoot(CurrentRootPath, AppSettings);
+            RepositoryFolder[] repositories = await repositoryRoot.GetRepositoriesAsync(IncludeCorruptedProjects, message);
+            if (null == repositories || repositories.Count() == 0)
+            {
+                message.Report("Kein Projekt gefunden!");
+                return;
+            }
+
+            NodeProcessor.UpdateView(repositories, IncludeCorruptedProjects);  // Update Nodes
 
             // Update Projektanzahl Anzeige
-            toolStripStatusProjektZahl.Text = $"{Repositories.Count()} Projekt(e)";
+            toolStripStatusProjektZahl.Text = $"{repositories.Count()} Projekt(e)";
 
             // Update Status
             message.Report("Aktualisierung abgeschlossen!");
@@ -478,8 +473,11 @@ namespace ProjektOrdner.Forms
         /// </summary>
         private void UpdateViewAsync(IProgress<string> message, RepositoryFolder[] repositories)
         {
-            if (null == repositories)
+            if (null == repositories || repositories.Count() == 0)
+            {
+                message.Report("Kein Projekt gefunden!");
                 return;
+            }
 
             // Update Nodes
             NodeProcessor.UpdateView(repositories, IncludeCorruptedProjects);
@@ -600,7 +598,17 @@ namespace ProjektOrdner.Forms
 
         private async void MenuRootItem_Click(object sender, EventArgs e)
         {
+            // Select new Root
             ToolStripMenuItem menuItem = sender as ToolStripMenuItem;
+
+            try
+            {
+                await ChangeRootPath(menuItem.Tag.ToString());
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Es ist ein Fehler aufgetreten! {ex.Message}", "Stammpfad auswahl", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
 
             // Clear Checked
             for (int i = 1; i <= (projektRootToolStripMenuItem.DropDownItems.Count - 1); i++)
@@ -614,9 +622,7 @@ namespace ProjektOrdner.Forms
                 }
             }
 
-            // Check new Root
             menuItem.Checked = true;
-            await ChangeRootPath(menuItem.Tag.ToString());
         }
 
         private void ProjektsTree_DoubleClick(object sender, EventArgs e) =>

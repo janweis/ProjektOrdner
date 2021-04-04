@@ -31,7 +31,7 @@ namespace ProjektOrdner.Repository
         public RepositoryStatus Status { get; set; }
 
         private AppSettings AppSettings { get; set; }
-        private ActiveDirectoryUtil ActiveDirectory { get; set; }
+        private ActiveDirectoryUtil AdUtil { get; set; }
 
 
         // // // // // // // // // // // // // // // // // // // // //
@@ -41,8 +41,6 @@ namespace ProjektOrdner.Repository
         public RepositoryFolder(AppSettings appSettings)
         {
             AppSettings = appSettings;
-            ActiveDirectory = new ActiveDirectoryUtil(appSettings);
-
             Version = RepositoryVersion.Unknown;
             Status = RepositoryStatus.NotChecked;
         }
@@ -50,8 +48,6 @@ namespace ProjektOrdner.Repository
         public RepositoryFolder(RepositoryOrganization organization, RepositorySettings settings, RepositoryVersion version, AppSettings appSettings)
         {
             AppSettings = appSettings;
-            ActiveDirectory = new ActiveDirectoryUtil(appSettings);
-
             Organization = organization;
             Settings = settings;
             Version = version;
@@ -233,6 +229,16 @@ namespace ProjektOrdner.Repository
         // Private Functions
         // 
 
+        /// <summary>
+        /// 
+        /// Init AdUtil
+        /// 
+        /// </summary>
+        private void InitActiveDirectory()
+        {
+            AdUtil = new ActiveDirectoryUtil(AppSettings);
+        }
+
 
         /// <summary>
         /// 
@@ -260,7 +266,7 @@ namespace ProjektOrdner.Repository
         /// </summary>
         private async Task CreateFilesAsync(RepositoryOrganization organisation)
         {
-            PermissionProcessor permissionProcessor = new PermissionProcessor(organisation.ProjektPath, AppSettings,RepositoryVersion.V2);
+            PermissionProcessor permissionProcessor = new PermissionProcessor(organisation.ProjektPath, AppSettings, RepositoryVersion.V2);
 
             // Create ReadOnly permission file
             string readOnlyFilePath = permissionProcessor.GetPermissionFilePath(PermissionRole.ReadOnly, organisation.ProjektPath);
@@ -300,21 +306,24 @@ namespace ProjektOrdner.Repository
         private GroupPrincipal[] CreateAdGroups(string Name)
         {
             string description = $"ProjektOrdner {Name}; Angelegt am {DateTime.Now};";
+            if (null == AdUtil)
+                InitActiveDirectory();
+
 
             // Create local Groups
             GroupPrincipal[] adLocalGroups =
             {
-                ActiveDirectory.AddGroup(GroupScope.Local, ActiveDirectory.GetAdGroupName(Name, GroupScope.Local, PermissionRole.Manager), description),
-                ActiveDirectory.AddGroup(GroupScope.Local, ActiveDirectory.GetAdGroupName(Name, GroupScope.Local, PermissionRole.ReadWrite), description),
-                ActiveDirectory.AddGroup(GroupScope.Local, ActiveDirectory.GetAdGroupName(Name, GroupScope.Local, PermissionRole.ReadOnly), description),
+                AdUtil.AddGroup(GroupScope.Local, AdUtil.GetAdGroupName(Name, GroupScope.Local, PermissionRole.Manager), description),
+                AdUtil.AddGroup(GroupScope.Local, AdUtil.GetAdGroupName(Name, GroupScope.Local, PermissionRole.ReadWrite), description),
+                AdUtil.AddGroup(GroupScope.Local, AdUtil.GetAdGroupName(Name, GroupScope.Local, PermissionRole.ReadOnly), description),
             };
 
             // Create global Groups                        
             GroupPrincipal[] adGlobalGroups =
             {
-                ActiveDirectory.AddGroup(GroupScope.Global,ActiveDirectory.GetAdGroupName(Name, GroupScope.Global, PermissionRole.Manager), description),
-                ActiveDirectory.AddGroup(GroupScope.Global,ActiveDirectory.GetAdGroupName(Name, GroupScope.Global, PermissionRole.ReadWrite), description),
-                ActiveDirectory.AddGroup(GroupScope.Global,ActiveDirectory.GetAdGroupName(Name, GroupScope.Global, PermissionRole.ReadOnly), description)
+                AdUtil.AddGroup(GroupScope.Global,AdUtil.GetAdGroupName(Name, GroupScope.Global, PermissionRole.Manager), description),
+                AdUtil.AddGroup(GroupScope.Global,AdUtil.GetAdGroupName(Name, GroupScope.Global, PermissionRole.ReadWrite), description),
+                AdUtil.AddGroup(GroupScope.Global,AdUtil.GetAdGroupName(Name, GroupScope.Global, PermissionRole.ReadOnly), description)
             };
 
             // Link local and global Groups
@@ -490,7 +499,7 @@ namespace ProjektOrdner.Repository
             }
 
             // Send Mails
-            foreach(MimeMessage mail in mails)
+            foreach (MimeMessage mail in mails)
             {
                 try
                 {
@@ -546,7 +555,10 @@ namespace ProjektOrdner.Repository
 
         private void DeleteAdGroups()
         {
-            foreach (GroupPrincipal group in ActiveDirectory.GetAdGroups(Organization.ProjektName))
+            if (null == AdUtil)
+                InitActiveDirectory();
+
+            foreach (GroupPrincipal group in AdUtil.GetAdGroups(Organization.ProjektName))
             {
                 if (null != group)
                 {

@@ -134,9 +134,9 @@ namespace ProjektOrdner.Repository
                     ?.Select(directory => directory.FullName)
                     ?.ToArray();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                progress.Report("Error: Could not read folders! You may not have the correct permissions!");
+                progress.Report($"Error: Could not read folders! You may not have the correct permissions! {ex.Message}");
                 return null;
             }
 

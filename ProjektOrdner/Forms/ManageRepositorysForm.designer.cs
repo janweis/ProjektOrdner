@@ -29,15 +29,6 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Berechtigungen - Manager", 1, 1);
-            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Berechtigungen - Lesen & Schreiben", 1, 1);
-            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Berechtigungen - Nur Lesen", 1, 1);
-            System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("Einstellungen");
-            System.Windows.Forms.TreeNode treeNode5 = new System.Windows.Forms.TreeNode("Beispiel Projekt", 6, 6, new System.Windows.Forms.TreeNode[] {
-            treeNode1,
-            treeNode2,
-            treeNode3,
-            treeNode4});
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ManageRepositorysForm));
             this.ContextMenu2 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.umbenennenToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
@@ -74,6 +65,11 @@
             this.aktualisiereAlleBerechtigungenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.projektRootToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.verwaltenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.starteProjektOrdnerUpdateServiceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.startenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.beendenToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
+            this.ausgabeEinblendenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
             this.ansichtToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aktualisierenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -89,11 +85,6 @@
             this.label1 = new System.Windows.Forms.Label();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.button1 = new System.Windows.Forms.Button();
-            this.starteProjektOrdnerUpdateServiceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.startenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.beendenToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.ausgabeEinblendenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
             this.ContextMenu2.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.MainMenu.SuspendLayout();
@@ -371,6 +362,44 @@
             this.verwaltenToolStripMenuItem.Text = "Stammverzeichnisse verwalten";
             this.verwaltenToolStripMenuItem.Click += new System.EventHandler(this.verwaltenToolStripMenuItem_Click);
             // 
+            // starteProjektOrdnerUpdateServiceToolStripMenuItem
+            // 
+            this.starteProjektOrdnerUpdateServiceToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.startenToolStripMenuItem,
+            this.beendenToolStripMenuItem1,
+            this.toolStripSeparator9,
+            this.ausgabeEinblendenToolStripMenuItem});
+            this.starteProjektOrdnerUpdateServiceToolStripMenuItem.Name = "starteProjektOrdnerUpdateServiceToolStripMenuItem";
+            this.starteProjektOrdnerUpdateServiceToolStripMenuItem.Size = new System.Drawing.Size(251, 22);
+            this.starteProjektOrdnerUpdateServiceToolStripMenuItem.Text = "ProjektOrdner Update-Service";
+            // 
+            // startenToolStripMenuItem
+            // 
+            this.startenToolStripMenuItem.Name = "startenToolStripMenuItem";
+            this.startenToolStripMenuItem.Size = new System.Drawing.Size(195, 22);
+            this.startenToolStripMenuItem.Text = "Starten";
+            this.startenToolStripMenuItem.Click += new System.EventHandler(this.startenToolStripMenuItem_Click);
+            // 
+            // beendenToolStripMenuItem1
+            // 
+            this.beendenToolStripMenuItem1.Enabled = false;
+            this.beendenToolStripMenuItem1.Name = "beendenToolStripMenuItem1";
+            this.beendenToolStripMenuItem1.Size = new System.Drawing.Size(195, 22);
+            this.beendenToolStripMenuItem1.Text = "Beenden";
+            this.beendenToolStripMenuItem1.Click += new System.EventHandler(this.beendenToolStripMenuItem1_Click);
+            // 
+            // toolStripSeparator9
+            // 
+            this.toolStripSeparator9.Name = "toolStripSeparator9";
+            this.toolStripSeparator9.Size = new System.Drawing.Size(192, 6);
+            // 
+            // ausgabeEinblendenToolStripMenuItem
+            // 
+            this.ausgabeEinblendenToolStripMenuItem.Name = "ausgabeEinblendenToolStripMenuItem";
+            this.ausgabeEinblendenToolStripMenuItem.Size = new System.Drawing.Size(195, 22);
+            this.ausgabeEinblendenToolStripMenuItem.Text = "Ausgabe einblenden";
+            this.ausgabeEinblendenToolStripMenuItem.Click += new System.EventHandler(this.ausgabeEinblendenToolStripMenuItem_Click);
+            // 
             // toolStripSeparator6
             // 
             this.toolStripSeparator6.Name = "toolStripSeparator6";
@@ -451,28 +480,6 @@
             this.ProjektsTree.ImageList = this.imageList1;
             this.ProjektsTree.Location = new System.Drawing.Point(12, 93);
             this.ProjektsTree.Name = "ProjektsTree";
-            treeNode1.ImageIndex = 1;
-            treeNode1.Name = "Knoten1";
-            treeNode1.SelectedImageIndex = 1;
-            treeNode1.Text = "Berechtigungen - Manager";
-            treeNode2.ImageIndex = 1;
-            treeNode2.Name = "Knoten3";
-            treeNode2.SelectedImageIndex = 1;
-            treeNode2.Text = "Berechtigungen - Lesen & Schreiben";
-            treeNode3.ImageIndex = 1;
-            treeNode3.Name = "Knoten4";
-            treeNode3.SelectedImageIndex = 1;
-            treeNode3.Text = "Berechtigungen - Nur Lesen";
-            treeNode4.Name = "Knoten5";
-            treeNode4.SelectedImageIndex = 0;
-            treeNode4.Text = "Einstellungen";
-            treeNode5.ContextMenuStrip = this.ContextMenu2;
-            treeNode5.ImageIndex = 6;
-            treeNode5.Name = "Knoten0";
-            treeNode5.SelectedImageIndex = 6;
-            treeNode5.Text = "Beispiel Projekt";
-            this.ProjektsTree.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode5});
             this.ProjektsTree.SelectedImageIndex = 0;
             this.ProjektsTree.Size = new System.Drawing.Size(502, 327);
             this.ProjektsTree.TabIndex = 8;
@@ -517,44 +524,6 @@
             this.button1.Text = "Filter löschen";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
-            // 
-            // starteProjektOrdnerUpdateServiceToolStripMenuItem
-            // 
-            this.starteProjektOrdnerUpdateServiceToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.startenToolStripMenuItem,
-            this.beendenToolStripMenuItem1,
-            this.toolStripSeparator9,
-            this.ausgabeEinblendenToolStripMenuItem});
-            this.starteProjektOrdnerUpdateServiceToolStripMenuItem.Name = "starteProjektOrdnerUpdateServiceToolStripMenuItem";
-            this.starteProjektOrdnerUpdateServiceToolStripMenuItem.Size = new System.Drawing.Size(251, 22);
-            this.starteProjektOrdnerUpdateServiceToolStripMenuItem.Text = "ProjektOrdner Update-Service";
-            // 
-            // startenToolStripMenuItem
-            // 
-            this.startenToolStripMenuItem.Name = "startenToolStripMenuItem";
-            this.startenToolStripMenuItem.Size = new System.Drawing.Size(195, 22);
-            this.startenToolStripMenuItem.Text = "Starten";
-            this.startenToolStripMenuItem.Click += new System.EventHandler(this.startenToolStripMenuItem_Click);
-            // 
-            // beendenToolStripMenuItem1
-            // 
-            this.beendenToolStripMenuItem1.Enabled = false;
-            this.beendenToolStripMenuItem1.Name = "beendenToolStripMenuItem1";
-            this.beendenToolStripMenuItem1.Size = new System.Drawing.Size(195, 22);
-            this.beendenToolStripMenuItem1.Text = "Beenden";
-            this.beendenToolStripMenuItem1.Click += new System.EventHandler(this.beendenToolStripMenuItem1_Click);
-            // 
-            // ausgabeEinblendenToolStripMenuItem
-            // 
-            this.ausgabeEinblendenToolStripMenuItem.Name = "ausgabeEinblendenToolStripMenuItem";
-            this.ausgabeEinblendenToolStripMenuItem.Size = new System.Drawing.Size(195, 22);
-            this.ausgabeEinblendenToolStripMenuItem.Text = "Ausgabe einblenden";
-            this.ausgabeEinblendenToolStripMenuItem.Click += new System.EventHandler(this.ausgabeEinblendenToolStripMenuItem_Click);
-            // 
-            // toolStripSeparator9
-            // 
-            this.toolStripSeparator9.Name = "toolStripSeparator9";
-            this.toolStripSeparator9.Size = new System.Drawing.Size(192, 6);
             // 
             // ManageRepositorysForm
             // 
