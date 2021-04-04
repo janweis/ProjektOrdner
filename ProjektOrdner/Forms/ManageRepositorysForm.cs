@@ -1,6 +1,5 @@
 ﻿using ProjektOrdner.App;
 using ProjektOrdner.Permission;
-using ProjektOrdner.Processors;
 using ProjektOrdner.Repository;
 using System;
 using System.Collections.Generic;
@@ -15,19 +14,24 @@ namespace ProjektOrdner.Forms
     {
         private AppSettings AppSettings { get; set; }
         private RepositoryFolder[] Repositories { get; set; }
-        private ManagerNodeProcessor NodeProcessor { get; set; }
+        private TreeViewHelper TreeHelper { get; set; }
         private string CurrentRootPath { get; set; }
         private bool IncludeCorruptedProjects { get; set; }
+        private IProgress<string> Progress { get; set; }
 
-        public ManageRepositorysForm(AppSettings appSettings, RepositoryFolder[] repositorys)
+        public ManageRepositorysForm(AppSettings appSettings, RepositoryFolder[] repositories)
         {
             InitializeComponent();
-            Repositories = repositorys;
+            if (null == repositories)
+                Repositories = new RepositoryFolder[0];
+            else
+                Repositories = repositories;
+
             AppSettings = appSettings;
             CurrentRootPath = AppSettings.RootPathDefault;
             IncludeCorruptedProjects = false;
 
-            NodeProcessor = new ManagerNodeProcessor(ProjektsTree, ContextMenu2);
+            TreeHelper = new TreeViewHelper(ProjektsTree, ContextMenu2);
             appSettings.RootPaths.ForEach(path =>
             {
                 if (path == appSettings.RootPathDefault)
@@ -40,27 +44,14 @@ namespace ProjektOrdner.Forms
                 }
             });
 
-            UpdateViewAsync(new Progress<string>(message => UpdateToolStripStatus(message)), repositorys);
+            Progress = new Progress<string>(message => UpdateToolStripStatus(message));
+            UpdateViewAsync(repositories);
         }
 
-        //
-        // FUNCTIONS
-        // _________________________________________________________________________________
 
-        /// <summary>
-        /// 
-        /// Ruft ein Repository anhand des Names in einem Node ab
-        /// 
-        /// </summary>
-        private RepositoryFolder GetRepositoryFromNode(TreeNode node)
-        {
-            if (null == node)
-                return null;
-
-            return Repositories
-                .Where(repo => node.Name == repo.Organization.ProjektName)
-                .FirstOrDefault();
-        }
+        // // // // // // // // // // // // // // // // // // // // //
+        // Functions
+        // 
 
 
         /// <summary>
@@ -102,14 +93,11 @@ namespace ProjektOrdner.Forms
         /// </summary>
         private async Task CreateProjektAsync()
         {
-            // Message routing
-            var messageLabel = new Progress<string>(message => UpdateToolStripStatus(message));
-
             // Add Projekt
+            RepositoryManager repositoryManager = new RepositoryManager(CurrentRootPath, AppSettings);
             try
             {
-                RepositoryManager repositoryManager = new RepositoryManager(CurrentRootPath, AppSettings);
-                await repositoryManager.CreateRepositoryAsync(messageLabel);
+                await repositoryManager.CreateRepositoryAsync(Progress);
             }
             catch (Exception ex)
             {
@@ -118,7 +106,7 @@ namespace ProjektOrdner.Forms
             }
 
             // Update View
-            await UpdateViewAsync(messageLabel);
+            UpdateViewAsync();
         }
 
 
@@ -129,10 +117,7 @@ namespace ProjektOrdner.Forms
         /// </summary>
         private async Task RenameProjektAsync()
         {
-            // Message routing
-            var messageLabel = new Progress<string>(message => UpdateToolStripStatus(message));
-
-            TreeNode node = NodeProcessor.GetNodeBySelection();
+            TreeNode node = TreeHelper.GetNodeBySelection();
             if (null == node)
             {
                 MessageBox.Show("Es wurde kein Projekt zum umbenennen ausgewählt!", "Hinweis", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -143,7 +128,7 @@ namespace ProjektOrdner.Forms
 
             try
             {
-                await repositoryManager.RenameRepositoryAsync(node.Tag.ToString(), messageLabel);
+                await repositoryManager.RenameRepositoryAsync(node.Tag.ToString(), Progress);
             }
             catch (Exception ex)
             {
@@ -151,7 +136,7 @@ namespace ProjektOrdner.Forms
             }
 
             // Update View
-            await UpdateViewAsync(messageLabel);
+            UpdateViewAsync();
         }
 
 
@@ -162,20 +147,17 @@ namespace ProjektOrdner.Forms
         /// </summary>
         private async Task RemoveProjektAsync()
         {
-            // Message routing
-            var messageLabel = new Progress<string>(message => UpdateToolStripStatus(message));
-
             // Nodes abrufen
             List<TreeNode> nodes = new List<TreeNode>();
             if (ProjektsTree.CheckBoxes == true)
             {
-                List<TreeNode> nodeList = NodeProcessor.GetNodesByChecked();
+                List<TreeNode> nodeList = TreeHelper.GetNodesByChecked();
                 if (null != nodeList)
                     nodes.AddRange(nodeList);
             }
             else
             {
-                TreeNode selectedNode = NodeProcessor.GetNodeBySelection();
+                TreeNode selectedNode = TreeHelper.GetNodeBySelection();
                 if (null != selectedNode)
                     nodes.Add(selectedNode);
             }
@@ -191,7 +173,7 @@ namespace ProjektOrdner.Forms
                 try
                 {
                     RepositoryManager repositoryManager = new RepositoryManager(CurrentRootPath, AppSettings);
-                    await repositoryManager.RemoveRespositoryAsync(node.Tag.ToString(), messageLabel);
+                    await repositoryManager.RemoveRespositoryAsync(node.Tag.ToString(), Progress);
                 }
                 catch (Exception ex)
                 {
@@ -200,7 +182,7 @@ namespace ProjektOrdner.Forms
             }
 
             // Update View
-            await UpdateViewAsync(messageLabel);
+            UpdateViewAsync();
         }
 
 
@@ -211,7 +193,7 @@ namespace ProjektOrdner.Forms
         /// </summary>
         private async Task UpdateProjektPermission()
         {
-            TreeNode node = NodeProcessor.GetNodeBySelection(true);
+            TreeNode node = TreeHelper.GetNodeBySelection(true);
 
             if (null == node)
             {
@@ -237,10 +219,10 @@ namespace ProjektOrdner.Forms
         /// Aktualisiert alle Projektberechtigungen
         /// 
         /// </summary>
-        private async Task UpdateProjektsPermissions(IProgress<string> progress)
+        private async Task UpdateProjektsPermissions()
         {
             List<Task> tasks = new List<Task>();
-            progress.Report("Update Projektberechtigungen aller Projekte...");
+            Progress.Report("Update Projektberechtigungen aller Projekte...");
 
             // Aktualisiere für alle Projekte die Berechtigungen
             foreach (RepositoryFolder repository in Repositories)
@@ -254,7 +236,7 @@ namespace ProjektOrdner.Forms
             }
 
             await Task.WhenAll(tasks);
-            progress.Report("Berechtigungsaktualisierung abgeschlossen!");
+            Progress.Report("Berechtigungsaktualisierung abgeschlossen!");
         }
 
 
@@ -277,7 +259,7 @@ namespace ProjektOrdner.Forms
         /// </summary>
         private async Task ManageProjektPermissionAsync()
         {
-            TreeNode selectedNode = NodeProcessor.GetNodeBySelection();
+            TreeNode selectedNode = TreeHelper.GetNodeBySelection();
             if (null == selectedNode)
             {
                 // No Projekt selected!
@@ -289,7 +271,10 @@ namespace ProjektOrdner.Forms
             if (null != selectedNode.Parent)
                 selectedNode = selectedNode.Parent;
 
-            RepositoryFolder repository = GetRepositoryFromNode(selectedNode);
+            RepositoryFolder repository = TreeHelper.GetRepositoryFromNode(Repositories);
+            if (null == repository)
+                return;
+
             if (repository.Status == RepositoryFolder.RepositoryStatus.Corrupted)
             {
                 // Projekt corrupted!
@@ -318,7 +303,7 @@ namespace ProjektOrdner.Forms
         private void OpenProjektFile()
         {
             string filePath = "";
-            TreeNode node = NodeProcessor.GetNodeBySelection();
+            TreeNode node = TreeHelper.GetNodeBySelection();
 
             if (null == node || null == node.Parent)
                 return; // Node ist kein Sub-Node!
@@ -369,7 +354,7 @@ namespace ProjektOrdner.Forms
         /// </summary>
         private void ProcessFilterButtonStatus()
         {
-            NodeProcessor.SetFilterView(textBox1.Text, Repositories);
+            TreeHelper.SetFilterView(textBox1.Text, Repositories);
             if (textBox1.Text.Length > 0)
             {
                 button1.Enabled = true;
@@ -385,7 +370,7 @@ namespace ProjektOrdner.Forms
         /// 
         /// 
         /// </summary>
-        private async Task ProcessFilterCorruptedProjectsShownAsync()
+        private void ProcessFilterCorruptedProjectsShownAsync()
         {
             if (IncludeCorruptedProjects == true)
             {
@@ -399,8 +384,7 @@ namespace ProjektOrdner.Forms
                 zeigeDefekteProjekteToolStripMenuItem.Checked = true;
             }
 
-            await UpdateViewAsync(
-                new Progress<string>(message => UpdateToolStripStatus(message)));
+            UpdateViewAsync();
         }
 
 
@@ -409,48 +393,46 @@ namespace ProjektOrdner.Forms
         /// Aktualisiert die Ansicht
         /// 
         /// </summary>
-        private async Task UpdateViewAsync(IProgress<string> message)
+        private void UpdateViewAsync()
         {
             // Update Nodes
-            RepositoryRoot repositoryRoot = new RepositoryRoot(CurrentRootPath, AppSettings);
-            RepositoryFolder[] repositories = await repositoryRoot.GetRepositoriesAsync(IncludeCorruptedProjects, message);
-            if (null == repositories || repositories.Count() == 0)
+            if (null == Repositories || Repositories.Count() == 0)
             {
-                message.Report("Kein Projekt gefunden!");
+                Progress.Report("Kein Projekt gefunden!");
                 return;
             }
 
-            NodeProcessor.UpdateView(repositories, IncludeCorruptedProjects);  // Update Nodes
-
-            // Update Projektanzahl Anzeige
-            toolStripStatusProjektZahl.Text = $"{repositories.Count()} Projekt(e)";
-
-            // Update Status
-            message.Report("Aktualisierung abgeschlossen!");
-        }
-
-
-        /// <summary>
-        /// 
-        /// Aktualisiert die Ansicht
-        /// 
-        /// </summary>
-        private void UpdateViewAsync(IProgress<string> message, RepositoryFolder[] repositories)
-        {
-            if (null == repositories || repositories.Count() == 0)
-            {
-                message.Report("Kein Projekt gefunden!");
-                return;
-            }
-
-            // Update Nodes
-            NodeProcessor.UpdateView(repositories, IncludeCorruptedProjects);
+            TreeHelper.UpdateView(Repositories, IncludeCorruptedProjects);  // Update Nodes
 
             // Update Projektanzahl Anzeige
             toolStripStatusProjektZahl.Text = $"{Repositories.Count()} Projekt(e)";
 
             // Update Status
-            message.Report("Aktualisierung abgeschlossen!");
+            Progress.Report("Aktualisierung abgeschlossen!");
+        }
+
+
+        /// <summary>
+        /// 
+        /// Aktualisiert die Ansicht
+        /// 
+        /// </summary>
+        private void UpdateViewAsync(RepositoryFolder[] repositories)
+        {
+            if (null == repositories || repositories.Count() == 0)
+            {
+                Progress.Report("Kein Projekt gefunden!");
+                return;
+            }
+
+            // Update Nodes
+            TreeHelper.UpdateView(repositories, IncludeCorruptedProjects);
+
+            // Update Projektanzahl Anzeige
+            toolStripStatusProjektZahl.Text = $"{Repositories.Count()} Projekt(e)";
+
+            // Update Status
+            Progress.Report("Aktualisierung abgeschlossen!");
         }
 
 
@@ -486,8 +468,13 @@ namespace ProjektOrdner.Forms
         {
             CurrentRootPath = rootPath;
             Repositories = null;
-            NodeProcessor.ClearView();
-            await UpdateViewAsync(new Progress<string>(message => UpdateToolStripStatus(message)));
+
+            // Get Repositories
+            RepositoryRoot root = new RepositoryRoot(CurrentRootPath, AppSettings);
+            Repositories = await root.GetRepositoriesAsync(IncludeCorruptedProjects, Progress);
+
+            // Update View
+            UpdateViewAsync();
         }
 
 
@@ -504,7 +491,7 @@ namespace ProjektOrdner.Forms
 
             try
             {
-                bool init = RepositoryUpdateService.Initialization(AppSettings, new Progress<string>(message => UpdateToolStripStatus(message)));
+                bool init = RepositoryUpdateService.Initialization(AppSettings, Progress);
 
                 if (init)
                 {
@@ -611,7 +598,7 @@ namespace ProjektOrdner.Forms
             await RenameProjektAsync();
 
         private void EigenschaftenItem_Click(object sender, EventArgs e) =>
-            NodeProcessor.OpenProjektFolder();
+            TreeHelper.OpenProjektFolder();
 
         private void infoToolStripMenuItem1_Click(object sender, EventArgs e)
         {
@@ -620,10 +607,10 @@ namespace ProjektOrdner.Forms
         }
 
         private void aktualisierenToolStripMenuItem_Click(object sender, EventArgs e) =>
-            UpdateViewAsync(new Progress<string>(message => UpdateToolStripStatus(message)), Repositories);
+            UpdateViewAsync();
 
         private async void verwaltenToolStripMenuItem_Click(object sender, EventArgs e) =>
-            await RepositoryRoot.StartRootAssistantAsync(AppSettings, new Progress<string>(message => UpdateToolStripStatus(message)));
+            await RepositoryRoot.StartRootAssistantAsync(AppSettings, Progress);
 
         private async void anlegenToolStripMenuItem_Click(object sender, EventArgs e) =>
             await CreateProjektAsync();
@@ -650,16 +637,16 @@ namespace ProjektOrdner.Forms
             await UpdateProjektPermission();
 
         private async void aktualisiereAlleBerechtigungenToolStripMenuItem_Click(object sender, EventArgs e) =>
-            await UpdateProjektsPermissions(new Progress<string>(message => UpdateToolStripStatus(message)));
+            await UpdateProjektsPermissions();
 
         private async void ManagePermissionsMenuItem_Click(object sender, EventArgs e) =>
             await ManageProjektPermissionAsync();
 
-        private async void zeigeDefekteProjekteToolStripMenuItem_Click(object sender, EventArgs e) =>
-            await ProcessFilterCorruptedProjectsShownAsync();
+        private void zeigeDefekteProjekteToolStripMenuItem_Click(object sender, EventArgs e) =>
+            ProcessFilterCorruptedProjectsShownAsync();
 
-        private async void projekteErneutEinlesenToolStripMenuItem_Click(object sender, EventArgs e) =>
-            await UpdateViewAsync(new Progress<string>(message => UpdateToolStripStatus(message)));
+        private void projekteErneutEinlesenToolStripMenuItem_Click(object sender, EventArgs e) =>
+            UpdateViewAsync();
 
         private async void startenToolStripMenuItem_Click(object sender, EventArgs e) =>
             await StartUpdateServiceAsync();

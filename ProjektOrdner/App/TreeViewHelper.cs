@@ -8,24 +8,39 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace ProjektOrdner.Processors
+namespace ProjektOrdner.App
 {
-    public class ManagerNodeProcessor
+    public class TreeViewHelper
     {
+        // // // // // // // // // // // // // // // // // // // // //
+        // Variables
+        // 
+
         private TreeView View { get; set; }
         private ContextMenuStrip Context { get; set; }
 
-        public ManagerNodeProcessor(TreeView treeView, ContextMenuStrip contextMenuStrip)
+
+        // // // // // // // // // // // // // // // // // // // // //
+        // Constructors
+        // 
+
+        public TreeViewHelper(TreeView treeView, ContextMenuStrip contextMenuStrip)
         {
             View = treeView;
             Context = contextMenuStrip;
         }
 
+        // // // // // // // // // // // // // // // // // // // // //
+        // Public Functions
+        // 
 
         //
         // Get Node
         //
 
+        /// <summary>
+        /// 
+        /// </summary>
         public TreeNode GetNodeByName(string Name)
         {
             if (View.Nodes.ContainsKey(Name) == true)
@@ -36,6 +51,10 @@ namespace ProjektOrdner.Processors
             return null;
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
         public TreeNode GetNodeByTag(string tag)
         {
             foreach (TreeNode node in View.Nodes)
@@ -49,6 +68,10 @@ namespace ProjektOrdner.Processors
             return null;
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
         public TreeNode GetNodeBySelection(bool onlyMasterNode = false)
         {
             if (onlyMasterNode == false)
@@ -71,6 +94,10 @@ namespace ProjektOrdner.Processors
             }
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
         public List<TreeNode> GetNodesByChecked()
         {
             List<TreeNode> nodeList = null;
@@ -89,6 +116,30 @@ namespace ProjektOrdner.Processors
 
             return nodeList;
         }
+
+
+        /// <summary>
+        /// 
+        /// Ruft ein Repository anhand des Names in einem Node ab
+        /// 
+        /// </summary>
+        public RepositoryFolder GetRepositoryFromNode(RepositoryFolder[] repositories)
+        {
+            var selectedNode = GetNodeBySelection();
+
+            if (null == selectedNode)
+                return null;
+
+            if (null == repositories)
+                return null;
+
+            return repositories
+                .Where(repo => selectedNode.Name == repo.Organization.ProjektName)
+                .FirstOrDefault();
+        }
+
+
+
 
 
         //

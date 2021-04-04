@@ -32,16 +32,11 @@ namespace ProjektOrdner
             splashScreen.FormClosed += ApplicationExitAction;
             splashScreen.Show();
 
-            // Definde Progress 
-            Progress<int> numberProgress = new Progress<int>(percent => { splashScreen.UpdatePercent(percent); });
-            Progress<string> messageProgress = new Progress<string>(projekt => { splashScreen.UpdateProjekt(projekt); });
-
-            // Wait...
-            WriteProgress("Starte mit den Vorbeitungen ...", messageProgress);
-            await Task.Delay(1500);
+            // Definde Progress
+            IProgress<string> splashMessage = new Progress<string>(projekt => { splashScreen.UpdateProjekt(projekt); });
 
             // Load Application Settings
-            WriteProgress("Lade Settings...", messageProgress);
+            splashMessage.Report("Lade Programmeinstellungen");
             await Task.Delay(10);
 
             try
@@ -51,25 +46,25 @@ namespace ProjektOrdner
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Fehler: {ex.Message}", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Fehler beim Laden der Programmeinstellungen! {ex.Message}", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 splashScreen.Close();
             }
 
 
             // Load Projects
-            WriteProgress("Lade Projekte ...", messageProgress);
+            splashMessage.Report("Lade Projekte...");
             await Task.Delay(10);
 
             RepositoryFolder[] repositories = null;
             if (string.IsNullOrWhiteSpace(Settings.RootPathDefault) == false)
             {
                 RepositoryRoot repositoryRoot = new RepositoryRoot(Settings?.RootPathDefault, Settings);
-                repositories = await repositoryRoot.GetRepositoriesAsync(false, messageProgress);
+                repositories = await repositoryRoot.GetRepositoriesAsync(false, splashMessage);
             }
             else
             {
                 MessageBox.Show("Es wurde kein Stammverzeichnis für Projekte gefunden. Bitte legen Sie eins an.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                await RepositoryRoot.StartRootAssistantAsync(Settings, messageProgress);
+                await RepositoryRoot.StartRootAssistantAsync(Settings, splashMessage);
             }
 
             // Start ManagerUI
@@ -87,17 +82,6 @@ namespace ProjektOrdner
         //
         // SUB-FUNCTIONS
         // ______________________________________________________________________________________
-
-
-        /// <summary>
-        /// 
-        /// Aktualisiert die SplashScreen ausgabe
-        /// 
-        /// </summary>
-        private void WriteProgress(string message, IProgress<string> progress)
-        {
-            progress.Report(message);
-        }
 
 
         /// <summary>
