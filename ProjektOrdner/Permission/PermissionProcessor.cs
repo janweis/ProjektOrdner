@@ -3,6 +3,7 @@ using ProjektOrdner.Repository;
 using ProjektOrdner.Utils;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.DirectoryServices.AccountManagement;
 using System.IO;
 using System.Linq;
@@ -107,12 +108,12 @@ namespace ProjektOrdner.Permission
             string accessType = "";
             switch (permissionAccess)
             {
-                case PermissionRole.ReadOnly:
+                case PermissionRole.Guest:
                 {
                     accessType = "Nur Lesen";
                     break;
                 }
-                case PermissionRole.ReadWrite:
+                case PermissionRole.Member:
                 {
                     accessType = "Lesen & Schreiben";
                     break;
@@ -151,12 +152,80 @@ namespace ProjektOrdner.Permission
         /// <summary>
         /// 
         /// </summary>
-        public string GetPermissionFilePath(PermissionRole permissionAccess, string projektPath)
+        public static string GetPermissionFileName(PermissionRole role, RepositoryVersion version)
+        {
+            string fileName = "";
+            switch (version)
+            {
+                case RepositoryVersion.V1:
+                {
+                    switch (role)
+                    {
+                        case PermissionRole.Guest:
+                        {
+                            fileName = AppConstants.PermissionFileReadOnlyName;
+                            break;
+                        }
+                        case PermissionRole.Member:
+                        {
+                            fileName = AppConstants.PermissionFileReadWriteName;
+                            break;
+                        }
+                        case PermissionRole.Manager:
+                        {
+                            fileName = AppConstants.PermissionFileManagerName;
+                            break;
+                        }
+                        case PermissionRole.Undefined:
+                        {
+                            break;
+                        }
+                    }
+                    break;
+                }
+                case RepositoryVersion.V2:
+                {
+                    switch (role)
+                    {
+                        case PermissionRole.Guest:
+                        {
+                            fileName = AppConstants.PermissionFileReadOnlyName;
+                            break;
+                        }
+                        case PermissionRole.Member:
+                        {
+                            fileName = AppConstants.PermissionFileReadWriteName;
+                            break;
+                        }
+                        case PermissionRole.Manager:
+                        {
+                            fileName = AppConstants.PermissionFileManagerName;
+                            break;
+                        }
+                        case PermissionRole.Undefined:
+                        {
+                            break;
+                        }
+                    }
+                    break;
+                }
+                case RepositoryVersion.Unknown:
+                    break;
+            }
+
+            return fileName;
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string GetPermissionFilePath(PermissionRole permissionAccess)
         {
             string fileName = string.Empty;
             switch (permissionAccess)
             {
-                case PermissionRole.ReadOnly:
+                case PermissionRole.Guest:
                 {
                     if (Version == RepositoryVersion.V1)
                     {
@@ -168,7 +237,7 @@ namespace ProjektOrdner.Permission
                     }
                     break;
                 }
-                case PermissionRole.ReadWrite:
+                case PermissionRole.Member:
                 {
                     if (Version == RepositoryVersion.V1)
                     {
@@ -194,9 +263,77 @@ namespace ProjektOrdner.Permission
                 }
             }
 
-
             string organisationPath = string.Empty;
             switch (Version)
+            {
+                case RepositoryVersion.V1:
+                {
+                    organisationPath = ProjektPath;
+                    break;
+                }
+                case RepositoryVersion.V2:
+                {
+                    organisationPath = Path.Combine(ProjektPath, AppConstants.OrganisationFolderName);
+                    break;
+                }
+                case RepositoryVersion.Unknown:
+                    break;
+            }
+
+            // FilePath
+            return Path.Combine(organisationPath, fileName);
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public static string GetPermissionFilePath(PermissionRole permissionAccess, string projektPath, RepositoryVersion version)
+        {
+            string fileName = string.Empty;
+            switch (permissionAccess)
+            {
+                case PermissionRole.Guest:
+                {
+                    if (version == RepositoryVersion.V1)
+                    {
+                        fileName = AppConstants.PermissionFileReadOnlyNameV1;
+                    }
+                    else if (version == RepositoryVersion.V2)
+                    {
+                        fileName = AppConstants.PermissionFileReadOnlyName;
+                    }
+                    break;
+                }
+                case PermissionRole.Member:
+                {
+                    if (version == RepositoryVersion.V1)
+                    {
+                        fileName = AppConstants.PermissionFileReadWriteNameV1;
+                    }
+                    else if (version == RepositoryVersion.V2)
+                    {
+                        fileName = AppConstants.PermissionFileReadWriteName;
+                    }
+                    break;
+                }
+                case PermissionRole.Manager:
+                {
+                    if (version == RepositoryVersion.V1)
+                    {
+                        fileName = AppConstants.OrganisationFileNameV1;
+                    }
+                    else if (version == RepositoryVersion.V2)
+                    {
+                        fileName = AppConstants.PermissionFileManagerName;
+                    }
+                    break;
+                }
+            }
+
+
+            string organisationPath = string.Empty;
+            switch (version)
             {
                 case RepositoryVersion.V1:
                 {
@@ -217,9 +354,25 @@ namespace ProjektOrdner.Permission
         }
 
 
+
         // // // // // // // // // // // // // // // // // // // // //
         // File IO
         // 
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void OpenPermissionFile(PermissionRole role)
+        {
+            string filePath = GetPermissionFilePath(role);
+
+            // Start Programm
+            Process process = new Process();
+            process.StartInfo.FileName = filePath;
+            process.Start();
+        }
+
 
         /// <summary>
         /// 
@@ -239,7 +392,7 @@ namespace ProjektOrdner.Permission
             {
                 if (Version == RepositoryVersion.V1)
                 {
-                    string managerFilePath = GetPermissionFilePath(PermissionRole.Manager, ProjektPath);
+                    string managerFilePath = GetPermissionFilePath(PermissionRole.Manager);
                     if (File.Exists(managerFilePath) == false)
                         return null;
 
@@ -254,7 +407,7 @@ namespace ProjektOrdner.Permission
                         return null;
 
                     string[] managerUsers = filteredLine
-                        .Substring(filteredLine.IndexOf("=")+1)
+                        .Substring(filteredLine.IndexOf("=") + 1)
                         .Split(',');
 
                     // Create Objects
@@ -271,11 +424,11 @@ namespace ProjektOrdner.Permission
                 }
             }
 
-            string memberFilePath = GetPermissionFilePath(PermissionRole.ReadWrite, ProjektPath);
+            string memberFilePath = GetPermissionFilePath(PermissionRole.Member);
             if (File.Exists(memberFilePath) == false)
                 return null;
 
-            string guestFilePath = GetPermissionFilePath(PermissionRole.ReadOnly, ProjektPath);
+            string guestFilePath = GetPermissionFilePath(PermissionRole.Guest);
             if (File.Exists(guestFilePath) == false)
                 return null;
 
@@ -299,7 +452,7 @@ namespace ProjektOrdner.Permission
             foreach (string member in memberUsers)
             {
                 RepositoryPermission permission = new RepositoryPermission(
-                    new AdUser(member), PermissionRole.ReadWrite, PermissionSource.File, AppSettings);
+                    new AdUser(member), PermissionRole.Member, PermissionSource.File, AppSettings);
 
                 permission.User.UpdateUserData();
 
@@ -311,7 +464,7 @@ namespace ProjektOrdner.Permission
             foreach (string guest in guestUsers)
             {
                 RepositoryPermission permission = new RepositoryPermission(
-                    new AdUser(guest), PermissionRole.ReadOnly, PermissionSource.File, AppSettings);
+                    new AdUser(guest), PermissionRole.Guest, PermissionSource.File, AppSettings);
 
                 permission.User.UpdateUserData();
 
@@ -368,8 +521,8 @@ namespace ProjektOrdner.Permission
             List<RepositoryPermission> permissions = new List<RepositoryPermission>();
 
             string managerAdGroupName = AdUtil.GetAdGroupName(projektName, GroupScope.Global, PermissionRole.Manager);
-            string memberAdGroupName = AdUtil.GetAdGroupName(projektName, GroupScope.Global, PermissionRole.ReadWrite);
-            string guestAdGroupName = AdUtil.GetAdGroupName(projektName, GroupScope.Global, PermissionRole.ReadOnly);
+            string memberAdGroupName = AdUtil.GetAdGroupName(projektName, GroupScope.Global, PermissionRole.Member);
+            string guestAdGroupName = AdUtil.GetAdGroupName(projektName, GroupScope.Global, PermissionRole.Guest);
 
             PrincipalCollection managerUsers = AdUtil.GetGroupMembers(managerAdGroupName, IdentityType.SamAccountName);
             PrincipalCollection memberUsers = AdUtil.GetGroupMembers(memberAdGroupName, IdentityType.SamAccountName);
@@ -387,7 +540,7 @@ namespace ProjektOrdner.Permission
                 permissions.Add(
                     new RepositoryPermission(
                         new AdUser(member),
-                        PermissionRole.ReadWrite,
+                        PermissionRole.Member,
                         PermissionSource.ActiveDirectory,
                         AppSettings));
 
@@ -395,7 +548,7 @@ namespace ProjektOrdner.Permission
                 permissions.Add(
                     new RepositoryPermission(
                         new AdUser(guest),
-                        PermissionRole.ReadOnly,
+                        PermissionRole.Guest,
                         PermissionSource.ActiveDirectory,
                         AppSettings));
 

@@ -11,13 +11,13 @@ namespace ProjektOrdner.App
 
     public enum PermissionRole
     {
-        [Description("Nur Lesen")]
-        ReadOnly,
+        [Description("Guest")]
+        Guest,
 
-        [Description("Lesen & Schreiben")]
-        ReadWrite,
+        [Description("Member")]
+        Member,
 
-        [Description("ProjektManager")]
+        [Description("Manager")]
         Manager,
 
         [Description("Unbestimmt")]

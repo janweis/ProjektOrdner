@@ -169,7 +169,7 @@ namespace ProjektOrdner.Forms
             List<TreeNode> nodes = new List<TreeNode>();
             if (ProjektsTree.CheckBoxes == true)
             {
-                List<TreeNode> nodeList = NodeProcessor.GetNodesByCheckBoxes();
+                List<TreeNode> nodeList = NodeProcessor.GetNodesByChecked();
                 if (null != nodeList)
                     nodes.AddRange(nodeList);
             }
@@ -317,76 +317,40 @@ namespace ProjektOrdner.Forms
         /// </summary>
         private void OpenProjektFile()
         {
+            string filePath = "";
             TreeNode node = NodeProcessor.GetNodeBySelection();
 
             if (null == node || null == node.Parent)
                 return; // Node ist kein Sub-Node!
 
-            RepositoryFolder repository = Repositories
-                .Where(repo => repo.Organization.ProjektName == node.Parent.Text)
-                .FirstOrDefault();
+            string projektPath = node.Parent.Tag.ToString();
+            RepositoryOrganization organization = new RepositoryOrganization();
+            RepositoryVersion repositoryVersion = organization.GetRepositoryVersion(projektPath);
 
-            if (null == repository)
-                return; // Kein zugehöriges Projekt gefunden!
-
-            // Get Filename
-            string fileName = "";
-            if (null != node.Parent)
+            if (repositoryVersion == RepositoryVersion.Unknown)
             {
-                switch (node.Name)
-                {
-                    case "Manager":
-                    {
-                        fileName = AppConstants.PermissionFileManagerName;
-                        break;
-                    }
-
-                    case "Change":
-                    {
-                        fileName = AppConstants.PermissionFileReadWriteName;
-                        break;
-                    }
-
-                    case "Read":
-                    {
-                        fileName = AppConstants.PermissionFileReadOnlyName;
-                        break;
-                    }
-
-                    case "Settings":
-                    {
-                        fileName = AppConstants.RepositorySettingsFileName;
-                        break;
-                    }
-
-                    case "Organization":
-                    {
-                        if (repository.Version == RepositoryVersion.V1)
-                        {
-                            fileName = AppConstants.OrganisationFileNameV1;
-                        }
-                        else if (repository.Version == RepositoryVersion.V2)
-                        {
-                            fileName = AppConstants.OrganisationFileNameV2;
-                        }
-
-                        break;
-                    }
-                }
+                MessageBox.Show("Unknown Repository Version! Could not detect Version!", "Open Permissionfile", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
             }
 
-            // Definiere den Projektpfad der Datei
-            Process process = new Process();
-            if (repository.Version == RepositoryVersion.V1)
+            if (node.Name == "Manager" || node.Name == "Member" || node.Name == "Guest")
             {
-                process.StartInfo.FileName = $@"{node.Parent.Tag.ToString()}\{fileName}";
+                PermissionRole role = (PermissionRole)Enum.Parse(typeof(PermissionRole), node.Name);
+                PermissionProcessor permissionProcessor = new PermissionProcessor(projektPath, AppSettings);
+                filePath = permissionProcessor.GetPermissionFilePath(role);
             }
-            else if (repository.Version == RepositoryVersion.V2)
+            else if (node.Name == "Settings")
             {
-                process.StartInfo.FileName = $@"{node.Parent.Tag.ToString()}\{AppConstants.OrganisationFolderName}\{fileName}";
+                filePath = RepositorySettings.GetSettingsFilePath(projektPath);
+            }
+            else if (node.Name == "Organization")
+            {
+                filePath = RepositoryOrganization.GetOrganizationFilePath(projektPath, repositoryVersion);
             }
 
             // Öffne das Programm
+            Process process = new Process();
+            process.StartInfo.FileName = filePath;
             try
             {
                 process.Start();

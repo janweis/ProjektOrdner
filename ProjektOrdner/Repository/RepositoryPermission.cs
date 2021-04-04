@@ -115,11 +115,11 @@ namespace ProjektOrdner.Repository
             UserPrincipal adUser = DirectoryUtil.GetUser(User.SamAccountName, IdentityType.SamAccountName);
 
             // ReadWrite
-            string adReadWriteGroupName = DirectoryUtil.GetAdGroupName(organization.ProjektName, GroupScope.Global, PermissionRole.ReadWrite);
+            string adReadWriteGroupName = DirectoryUtil.GetAdGroupName(organization.ProjektName, GroupScope.Global, PermissionRole.Member);
             GroupPrincipal adReadWriteGroup = DirectoryUtil.GetGroup(adReadWriteGroupName, IdentityType.SamAccountName);
 
             if (adReadWriteGroup.Members.Contains(adUser) == true)
-                return PermissionRole.ReadWrite;
+                return PermissionRole.Member;
 
             // Manager
             string adManagerGroupName = DirectoryUtil.GetAdGroupName(organization.ProjektName, GroupScope.Global, PermissionRole.Manager);
@@ -129,11 +129,11 @@ namespace ProjektOrdner.Repository
                 return PermissionRole.Manager;
 
             // ReadOnly
-            string adReadOnlyGroupName = DirectoryUtil.GetAdGroupName(organization.ProjektName, GroupScope.Global, PermissionRole.ReadOnly);
+            string adReadOnlyGroupName = DirectoryUtil.GetAdGroupName(organization.ProjektName, GroupScope.Global, PermissionRole.Guest);
             GroupPrincipal adReadOnlyGroup = DirectoryUtil.GetGroup(adManagerGroupName, IdentityType.SamAccountName);
 
             if (adReadOnlyGroup.Members.Contains(adUser) == true)
-                return PermissionRole.ReadOnly;
+                return PermissionRole.Guest;
 
             return PermissionRole.Undefined;
         }
@@ -236,10 +236,10 @@ namespace ProjektOrdner.Repository
         private async Task<PermissionRole> GetPermissionRoleFromFilesAsync(string projektPath, RepositoryVersion version)
         {
             // ReadWrite
-            string readWriteFileContent = await ReadFileContent(Path.Combine(projektPath, GetPermissionFileName(PermissionRole.ReadWrite, version)));
+            string readWriteFileContent = await ReadFileContent(Path.Combine(projektPath, GetPermissionFileName(PermissionRole.Member, version)));
 
             if (readWriteFileContent.Contains(User.SamAccountName) == true)
-                return PermissionRole.ReadWrite;
+                return PermissionRole.Member;
 
             // Manager
             string managerFileContent = await ReadFileContent(Path.Combine(projektPath, GetPermissionFileName(PermissionRole.Manager, version)));
@@ -248,10 +248,10 @@ namespace ProjektOrdner.Repository
                 return PermissionRole.Manager;
 
             // ReadOnly
-            string readOnlyFileContent = await ReadFileContent(Path.Combine(projektPath, GetPermissionFileName(PermissionRole.ReadOnly, version)));
+            string readOnlyFileContent = await ReadFileContent(Path.Combine(projektPath, GetPermissionFileName(PermissionRole.Guest, version)));
 
             if (readOnlyFileContent.Contains(User.SamAccountName) == true)
-                return PermissionRole.ReadOnly;
+                return PermissionRole.Guest;
 
             return PermissionRole.Undefined;
         }
@@ -350,12 +350,12 @@ namespace ProjektOrdner.Repository
                 {
                     switch (role)
                     {
-                        case PermissionRole.ReadOnly:
+                        case PermissionRole.Guest:
                         {
                             fileName = AppConstants.PermissionFileReadOnlyName;
                             break;
                         }
-                        case PermissionRole.ReadWrite:
+                        case PermissionRole.Member:
                         {
                             fileName = AppConstants.PermissionFileReadWriteName;
                             break;
@@ -376,12 +376,12 @@ namespace ProjektOrdner.Repository
                 {
                     switch (role)
                     {
-                        case PermissionRole.ReadOnly:
+                        case PermissionRole.Guest:
                         {
                             fileName = AppConstants.PermissionFileReadOnlyName;
                             break;
                         }
-                        case PermissionRole.ReadWrite:
+                        case PermissionRole.Member:
                         {
                             fileName = AppConstants.PermissionFileReadWriteName;
                             break;

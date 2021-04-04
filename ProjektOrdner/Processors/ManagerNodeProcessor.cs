@@ -36,11 +36,11 @@ namespace ProjektOrdner.Processors
             return null;
         }
 
-        public TreeNode GetNodeByID(string id)
+        public TreeNode GetNodeByTag(string tag)
         {
             foreach (TreeNode node in View.Nodes)
             {
-                if (node.Tag.ToString() == id)
+                if (node.Tag.ToString() == tag)
                 {
                     return node;
                 }
@@ -71,7 +71,7 @@ namespace ProjektOrdner.Processors
             }
         }
 
-        public List<TreeNode> GetNodesByCheckBoxes()
+        public List<TreeNode> GetNodesByChecked()
         {
             List<TreeNode> nodeList = null;
 
@@ -111,9 +111,9 @@ namespace ProjektOrdner.Processors
 
             // Add Attribute Nodes
             View.Nodes[Name].ContextMenuStrip = Context;
-            View.Nodes[Name].Nodes.Add("Manager", "Berechtigungen - Manager", 1, 1);
-            View.Nodes[Name].Nodes.Add("Change", "Berechtigungen - Mitarbeiter", 1, 1);
-            View.Nodes[Name].Nodes.Add("Read", "Berechtigungen - Gäste", 1, 1);
+            View.Nodes[Name].Nodes.Add("Manager", "Manager", 1, 1);
+            View.Nodes[Name].Nodes.Add("Member", "Mitarbeiter", 1, 1);
+            View.Nodes[Name].Nodes.Add("Guest", "Gäste", 1, 1);
             View.Nodes[Name].Nodes.Add("Settings", "Einstellungen", 0, 0);
             View.Nodes[Name].Nodes.Add("Organization", "ProjektOrdner", 2, 2);
         }
@@ -126,8 +126,8 @@ namespace ProjektOrdner.Processors
 
             // Add Attribute Nodes
             View.Nodes[Name].ContextMenuStrip = Context;
-            View.Nodes[Name].Nodes.Add("Change", "Berechtigungen - Lesen & Schreiben", 1, 1);
-            View.Nodes[Name].Nodes.Add("Read", "Berechtigungen - Nur Lesen", 1, 1);
+            View.Nodes[Name].Nodes.Add("Member", "Lesen & Schreiben", 1, 1);
+            View.Nodes[Name].Nodes.Add("Guest", "Nur Lesen", 1, 1);
             View.Nodes[Name].Nodes.Add("Organization", "ProjektOrdner v1", 2, 2);
         }
 
@@ -146,11 +146,12 @@ namespace ProjektOrdner.Processors
 
         public void RemoveProjektNodeByID(string id)
         {
-            TreeNode node = GetNodeByID(id);
+            TreeNode node = GetNodeByTag(id);
 
             if (null != node)
                 View.Nodes.Remove(node);
         }
+
 
         //
         // CLEAR
@@ -195,7 +196,7 @@ namespace ProjektOrdner.Processors
                         {
                             case RepositoryVersion.V1:
                             {
-                                AddProjektNodeV1(repository.Organization.ProjektName, repository.Organization.ProjektPath);
+                                AddProjektNodeV1(repository.Organization.ProjektName,repository.Organization.ProjektPath);
                                 break;
                             }
                             case RepositoryVersion.V2:

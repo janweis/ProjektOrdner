@@ -190,12 +190,12 @@ namespace ProjektOrdner.Repository
                         }
                         case "readwrite": // Nur für Projektantrag!
                         {
-                            CreateLegacyPermission(PermissionRole.ReadWrite, value);
+                            CreateLegacyPermission(PermissionRole.Member, value);
                             break;
                         }
                         case "read": // Nur für Projektantrag!
                         {
-                            CreateLegacyPermission(PermissionRole.ReadOnly, value);
+                            CreateLegacyPermission(PermissionRole.Guest, value);
                             break;
                         }
                     }
@@ -367,6 +367,32 @@ Gast=
                     return RepositoryVersion.Unknown;
                 }
             }
+        }
+
+
+        /// <summary>
+        /// 
+        /// 
+        /// 
+        /// </summary>
+        public static string GetOrganizationFilePath(string projektPath, RepositoryVersion version)
+        {
+            string filePath = "";
+            switch (version)
+            {
+                case RepositoryVersion.V1:
+                {
+                    filePath = Path.Combine(projektPath, AppConstants.OrganisationFileNameV1);
+                    break;
+                }
+                case RepositoryVersion.V2:
+                {
+                    filePath = Path.Combine(projektPath, Path.Combine(projektPath, AppConstants.OrganisationFileNameV2));
+                    break;
+                }
+            }
+
+            return filePath;
         }
 
 

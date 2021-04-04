@@ -167,7 +167,7 @@ namespace ProjektOrdner.Forms
                 case 3:
                 {
                     NodeProcessor.MoveNodeTo(selectedNode, MasterNode.Mitarbeiter);
-                    foundPermission.Role = PermissionRole.ReadWrite;
+                    foundPermission.Role = PermissionRole.Member;
                     break;
                 }
             }
@@ -202,13 +202,13 @@ namespace ProjektOrdner.Forms
                 case 1:
                 {
                     NodeProcessor.MoveNodeTo(selectedNode, MasterNode.Mitarbeiter);
-                    foundPermission.Role = PermissionRole.ReadWrite;
+                    foundPermission.Role = PermissionRole.Member;
                     break;
                 }
                 case 2:
                 {
                     NodeProcessor.MoveNodeTo(selectedNode, MasterNode.NurLesen);
-                    foundPermission.Role = PermissionRole.ReadOnly;
+                    foundPermission.Role = PermissionRole.Guest;
                     break;
                 }
             }

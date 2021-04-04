@@ -269,21 +269,21 @@ namespace ProjektOrdner.Repository
             PermissionProcessor permissionProcessor = new PermissionProcessor(organisation.ProjektPath, AppSettings, RepositoryVersion.V2);
 
             // Create ReadOnly permission file
-            string readOnlyFilePath = permissionProcessor.GetPermissionFilePath(PermissionRole.ReadOnly, organisation.ProjektPath);
+            string readOnlyFilePath = permissionProcessor.GetPermissionFilePath(PermissionRole.Guest);
             using (StreamWriter writer = new StreamWriter(readOnlyFilePath, false, Encoding.UTF8))
             {
-                await writer.WriteAsync(PermissionProcessor.GetPermissionTemplate(PermissionRole.ReadOnly));
+                await writer.WriteAsync(PermissionProcessor.GetPermissionTemplate(PermissionRole.Guest));
             }
 
             // Create ReadWrite permission file
-            string readWriteFilePath = permissionProcessor.GetPermissionFilePath(PermissionRole.ReadWrite, organisation.ProjektPath);
+            string readWriteFilePath = permissionProcessor.GetPermissionFilePath(PermissionRole.Member);
             using (StreamWriter writer = new StreamWriter(readWriteFilePath, false, Encoding.UTF8))
             {
-                await writer.WriteAsync(PermissionProcessor.GetPermissionTemplate(PermissionRole.ReadWrite));
+                await writer.WriteAsync(PermissionProcessor.GetPermissionTemplate(PermissionRole.Member));
             }
 
             // Create Manager permission file
-            string managerFilePath = permissionProcessor.GetPermissionFilePath(PermissionRole.Manager, organisation.ProjektPath);
+            string managerFilePath = permissionProcessor.GetPermissionFilePath(PermissionRole.Manager);
             using (StreamWriter writer = new StreamWriter(managerFilePath, false, Encoding.UTF8))
             {
                 await writer.WriteAsync(PermissionProcessor.GetPermissionTemplate(PermissionRole.Manager));
@@ -314,16 +314,16 @@ namespace ProjektOrdner.Repository
             GroupPrincipal[] adLocalGroups =
             {
                 AdUtil.AddGroup(GroupScope.Local, AdUtil.GetAdGroupName(Name, GroupScope.Local, PermissionRole.Manager), description),
-                AdUtil.AddGroup(GroupScope.Local, AdUtil.GetAdGroupName(Name, GroupScope.Local, PermissionRole.ReadWrite), description),
-                AdUtil.AddGroup(GroupScope.Local, AdUtil.GetAdGroupName(Name, GroupScope.Local, PermissionRole.ReadOnly), description),
+                AdUtil.AddGroup(GroupScope.Local, AdUtil.GetAdGroupName(Name, GroupScope.Local, PermissionRole.Member), description),
+                AdUtil.AddGroup(GroupScope.Local, AdUtil.GetAdGroupName(Name, GroupScope.Local, PermissionRole.Guest), description),
             };
 
             // Create global Groups                        
             GroupPrincipal[] adGlobalGroups =
             {
                 AdUtil.AddGroup(GroupScope.Global,AdUtil.GetAdGroupName(Name, GroupScope.Global, PermissionRole.Manager), description),
-                AdUtil.AddGroup(GroupScope.Global,AdUtil.GetAdGroupName(Name, GroupScope.Global, PermissionRole.ReadWrite), description),
-                AdUtil.AddGroup(GroupScope.Global,AdUtil.GetAdGroupName(Name, GroupScope.Global, PermissionRole.ReadOnly), description)
+                AdUtil.AddGroup(GroupScope.Global,AdUtil.GetAdGroupName(Name, GroupScope.Global, PermissionRole.Member), description),
+                AdUtil.AddGroup(GroupScope.Global,AdUtil.GetAdGroupName(Name, GroupScope.Global, PermissionRole.Guest), description)
             };
 
             // Link local and global Groups

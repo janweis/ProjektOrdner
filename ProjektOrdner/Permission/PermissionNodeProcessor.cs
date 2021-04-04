@@ -83,7 +83,7 @@ namespace ProjektOrdner.Permission
 
                         break;
                     }
-                    case PermissionRole.ReadOnly:
+                    case PermissionRole.Guest:
                     {
                         if (advancedView == true)
                         {
@@ -96,7 +96,7 @@ namespace ProjektOrdner.Permission
 
                         break;
                     }
-                    case PermissionRole.ReadWrite:
+                    case PermissionRole.Member:
                     {
                         if (advancedView == true)
                         {

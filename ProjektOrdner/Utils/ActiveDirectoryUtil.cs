@@ -165,12 +165,12 @@ namespace ProjektOrdner.Utils
                     adGroupSuffix = AppSettings.AdGroupNameSuffixManager;
                     break;
                 }
-                case PermissionRole.ReadOnly:
+                case PermissionRole.Guest:
                 {
                     adGroupSuffix = AppSettings.AdGroupNameSuffixRead;
                     break;
                 }
-                case PermissionRole.ReadWrite:
+                case PermissionRole.Member:
                 {
                     adGroupSuffix = AppSettings.AdGroupNameSuffixWrite;
                     break;
@@ -187,11 +187,11 @@ namespace ProjektOrdner.Utils
         {
             return new List<string>
             {
-                GetAdGroupName(Name, GroupScope.Local, PermissionRole.ReadOnly),
-                GetAdGroupName(Name, GroupScope.Local, PermissionRole.ReadWrite),
+                GetAdGroupName(Name, GroupScope.Local, PermissionRole.Guest),
+                GetAdGroupName(Name, GroupScope.Local, PermissionRole.Member),
                 GetAdGroupName(Name, GroupScope.Local, PermissionRole.Manager),
-                GetAdGroupName(Name, GroupScope.Global, PermissionRole.ReadOnly),
-                GetAdGroupName(Name, GroupScope.Global, PermissionRole.ReadWrite),
+                GetAdGroupName(Name, GroupScope.Global, PermissionRole.Guest),
+                GetAdGroupName(Name, GroupScope.Global, PermissionRole.Member),
                 GetAdGroupName(Name, GroupScope.Global, PermissionRole.Manager)
             };
         }

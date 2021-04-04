@@ -135,5 +135,17 @@ namespace ProjektOrdner.Repository
             return false;
         }
 
+
+        /// <summary>
+        /// 
+        /// Gibt den Dateipfad für die Datei aus
+        /// 
+        /// </summary>
+        public static string GetSettingsFilePath(string projektPath)
+        {
+            return Path.Combine(projektPath, Path.Combine(AppConstants.OrganisationFolderName, AppConstants.RepositorySettingsFileName));
+        }
+
+
     }
 }
