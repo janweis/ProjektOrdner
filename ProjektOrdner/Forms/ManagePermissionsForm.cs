@@ -224,11 +224,7 @@ namespace ProjektOrdner.Forms
         /// </summary>
         private void ApplyPermissions()
         {
-            // Aktualisiere Berechtigungen
-            Permissions = Permissions
-                .Where(permission => permission.Role != PermissionRole.Undefined)
-                .ToList();
-
+            Permissions.RemoveAll(permission => permission.Role == PermissionRole.Undefined);
             Close();
         }
 
@@ -236,7 +232,7 @@ namespace ProjektOrdner.Forms
 
         //
         // CONTROLS
-        // ______________________________________________________________________________________________
+        // _____________________________________________________________________________________________
 
 
         private void SimpleViewRadio_CheckedChanged(object sender, EventArgs e)

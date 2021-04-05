@@ -387,7 +387,13 @@ Gast=
                 }
                 case RepositoryVersion.V2:
                 {
-                    filePath = Path.Combine(projektPath, Path.Combine(projektPath, AppConstants.OrganisationFileNameV2));
+                    filePath = Path.Combine(
+                        projektPath,
+                        Path.Combine(
+                            AppConstants.OrganisationFolderName,
+                            AppConstants.OrganisationFileNameV2
+                            )
+                        );
                     break;
                 }
             }

@@ -45,7 +45,8 @@ namespace ProjektOrdner.Forms
             });
 
             Progress = new Progress<string>(message => UpdateToolStripStatus(message));
-            UpdateViewAsync(repositories);
+            UpdateTreeView();
+            UpdateRepositoryCounter();
         }
 
 
@@ -98,15 +99,25 @@ namespace ProjektOrdner.Forms
             try
             {
                 await repositoryManager.CreateRepositoryAsync(Progress);
+
+                // Update View
+                await UpdateRepositoryListAsync();
+                UpdateTreeView();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Konnte das Projekt nicht anlegen!\n{ex.Message}", "Hinweis", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
+                MessageBox.Show($"Das Repository konnte nicht angelegt werden!\n{ex.Message}", "Hinweis", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
 
-            // Update View
-            UpdateViewAsync();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private async Task UpdateRepositoryListAsync()
+        {
+            RepositoryRoot root = new RepositoryRoot(CurrentRootPath, AppSettings);
+            Repositories = await root.GetRepositoriesAsync(IncludeCorruptedProjects, Progress);
         }
 
 
@@ -125,18 +136,18 @@ namespace ProjektOrdner.Forms
             }
 
             RepositoryManager repositoryManager = new RepositoryManager(CurrentRootPath, AppSettings);
-
             try
             {
                 await repositoryManager.RenameRepositoryAsync(node.Tag.ToString(), Progress);
+
+                // Update View
+                await UpdateRepositoryListAsync();
+                UpdateTreeView();
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Es ist ein Fehler beim umbenennen aufgetreten. {ex.Message}", "Hinweis", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-
-            // Update View
-            UpdateViewAsync();
         }
 
 
@@ -174,6 +185,7 @@ namespace ProjektOrdner.Forms
                 {
                     RepositoryManager repositoryManager = new RepositoryManager(CurrentRootPath, AppSettings);
                     await repositoryManager.RemoveRespositoryAsync(node.Tag.ToString(), Progress);
+
                 }
                 catch (Exception ex)
                 {
@@ -182,7 +194,8 @@ namespace ProjektOrdner.Forms
             }
 
             // Update View
-            UpdateViewAsync();
+            await UpdateRepositoryListAsync();
+            UpdateTreeView();
         }
 
 
@@ -191,7 +204,7 @@ namespace ProjektOrdner.Forms
         /// Aktualisiert die Projektberechtigungen
         /// 
         /// </summary>
-        private async Task UpdateProjektPermission()
+        private async Task UpdateRepositoryPermission()
         {
             TreeNode node = TreeHelper.GetNodeBySelection(true);
 
@@ -219,12 +232,12 @@ namespace ProjektOrdner.Forms
         /// Aktualisiert alle Projektberechtigungen
         /// 
         /// </summary>
-        private async Task UpdateProjektsPermissions()
+        private async Task UpdateRepositoriesPermissions()
         {
-            List<Task> tasks = new List<Task>();
             Progress.Report("Update Projektberechtigungen aller Projekte...");
 
             // Aktualisiere für alle Projekte die Berechtigungen
+            List<Task> tasks = new List<Task>();
             foreach (RepositoryFolder repository in Repositories)
             {
                 if (repository.Status == RepositoryFolder.RepositoryStatus.Corrupted)
@@ -257,7 +270,7 @@ namespace ProjektOrdner.Forms
         /// Verarbeitet die sich verändernden Berechtigungen.
         /// 
         /// </summary>
-        private async Task ManageProjektPermissionAsync()
+        private async Task EditRepositoryPermission()
         {
             TreeNode selectedNode = TreeHelper.GetNodeBySelection();
             if (null == selectedNode)
@@ -289,8 +302,7 @@ namespace ProjektOrdner.Forms
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Es ist ein Fehler aufgetreten.\n{ex.Message}");
-                return;
+                MessageBox.Show($"Es ist ein Fehler aufgetreten. {ex.Message}", "Berechtigungen bearbeiten", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -384,7 +396,7 @@ namespace ProjektOrdner.Forms
                 zeigeDefekteProjekteToolStripMenuItem.Checked = true;
             }
 
-            UpdateViewAsync();
+            UpdateTreeView();
         }
 
 
@@ -393,46 +405,23 @@ namespace ProjektOrdner.Forms
         /// Aktualisiert die Ansicht
         /// 
         /// </summary>
-        private void UpdateViewAsync()
+        private void UpdateTreeView()
         {
-            // Update Nodes
-            if (null == Repositories || Repositories.Count() == 0)
-            {
-                Progress.Report("Kein Projekt gefunden!");
-                return;
-            }
-
-            TreeHelper.UpdateView(Repositories, IncludeCorruptedProjects);  // Update Nodes
-
-            // Update Projektanzahl Anzeige
-            toolStripStatusProjektZahl.Text = $"{Repositories.Count()} Projekt(e)";
-
-            // Update Status
-            Progress.Report("Aktualisierung abgeschlossen!");
+            UpdateRepositoryCounter();
+            TreeHelper.UpdateView(Repositories, IncludeCorruptedProjects);
         }
 
 
         /// <summary>
         /// 
-        /// Aktualisiert die Ansicht
-        /// 
         /// </summary>
-        private void UpdateViewAsync(RepositoryFolder[] repositories)
+        private void UpdateRepositoryCounter()
         {
-            if (null == repositories || repositories.Count() == 0)
-            {
-                Progress.Report("Kein Projekt gefunden!");
-                return;
-            }
-
-            // Update Nodes
-            TreeHelper.UpdateView(repositories, IncludeCorruptedProjects);
-
             // Update Projektanzahl Anzeige
-            toolStripStatusProjektZahl.Text = $"{Repositories.Count()} Projekt(e)";
-
-            // Update Status
-            Progress.Report("Aktualisierung abgeschlossen!");
+            if (null == Repositories)
+                toolStripStatusProjektZahl.Text = $"0 Projekt(e)";
+            else
+                toolStripStatusProjektZahl.Text = $"{Repositories.Count()} Projekt(e)";
         }
 
 
@@ -466,15 +455,12 @@ namespace ProjektOrdner.Forms
         /// </summary>
         private async Task ChangeRootPath(string rootPath)
         {
-            CurrentRootPath = rootPath;
-            Repositories = null;
+            CurrentRootPath = rootPath;         // Set new root Path
 
-            // Get Repositories
-            RepositoryRoot root = new RepositoryRoot(CurrentRootPath, AppSettings);
-            Repositories = await root.GetRepositoriesAsync(IncludeCorruptedProjects, Progress);
+            await UpdateRepositoryListAsync();  // Update projekt list
+            UpdateTreeView();                   // Update View
 
-            // Update View
-            UpdateViewAsync();
+            Progress.Report("Stammverzeichnis gewechselt!");
         }
 
 
@@ -606,8 +592,11 @@ namespace ProjektOrdner.Forms
             info.ShowDialog();
         }
 
-        private void aktualisierenToolStripMenuItem_Click(object sender, EventArgs e) =>
-            UpdateViewAsync();
+        private void aktualisierenToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            UpdateTreeView();
+            Progress.Report("Aktualisierung abgeschlossen!");
+        }
 
         private async void verwaltenToolStripMenuItem_Click(object sender, EventArgs e) =>
             await RepositoryRoot.StartRootAssistantAsync(AppSettings, Progress);
@@ -622,7 +611,7 @@ namespace ProjektOrdner.Forms
             await RemoveProjektAsync();
 
         private async void HinzufügenToolStripMenuItem_Click(object sender, EventArgs e) =>
-            await ManageProjektPermissionAsync();
+            await EditRepositoryPermission();
 
         private void AusklappenItem_Click(object sender, EventArgs e) =>
             ProjektsTree.ExpandAll();
@@ -631,22 +620,25 @@ namespace ProjektOrdner.Forms
             ProjektsTree.CollapseAll();
 
         private async void UpdatePermissionsItem_Click(object sender, EventArgs e) =>
-            await UpdateProjektPermission();
+            await UpdateRepositoryPermission();
 
         private async void updateToolStripMenuItem_Click(object sender, EventArgs e) =>
-            await UpdateProjektPermission();
+            await UpdateRepositoryPermission();
 
         private async void aktualisiereAlleBerechtigungenToolStripMenuItem_Click(object sender, EventArgs e) =>
-            await UpdateProjektsPermissions();
+            await UpdateRepositoriesPermissions();
 
         private async void ManagePermissionsMenuItem_Click(object sender, EventArgs e) =>
-            await ManageProjektPermissionAsync();
+            await EditRepositoryPermission();
 
         private void zeigeDefekteProjekteToolStripMenuItem_Click(object sender, EventArgs e) =>
             ProcessFilterCorruptedProjectsShownAsync();
 
-        private void projekteErneutEinlesenToolStripMenuItem_Click(object sender, EventArgs e) =>
-            UpdateViewAsync();
+        private async void projekteErneutEinlesenToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            await UpdateRepositoryListAsync();
+            UpdateTreeView();
+        }
 
         private async void startenToolStripMenuItem_Click(object sender, EventArgs e) =>
             await StartUpdateServiceAsync();

@@ -13,7 +13,7 @@ namespace ProjektOrdner
             Application.SetCompatibleTextRenderingDefault(false);
 
             MainProgram program = new MainProgram();
-            Task programTask = program.StartAsync();
+            Task programTask = program.StartProgramAsync();
 
             Application.Run();
         }

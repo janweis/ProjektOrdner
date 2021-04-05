@@ -139,13 +139,13 @@ namespace ProjektOrdner.App
         }
 
 
-
-
-
         //
         // Add Node
         //
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void AddProjektNodeCorrupted(string Name, string projektPath)
         {
             // Add Projekt Node
@@ -154,6 +154,10 @@ namespace ProjektOrdner.App
             View.Nodes[Name].NodeFont = new System.Drawing.Font(View.Font, System.Drawing.FontStyle.Italic);
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
         public void AddProjektNodeV2(string Name, string projektPath)
         {
             // Add Projekt Node
@@ -169,6 +173,10 @@ namespace ProjektOrdner.App
             View.Nodes[Name].Nodes.Add("Organization", "ProjektOrdner", 2, 2);
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
         public void AddProjektNodeV1(string Name, string projektPath)
         {
             // Add Projekt Node
@@ -187,6 +195,10 @@ namespace ProjektOrdner.App
         // Remove Node
         // 
 
+
+        /// <summary>
+        /// 
+        /// </summary>
         public void RemoveProjektNodeByName(string Name)
         {
             TreeNode node = GetNodeByName(Name);
@@ -195,6 +207,10 @@ namespace ProjektOrdner.App
                 View.Nodes.Remove(node);
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
         public void RemoveProjektNodeByID(string id)
         {
             TreeNode node = GetNodeByTag(id);
@@ -208,6 +224,11 @@ namespace ProjektOrdner.App
         // CLEAR
         //
 
+        /// <summary>
+        /// 
+        /// Clear all Nodes
+        /// 
+        /// </summary>
         public void ClearView()
         {
             View.BeginUpdate();
@@ -226,11 +247,17 @@ namespace ProjektOrdner.App
         /// Aktualisiert die Projektansicht
         /// 
         /// </summary>
-
         public void UpdateView(RepositoryFolder[] repositories, bool includeCorrupted = false)
         {
-            if (null == repositories)
+            // Clear
+            if (null == repositories || repositories.Count() == 0)
+            {
+                View.BeginUpdate();
+                View.Nodes.Clear();
+                View.EndUpdate();
+
                 return;
+            }
 
             // Pepare
             View.BeginUpdate();
@@ -247,7 +274,7 @@ namespace ProjektOrdner.App
                         {
                             case RepositoryVersion.V1:
                             {
-                                AddProjektNodeV1(repository.Organization.ProjektName,repository.Organization.ProjektPath);
+                                AddProjektNodeV1(repository.Organization.ProjektName, repository.Organization.ProjektPath);
                                 break;
                             }
                             case RepositoryVersion.V2:
@@ -283,7 +310,6 @@ namespace ProjektOrdner.App
         /// Filtert die Projekt anzeige
         /// 
         /// </summary>
-
         public void SetFilterView(string filter, RepositoryFolder[] repositories)
         {
             IEnumerable<RepositoryFolder> filteredRepos = repositories
@@ -298,7 +324,6 @@ namespace ProjektOrdner.App
         /// Öffnet das zugwiesene Verzeichnis im Explorer.
         /// 
         /// </summary>
-
         public void OpenProjektFolder()
         {
             TreeNode node = GetNodeBySelection();

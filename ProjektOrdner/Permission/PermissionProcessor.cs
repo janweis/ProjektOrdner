@@ -44,7 +44,6 @@ namespace ProjektOrdner.Permission
             Version = version;
 
             AdUtil = new ActiveDirectoryUtil(appSettings);
-            DetectRepositoryVersion();
         }
 
         // // // // // // // // // // // // // // // // // // // // //

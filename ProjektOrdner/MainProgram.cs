@@ -10,22 +10,30 @@ namespace ProjektOrdner
 {
     public class MainProgram
     {
+        // // // // // // // // // // // // // // // // // // // // //
+        // Variablen
+        // 
+
         private AppSettings Settings { get; set; }
+
+
+        // // // // // // // // // // // // // // // // // // // // //
+        // Constructors
+        // 
 
         public MainProgram() { }
 
-        //
-        // MAIN-FUNCTIONS
-        // ______________________________________________________________________________________
 
+        // // // // // // // // // // // // // // // // // // // // //
+        // Public Functions
+        // 
 
         /// <summary>
         /// 
         /// Startet das Programm.
         /// 
         /// </summary>
-
-        public async Task StartAsync()
+        public async Task StartProgramAsync()
         {
             // Load Splash
             SplashScreenForm splashScreen = new SplashScreenForm();
@@ -79,10 +87,9 @@ namespace ProjektOrdner
         }
 
 
-        //
-        // SUB-FUNCTIONS
-        // ______________________________________________________________________________________
-
+        // // // // // // // // // // // // // // // // // // // // //
+        // Private Functions
+        // 
 
         /// <summary>
         /// 
