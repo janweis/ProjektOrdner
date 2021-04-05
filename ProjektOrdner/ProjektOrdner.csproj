@@ -146,7 +146,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Repository\RepositoryManager.cs" />
+    <Compile Include="Repository\RepositoryAssistant.cs" />
     <Compile Include="Repository\RepositoryOrganization.cs" />
     <Compile Include="Repository\RepositoryFolder.cs" />
     <Compile Include="Repository\RepositoryRoot.cs" />
@@ -198,6 +198,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="ProjektOrdner.ico" />
+    <None Include="Resources\analytics.png" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

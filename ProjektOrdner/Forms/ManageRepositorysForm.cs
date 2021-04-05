@@ -89,6 +89,8 @@ namespace ProjektOrdner.Forms
                 umbenennenToolStripMenuItem.Enabled = false;
                 umbenennenToolStripMenuItem1.Enabled = false;
             }
+
+            ProgressMessage.Report("Ansichtsänderungen durchgeführt!");
         }
 
 
@@ -100,19 +102,23 @@ namespace ProjektOrdner.Forms
         private async Task CreateProjektAsync()
         {
             // Add Projekt
-            RepositoryManager repositoryManager = new RepositoryManager(CurrentRootPath, AppSettings);
+            RepositoryAssistant repositoryManager = new RepositoryAssistant(CurrentRootPath, AppSettings);
             try
             {
-                await repositoryManager.CreateRepositoryAsync(ProgressMessage);
+                bool successfully = await repositoryManager.CreateRepositoryAsync(ProgressMessage);
 
-                // Update View
-                await UpdateRepositoryListAsync();
-                UpdateTreeView();
+                if (successfully)
+                {
+                    await UpdateRepositoryListAsync();
+                    UpdateTreeView();
+                }
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Das Repository konnte nicht angelegt werden!\n{ex.Message}", "Hinweis", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+
+            ProgressMessage.Report("Projektanlage abgeschlossen!");
         }
 
 
@@ -140,19 +146,23 @@ namespace ProjektOrdner.Forms
                 return;
             }
 
-            RepositoryManager repositoryManager = new RepositoryManager(CurrentRootPath, AppSettings);
+            RepositoryAssistant repositoryManager = new RepositoryAssistant(CurrentRootPath, AppSettings);
             try
             {
-                await repositoryManager.RenameRepositoryAsync(node.Tag.ToString(), ProgressMessage);
+                bool successfully = await repositoryManager.RenameRepositoryAsync(node.Tag.ToString(), ProgressMessage);
 
-                // Update View
-                await UpdateRepositoryListAsync();
-                UpdateTreeView();
+                if (successfully)
+                {
+                    await UpdateRepositoryListAsync();
+                    UpdateTreeView();
+                }
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Es ist ein Fehler beim umbenennen aufgetreten. {ex.Message}", "Hinweis", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+
+            ProgressMessage.Report("Projekt umbenennen abgeschlossen!");
         }
 
 
@@ -188,7 +198,7 @@ namespace ProjektOrdner.Forms
             {
                 try
                 {
-                    RepositoryManager repositoryManager = new RepositoryManager(CurrentRootPath, AppSettings);
+                    RepositoryAssistant repositoryManager = new RepositoryAssistant(CurrentRootPath, AppSettings);
                     await repositoryManager.RemoveRespositoryAsync(node.Tag.ToString(), ProgressMessage);
 
                 }
@@ -356,31 +366,15 @@ namespace ProjektOrdner.Forms
             try
             {
                 process.Start();
+                ProgressMessage.Report($"Die Datei {filePath} wurde geöffnet!");
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Die Datei konnte nicht geöffnet werden. {ex.Message}.\n\nPfad: {process.StartInfo.FileName}", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+
         }
 
-
-        /// <summary>
-        /// 
-        /// 
-        /// 
-        /// </summary>
-        private async Task ChangeFilterContentAsync()
-        {
-            await TreeHelper.SetFilterViewAsync(textBox1.Text, Repositories, RepoCounter, ProgressMessage, AppSettings);
-            if (textBox1.Text.Length > 0)
-            {
-                button1.Enabled = true;
-            }
-            else
-            {
-                button1.Enabled = false;
-            }
-        }
 
 
         /// <summary>
@@ -404,7 +398,7 @@ namespace ProjektOrdner.Forms
             await UpdateRepositoryListAsync();
             UpdateTreeView();
 
-            ProgressMessage.Report("Einstellung übernommen!");
+            ProgressMessage.Report("Neue Ansicht übernommen!");
         }
 
 
@@ -544,6 +538,75 @@ namespace ProjektOrdner.Forms
         }
 
 
+        /// <summary>
+        /// 
+        /// </summary>
+        private async Task EnableFilter()
+        {
+            // Controls
+            FilterToolStripButton.Checked = true;
+            FilterToolStripButton.Enabled = false;
+
+            // View
+            try
+            {
+                await TreeHelper.SetFilterViewAsync(textBox1.Text, Repositories, RepoCounter, ProgressMessage, AppSettings);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Fehler in der Filterung! {ex.Message}", "Filter einschalten", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                await DisableFilter();
+            }
+            finally
+            {
+                // Controls
+                FilterToolStripButton.Enabled = true;
+                ProgressMessage.Report("Filter eingeschaltet!");
+            }
+
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private async Task DisableFilter()
+        {
+            // Controls
+            FilterToolStripButton.Checked = false;
+            FilterToolStripButton.Enabled = false;
+
+            // View
+            try
+            {
+                await TreeHelper.SetFilterViewAsync("", Repositories, RepoCounter, ProgressMessage, AppSettings);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Fehler in der Filterung! {ex.Message}", "Filter ausschalten", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
+            finally
+            {
+                // Controls
+                FilterToolStripButton.Enabled = true;
+                ProgressMessage.Report("Filter abgeschaltet!");
+            }
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private async Task ClickFilterAsync()
+        {
+            if (FilterToolStripButton.Checked)
+                await EnableFilter();
+            else
+                await DisableFilter();
+        }
+
+
+
         //
         // Controls
         // ---------------------------------------------------------------------------------
@@ -579,9 +642,6 @@ namespace ProjektOrdner.Forms
 
         private void ProjektsTree_DoubleClick(object sender, EventArgs e) =>
             OpenProjektFile();
-
-        private async void textBox1_TextChanged(object sender, EventArgs e) =>
-            await ChangeFilterContentAsync();
 
         private void button1_Click(object sender, EventArgs e) =>
             textBox1.Text = "";
@@ -664,10 +724,20 @@ namespace ProjektOrdner.Forms
         private void ausgabeEinblendenToolStripMenuItem_Click(object sender, EventArgs e) =>
             ShowServiceOutput();
 
-        private void abgelaufeneProjekteToolStripMenuItem_Click(object sender, EventArgs e) =>
+        private async void AnlegenToolStripButton_Click(object sender, EventArgs e) =>
+            await CreateProjektAsync();
+
+        private async void EntfernenToolStripButton_Click(object sender, EventArgs e) =>
+            await RemoveProjektAsync();
+
+        private void abgelaufeneProjekteToolStripMenuItem2_Click(object sender, EventArgs e) =>
             textBox1.Text = "filter=expired";
 
-        private void benutzerInProjektenToolStripMenuItem_Click(object sender, EventArgs e) =>
+        private void benutzerInProjektenToolStripMenuItem2_Click(object sender, EventArgs e) =>
             textBox1.Text = "filter=person=ExampleUser";
+
+        private async void FilterToolStripButton_Click(object sender, EventArgs e) =>
+            await ClickFilterAsync();
+
     }
 }

@@ -11,13 +11,13 @@ using System.Windows.Forms;
 
 namespace ProjektOrdner.Repository
 {
-    public class RepositoryManager
+    public class RepositoryAssistant
     {
         public string RootFolder { get; set; }
-        RepositoryFolder Processor { get; set; }
-        AppSettings AppSettings { get; set; }
+        private RepositoryFolder Processor { get; set; }
+        private AppSettings AppSettings { get; set; }
 
-        public RepositoryManager(string rootFolder, AppSettings appSettings)
+        public RepositoryAssistant(string rootFolder, AppSettings appSettings)
         {
             RootFolder = rootFolder;
             AppSettings = appSettings;
@@ -31,7 +31,7 @@ namespace ProjektOrdner.Repository
         /// Erstellt ein neues Projekt.
         /// 
         /// </summary>
-        public async Task CreateRepositoryAsync(IProgress<string> messageProgress)
+        public async Task<bool> CreateRepositoryAsync(IProgress<string> messageProgress)
         {
             // Collect Projekt Data
             GetRepositoryNameForm getDataForm = new GetRepositoryNameForm();
@@ -40,7 +40,7 @@ namespace ProjektOrdner.Repository
             if (getDataForm.DialogResult == DialogResult.Cancel)
             {
                 messageProgress.Report("Project creation cancelled!");
-                return;
+                return false;
             }
 
             // Create Repository with Data
@@ -61,11 +61,13 @@ namespace ProjektOrdner.Repository
             await repository.CreateAsync(messageProgress);
 
             // Start PermissionManager
-            if(getDataForm.UsePermissionAssistent == true)
+            if (getDataForm.UsePermissionAssistent == true)
             {
                 PermissionManager permissionManager = new PermissionManager(organisation.ProjektPath, AppSettings);
                 await permissionManager.ManagePermissions();
             }
+
+            return true;
         }
 
 
@@ -74,12 +76,12 @@ namespace ProjektOrdner.Repository
         /// Benennt das Projekt um.
         /// 
         /// </summary>
-        public async Task RenameRepositoryAsync(string folderPath, IProgress<string> messageProgress)
+        public async Task<bool> RenameRepositoryAsync(string folderPath, IProgress<string> messageProgress)
         {
             // Get current directory name
             DirectoryInfo directory = new DirectoryInfo(folderPath);
             string currentName = directory.Name;
-            
+
             // Get new repository name
             RenameProjektForm renameProjekt = new RenameProjektForm(currentName);
             DialogResult result = renameProjekt.ShowDialog();
@@ -87,14 +89,16 @@ namespace ProjektOrdner.Repository
             if (result == DialogResult.Cancel)
             {
                 messageProgress.Report("Project renaming cancelled!");
-                return;
+                return false;
             }
 
             string newName = renameProjekt.Name;
 
             // Get & Rename Repository
             RepositoryFolder repository = await Processor.Get(folderPath, messageProgress);
-            await Processor.RenameAsync(repository, newName,messageProgress);
+            await Processor.RenameAsync(repository, newName, messageProgress);
+
+            return true;
         }
 
 
@@ -103,11 +107,20 @@ namespace ProjektOrdner.Repository
         /// Entfernt das Projekt.
         /// 
         /// </summary>
-        public async Task RemoveRespositoryAsync(string folderPath, IProgress<string> messageProgress)
+        public async Task<bool> RemoveRespositoryAsync(string folderPath, IProgress<string> messageProgress)
         {
             RepositoryFolder repositoryFolder = new RepositoryFolder(AppSettings);
-            repositoryFolder = await repositoryFolder.Get(folderPath, messageProgress);
-            repositoryFolder.Remove(messageProgress);
+            try
+            {
+                repositoryFolder = await repositoryFolder.Get(folderPath, messageProgress);
+                repositoryFolder.Remove(messageProgress);
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
     }
