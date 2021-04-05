@@ -310,11 +310,12 @@ namespace ProjektOrdner.App
         /// Filtert die Projekt anzeige
         /// 
         /// </summary>
-        public void SetFilterView(string filter, RepositoryFolder[] repositories)
+        public void SetFilterView(string filter, RepositoryFolder[] repositories, IProgress<int> repoCounter)
         {
             IEnumerable<RepositoryFolder> filteredRepos = repositories
-                .Where(repository => repository.Organization.ProjektName.Contains(filter));
+                .Where(repository => repository.Organization.ProjektName.Contains(filter, StringComparison.OrdinalIgnoreCase));
 
+            repoCounter.Report(filteredRepos.Count());
             UpdateView(filteredRepos.ToArray());
         }
 
