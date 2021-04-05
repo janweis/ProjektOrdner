@@ -1,4 +1,5 @@
 ﻿using ProjektOrdner.App;
+using ProjektOrdner.Permission;
 using ProjektOrdner.Repository;
 using System;
 using System.Collections.Generic;
@@ -310,10 +311,53 @@ namespace ProjektOrdner.App
         /// Filtert die Projekt anzeige
         /// 
         /// </summary>
-        public void SetFilterView(string filter, RepositoryFolder[] repositories, IProgress<int> repoCounter)
+        public async Task SetFilterViewAsync(string filter, RepositoryFolder[] repositories, IProgress<int> repoCounter, IProgress<string> progressMessage, AppSettings appSettings)
         {
-            IEnumerable<RepositoryFolder> filteredRepos = repositories
-                .Where(repository => repository.Organization.ProjektName.Contains(filter, StringComparison.OrdinalIgnoreCase));
+            IEnumerable<RepositoryFolder> filteredRepos = null;
+            if (filter.Contains("filter=", StringComparison.OrdinalIgnoreCase) == false)
+            {
+                filteredRepos = repositories
+                    .Where(repository => repository.Organization.ProjektName.Contains(filter, StringComparison.OrdinalIgnoreCase));
+            }
+            else
+            {
+                string filterRequest = filter
+                    .Substring(filter.IndexOf("filter=") + 7)
+                    .ToLower();
+
+                if(filterRequest.Contains("expired"))
+                {
+                    filteredRepos = repositories
+                        .Where(repository => repository.Organization.ProjektEnde < DateTime.Today);
+                }
+                else if(filterRequest.Contains("person="))
+                {
+                    string personFilter = filterRequest.Substring(filterRequest.IndexOf("person=") + 7);
+                    if (personFilter == "" || personFilter == "exampleuser")
+                        return;
+
+                    progressMessage.Report($"Suche Benutzer {personFilter} in Projekten...");
+                    List<RepositoryFolder> foundRepositories = new List<RepositoryFolder>();
+                    foreach (RepositoryFolder repository in repositories)
+                    {
+                        PermissionProcessor permissionProcessor = new PermissionProcessor(repository, appSettings);
+                        RepositoryPermission[] repositoryPermissions = await permissionProcessor.GetPermissionsAsync();
+
+                        RepositoryPermission foundRequiredUser = repositoryPermissions
+                            .ToList()
+                            .Find(permission => permission.User.SamAccountName == personFilter);
+
+                        if (null != foundRequiredUser)
+                            foundRepositories.Add(repository);
+                    }
+
+                    filteredRepos = foundRepositories;
+                    progressMessage.Report($"Benutzersuche abgeschlossen!");
+                }
+            }
+
+            if (null == filteredRepos)
+                return;
 
             repoCounter.Report(filteredRepos.Count());
             UpdateView(filteredRepos.ToArray());

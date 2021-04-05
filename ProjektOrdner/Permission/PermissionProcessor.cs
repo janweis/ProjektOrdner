@@ -28,6 +28,15 @@ namespace ProjektOrdner.Permission
         // Constructors
         // 
 
+        public PermissionProcessor(RepositoryFolder repository, AppSettings appSettings)
+        {
+            ProjektPath = repository.Organization.ProjektPath;
+            AppSettings = appSettings;
+            Version = repository.Organization.Version;
+
+            AdUtil = new ActiveDirectoryUtil(appSettings);
+        }
+
         public PermissionProcessor(string projektPath, AppSettings appSettings)
         {
             ProjektPath = projektPath;

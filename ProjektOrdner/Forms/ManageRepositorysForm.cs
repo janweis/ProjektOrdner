@@ -369,9 +369,9 @@ namespace ProjektOrdner.Forms
         /// 
         /// 
         /// </summary>
-        private void ProcessFilterButtonStatus()
+        private async Task ChangeFilterContentAsync()
         {
-            TreeHelper.SetFilterView(textBox1.Text, Repositories, RepoCounter);
+            await TreeHelper.SetFilterViewAsync(textBox1.Text, Repositories, RepoCounter, ProgressMessage, AppSettings);
             if (textBox1.Text.Length > 0)
             {
                 button1.Enabled = true;
@@ -580,8 +580,8 @@ namespace ProjektOrdner.Forms
         private void ProjektsTree_DoubleClick(object sender, EventArgs e) =>
             OpenProjektFile();
 
-        private void textBox1_TextChanged(object sender, EventArgs e) =>
-            ProcessFilterButtonStatus();
+        private async void textBox1_TextChanged(object sender, EventArgs e) =>
+            await ChangeFilterContentAsync();
 
         private void button1_Click(object sender, EventArgs e) =>
             textBox1.Text = "";
@@ -664,5 +664,10 @@ namespace ProjektOrdner.Forms
         private void ausgabeEinblendenToolStripMenuItem_Click(object sender, EventArgs e) =>
             ShowServiceOutput();
 
+        private void abgelaufeneProjekteToolStripMenuItem_Click(object sender, EventArgs e) =>
+            textBox1.Text = "filter=expired";
+
+        private void benutzerInProjektenToolStripMenuItem_Click(object sender, EventArgs e) =>
+            textBox1.Text = "filter=person=ExampleUser";
     }
 }

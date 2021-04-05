@@ -85,6 +85,10 @@
             this.label1 = new System.Windows.Forms.Label();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.button1 = new System.Windows.Forms.Button();
+            this.filterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator10 = new System.Windows.Forms.ToolStripSeparator();
+            this.abgelaufeneProjekteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.benutzerInProjektenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ContextMenu2.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.MainMenu.SuspendLayout();
@@ -409,6 +413,8 @@
             // 
             this.ansichtToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.aktualisierenToolStripMenuItem,
+            this.toolStripSeparator10,
+            this.filterToolStripMenuItem,
             this.toolStripSeparator8,
             this.projekteErneutEinlesenToolStripMenuItem,
             this.zeigeDefekteProjekteToolStripMenuItem});
@@ -525,6 +531,34 @@
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
+            // filterToolStripMenuItem
+            // 
+            this.filterToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.abgelaufeneProjekteToolStripMenuItem,
+            this.benutzerInProjektenToolStripMenuItem});
+            this.filterToolStripMenuItem.Name = "filterToolStripMenuItem";
+            this.filterToolStripMenuItem.Size = new System.Drawing.Size(270, 28);
+            this.filterToolStripMenuItem.Text = "Filter";
+            // 
+            // toolStripSeparator10
+            // 
+            this.toolStripSeparator10.Name = "toolStripSeparator10";
+            this.toolStripSeparator10.Size = new System.Drawing.Size(267, 6);
+            // 
+            // abgelaufeneProjekteToolStripMenuItem
+            // 
+            this.abgelaufeneProjekteToolStripMenuItem.Name = "abgelaufeneProjekteToolStripMenuItem";
+            this.abgelaufeneProjekteToolStripMenuItem.Size = new System.Drawing.Size(249, 28);
+            this.abgelaufeneProjekteToolStripMenuItem.Text = "Abgelaufene Projekte";
+            this.abgelaufeneProjekteToolStripMenuItem.Click += new System.EventHandler(this.abgelaufeneProjekteToolStripMenuItem_Click);
+            // 
+            // benutzerInProjektenToolStripMenuItem
+            // 
+            this.benutzerInProjektenToolStripMenuItem.Name = "benutzerInProjektenToolStripMenuItem";
+            this.benutzerInProjektenToolStripMenuItem.Size = new System.Drawing.Size(250, 28);
+            this.benutzerInProjektenToolStripMenuItem.Text = "Benutzer in Projekten";
+            this.benutzerInProjektenToolStripMenuItem.Click += new System.EventHandler(this.benutzerInProjektenToolStripMenuItem_Click);
+            // 
             // ManageRepositorysForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 21F);
@@ -609,5 +643,9 @@
         private System.Windows.Forms.ToolStripMenuItem beendenToolStripMenuItem1;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator9;
         private System.Windows.Forms.ToolStripMenuItem ausgabeEinblendenToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator10;
+        private System.Windows.Forms.ToolStripMenuItem filterToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem abgelaufeneProjekteToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem benutzerInProjektenToolStripMenuItem;
     }
 }
