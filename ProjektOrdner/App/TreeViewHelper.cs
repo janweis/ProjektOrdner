@@ -124,9 +124,9 @@ namespace ProjektOrdner.App
         /// Ruft ein Repository anhand des Names in einem Node ab
         /// 
         /// </summary>
-        public RepositoryFolder GetRepositoryFromNode(RepositoryFolder[] repositories)
+        public RepositoryFolder GetRepositoryFromSelectedNode(RepositoryFolder[] repositories)
         {
-            var selectedNode = GetNodeBySelection();
+            TreeNode selectedNode = GetNodeBySelection();
 
             if (null == selectedNode)
                 return null;
@@ -136,6 +136,25 @@ namespace ProjektOrdner.App
 
             return repositories
                 .Where(repo => selectedNode.Name == repo.Organization.ProjektName)
+                .FirstOrDefault();
+        }
+
+
+        /// <summary>
+        /// 
+        /// Ruft ein Repository anhand des Names in einem Node ab
+        /// 
+        /// </summary>
+        public RepositoryFolder GetRepositoryFromNode(TreeNode node, RepositoryFolder[] repositories)
+        {
+            if (null == node)
+                return null;
+
+            if (null == repositories)
+                return null;
+
+            return repositories
+                .Where(repo => node.Name == repo.Organization.ProjektName)
                 .FirstOrDefault();
         }
 

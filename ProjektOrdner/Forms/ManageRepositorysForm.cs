@@ -301,7 +301,7 @@ namespace ProjektOrdner.Forms
             if (null != selectedNode.Parent)
                 selectedNode = selectedNode.Parent;
 
-            RepositoryFolder repository = TreeHelper.GetRepositoryFromNode(Repositories);
+            RepositoryFolder repository = TreeHelper.GetRepositoryFromNode(selectedNode, Repositories);
             if (null == repository)
                 return;
 
