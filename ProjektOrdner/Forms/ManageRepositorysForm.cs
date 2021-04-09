@@ -239,6 +239,8 @@ namespace ProjektOrdner.Forms
             {
                 MessageBox.Show($"Es ist ein Fehler aufgetreten! {ex.Message}", "Update-Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+
+            ProgressMessage.Report("Berechtigungen wurden synchronisiert!");
         }
 
 
@@ -264,7 +266,7 @@ namespace ProjektOrdner.Forms
             }
 
             await Task.WhenAll(tasks);
-            ProgressMessage.Report("Berechtigungsaktualisierung abgeschlossen!");
+            ProgressMessage.Report("Berechtigungen wurden synchronisiert!");
         }
 
 
@@ -319,6 +321,8 @@ namespace ProjektOrdner.Forms
             {
                 MessageBox.Show($"Es ist ein Fehler aufgetreten. {ex.Message}", "Berechtigungen bearbeiten", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+
+            ProgressMessage.Report("Berechtigungen wurden angepasst!");
         }
 
 

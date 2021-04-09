@@ -162,6 +162,7 @@ namespace ProjektOrdner.Repository
 
             foreach (RepositoryOrganization organization in requests)
             {
+
                 RepositoryFolder repository = new RepositoryFolder(organization, new RepositorySettings(), RepositoryVersion.V2, AppSettings);
                 try
                 {
@@ -172,16 +173,10 @@ namespace ProjektOrdner.Repository
                     throw;
                 }
 
-                foreach (RepositoryPermission permission in organization.LegacyPermissions)
+                if (null != organization.LegacyPermissions || organization.LegacyPermissions.Count() > 0)
                 {
-                    try
-                    {
-                        await permission.ApplyTo(organization);
-                    }
-                    catch (Exception)
-                    {
-                        throw;
-                    }
+                    PermissionProcessor permissionProcessor = new PermissionProcessor(repository, AppSettings);
+                    await permissionProcessor.GrantPermissionsAsync(organization.LegacyPermissions.ToArray());
                 }
             }
         }

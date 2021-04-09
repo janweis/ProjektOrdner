@@ -48,55 +48,55 @@ namespace ProjektOrdner.Repository
         /// <summary>
         /// 
         /// </summary>
-        public async Task ApplyTo(RepositoryOrganization organization)
-        {
-            switch (organization.Version)
-            {
-                case RepositoryVersion.V1:
-                {
-                    await AddUserToPermissionFileV1(organization.ProjektPath);
-                    break;
-                }
-                case RepositoryVersion.V2:
-                {
-                    await AddUserToPermissionFileV2(organization.ProjektPath);
-                    break;
-                }
-                case RepositoryVersion.Unknown:
-                {
-                    throw new ArgumentException("Unknown Repository Version!");
-                }
-            }
+        //public async Task ApplyTo(RepositoryOrganization organization)
+        //{
+        //    switch (organization.Version)
+        //    {
+        //        case RepositoryVersion.V1:
+        //        {
+        //            await AddUserToPermissionFileV1(organization.ProjektPath);
+        //            break;
+        //        }
+        //        case RepositoryVersion.V2:
+        //        {
+        //            await AddUserToPermissionFileV2(organization.ProjektPath);
+        //            break;
+        //        }
+        //        case RepositoryVersion.Unknown:
+        //        {
+        //            throw new ArgumentException("Unknown Repository Version!");
+        //        }
+        //    }
 
-            AddUserToADGroup(organization);
-        }
+        //    AddUserToADGroup(organization);
+        //}
 
 
         /// <summary>
         /// 
         /// </summary>
-        public async Task RemoveFrom(RepositoryOrganization organization)
-        {
-            switch (organization.Version)
-            {
-                case RepositoryVersion.V1:
-                {
-                    await RemoveFromFileV1Async(organization.ProjektPath);
-                    RemoveFromActiveDirectoryV1(organization);
-                    break;
-                }
-                case RepositoryVersion.V2:
-                {
-                    await RemoveFromFileV2Async(organization.ProjektPath);
-                    RemoveFromActiveDirectoryV2(organization);
-                    break;
-                }
-                case RepositoryVersion.Unknown:
-                {
-                    throw new ArgumentException("Unknown Repository Version!");
-                }
-            }
-        }
+        //public async Task RemoveFrom(RepositoryOrganization organization)
+        //{
+        //    switch (organization.Version)
+        //    {
+        //        case RepositoryVersion.V1:
+        //        {
+        //            await RemoveFromFileV1Async(organization.ProjektPath);
+        //            RemoveFromActiveDirectoryV1(organization);
+        //            break;
+        //        }
+        //        case RepositoryVersion.V2:
+        //        {
+        //            await RemoveFromFileV2Async(organization.ProjektPath);
+        //            RemoveFromActiveDirectoryV2(organization);
+        //            break;
+        //        }
+        //        case RepositoryVersion.Unknown:
+        //        {
+        //            throw new ArgumentException("Unknown Repository Version!");
+        //        }
+        //    }
+        //}
 
 
         // // // // // // // // // // // // // // // // // // // // //

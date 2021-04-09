@@ -78,6 +78,8 @@ namespace ProjektOrdner.Permission
         /// </summary>
         public async Task SyncPermissionsAsync(RepositoryPermission[] newPermissions = null)
         {
+            // Get Permissions
+
             RepositoryPermission[] permissionsFromFile;
             if (null != newPermissions)
             {
@@ -88,6 +90,8 @@ namespace ProjektOrdner.Permission
                 permissionsFromFile = await GetPermissionsFromFileAsync();
             }
             RepositoryPermission[] permissionsFromAD = GetPermissionsFromAD();
+
+            // Compare Permissions
 
             List<RepositoryPermission> permissionsToAdd = permissionsFromFile
                 .Except(permissionsFromAD, new PermissionComparer())
@@ -100,11 +104,98 @@ namespace ProjektOrdner.Permission
             RepositoryOrganization repositoryOrganization = new RepositoryOrganization();
             await repositoryOrganization.LoadAuto(ProjektPath);
 
+
+            // Update Permissions
+
             if (null != permissionsToAdd && permissionsToAdd.Count > 0)
-                permissionsToAdd.ForEach(async permission => await permission.ApplyTo(repositoryOrganization));
+                await GrantPermissionsAsync(permissionsToAdd.ToArray());
 
             if (null != permissionsToRemove && permissionsToRemove.Count > 0)
-                permissionsToRemove.ForEach(async permission => await permission.RemoveFrom(repositoryOrganization));
+                await RevokePermissionsAsync(permissionsToRemove.ToArray());
+        }
+
+
+        /// <summary>
+        /// 
+        /// Berechtigt die Berechtigungen auf das Projekt
+        /// 
+        /// </summary>
+        public async Task GrantPermissionsAsync(RepositoryPermission[] permissions)
+        {
+            var groupedPermissions = permissions.GroupBy(permission => permission.Role);
+            foreach (IGrouping<PermissionRole, RepositoryPermission> permissionGroup in groupedPermissions)
+            {
+                if (permissionGroup.Count() == 0)
+                    continue;
+
+                // Get File Content
+                string filePath = GetPermissionFilePath(permissionGroup.Key);
+                string fileContent = await ReadFileContentAsync(filePath);
+
+                // Get AD Data
+                string projektName = new DirectoryInfo(ProjektPath).Name;
+                string adGroupName = AdUtil.GetAdGroupName(projektName, GroupScope.Global, permissionGroup.Key);
+                GroupPrincipal adGroup = AdUtil.GetGroup(adGroupName, IdentityType.SamAccountName);
+
+                // Add to File & AD
+                foreach (var userPermission in permissionGroup)
+                {
+                    // File
+                    if (fileContent.Contains(userPermission.User.SamAccountName) == false)
+                    {
+                        fileContent = fileContent + Environment.NewLine + userPermission.User.SamAccountName;
+                    }
+
+                    // AD
+                    UserPrincipal adUser = AdUtil.GetUser(userPermission.User.SamAccountName, IdentityType.SamAccountName);
+                    AdUtil.AddGroupMembers(adGroup, adUser);
+                }
+
+                // Write File Content
+                await WriteFileContent(filePath, fileContent);
+            }
+        }
+
+
+        /// <summary>
+        /// 
+        /// Entfernt die Berechtigung auf das Projekt
+        /// 
+        /// </summary>
+        public async Task RevokePermissionsAsync(RepositoryPermission[] permissions)
+        {
+            var groupedPermissions = permissions.GroupBy(permission => permission.Role);
+            foreach (IGrouping<PermissionRole, RepositoryPermission> permissionGroup in groupedPermissions)
+            {
+                if (permissionGroup.Count() == 0)
+                    continue;
+
+                // Get File Content
+                string filePath = GetPermissionFilePath(permissionGroup.Key);
+                string fileContent = await ReadFileContentAsync(filePath);
+
+                // Get AD Data
+                string projektName = new DirectoryInfo(ProjektPath).Name;
+                string adGroupName = AdUtil.GetAdGroupName(projektName, GroupScope.Global, permissionGroup.Key);
+                GroupPrincipal adGroup = AdUtil.GetGroup(adGroupName, IdentityType.SamAccountName);
+
+                // Remove from File & AD
+                foreach (var userPermission in permissionGroup)
+                {
+                    // File
+                    if (fileContent.Contains(userPermission.User.SamAccountName) == true)
+                    {
+                        fileContent = fileContent.Replace(userPermission.User.SamAccountName, "");
+                    }
+
+                    // AD
+                    UserPrincipal adUser = AdUtil.GetUser(userPermission.User.SamAccountName, IdentityType.SamAccountName);
+                    AdUtil.RemoveGroupMember(adGroup, adUser);
+                }
+
+                // Write File Content
+                await WriteFileContent(filePath, fileContent);
+            }
         }
 
 
@@ -405,7 +496,7 @@ namespace ProjektOrdner.Permission
                         return null;
 
                     // Extract ProjektManager Users
-                    string managerFileContent = await GetFileContentAsync(managerFilePath);
+                    string managerFileContent = await ReadFileContentAsync(managerFilePath);
                     string filteredLine = managerFileContent
                         .Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)
                         .Where(line => line.ToLower().Contains("projektmanager=") == true)
@@ -440,8 +531,8 @@ namespace ProjektOrdner.Permission
             if (File.Exists(guestFilePath) == false)
                 return null;
 
-            string memberFileContent = await GetFileContentAsync(memberFilePath);
-            string guestFileContent = await GetFileContentAsync(guestFilePath);
+            string memberFileContent = await ReadFileContentAsync(memberFilePath);
+            string guestFileContent = await ReadFileContentAsync(guestFilePath);
 
             // Filter Content
             string[] memberUsers = memberFileContent
@@ -489,7 +580,7 @@ namespace ProjektOrdner.Permission
         /// Ließt den Dateiinhalt
         /// 
         /// </summary>
-        private async Task<string> GetFileContentAsync(string filePath)
+        private async Task<string> ReadFileContentAsync(string filePath)
         {
             string fileContent = string.Empty;
             using (StreamReader reader = new StreamReader(filePath, Encoding.UTF8))
@@ -498,6 +589,20 @@ namespace ProjektOrdner.Permission
             }
 
             return fileContent;
+        }
+
+
+        /// <summary>
+        /// 
+        /// Schreibt in die Datei
+        /// 
+        /// </summary>
+        private async Task WriteFileContent(string filePath, string fileContent)
+        {
+            using (StreamWriter writer = new StreamWriter(filePath, false, Encoding.UTF8))
+            {
+                await writer.WriteAsync(fileContent);
+            }
         }
 
 

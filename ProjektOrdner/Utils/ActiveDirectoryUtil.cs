@@ -23,15 +23,18 @@ namespace ProjektOrdner.Utils
         }
 
 
-        //
-        // GET
-        // -----------------------------------------------------------------------------------------------
-
+        /// <summary>
+        /// 
+        /// </summary>
         public UserPrincipal GetUser(string value, IdentityType identity)
         {
             return UserPrincipal.FindByIdentity(UserContext, identity, value);
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
         public static DirectoryEntry GetUser(string value, IdentificationTypes type)
         {
             string ldapFilter = GetLdapFilter(value, type);
@@ -53,6 +56,10 @@ namespace ProjektOrdner.Utils
             return null;
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
         public UserPrincipal GetUserByType(string value, IdentificationTypes identification)
         {
             UserPrincipal foundUser = null;
@@ -60,7 +67,7 @@ namespace ProjektOrdner.Utils
             {
                 case IdentificationTypes.SamAccountName:
                 {
-                    foundUser = UserPrincipal.FindByIdentity(UserContext,IdentityType.SamAccountName, value);
+                    foundUser = UserPrincipal.FindByIdentity(UserContext, IdentityType.SamAccountName, value);
                     break;
                 }
                 case IdentificationTypes.Email:
@@ -87,12 +94,19 @@ namespace ProjektOrdner.Utils
         }
 
 
+        /// <summary>
+        /// 
+        /// </summary>
         public GroupPrincipal GetGroup(string identityValue, IdentityType identity)
         {
             GroupPrincipal group = GroupPrincipal.FindByIdentity(GroupContext, identity, identityValue);
             return group;
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
         public DirectoryEntry GetGroup(string value)
         {
             string ldapFilter = $"(&(objectclass=group)(name={value}))";
@@ -114,6 +128,10 @@ namespace ProjektOrdner.Utils
             return null;
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
         public List<GroupPrincipal> GetAdGroups(string Name)
         {
             List<GroupPrincipal> groupList = new List<GroupPrincipal>();
@@ -131,6 +149,10 @@ namespace ProjektOrdner.Utils
             return groupList;
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
         public PrincipalCollection GetGroupMembers(string identityValue, IdentityType identity)
         {
             GroupPrincipal group = GetGroup(identityValue, identity);
@@ -143,6 +165,10 @@ namespace ProjektOrdner.Utils
             return null;
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
         public string GetAdGroupName(string Name, GroupScope groupScope, PermissionRole accessRole)
         {
             string groupScopeName = "";
@@ -183,6 +209,10 @@ namespace ProjektOrdner.Utils
             return adGroupName.ToUpper();
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
         public List<string> GetAdGroupNames(string Name)
         {
             return new List<string>
@@ -197,11 +227,9 @@ namespace ProjektOrdner.Utils
         }
 
 
-
-        //
-        // ADD
-        // -----------------------------------------------------------------------------------------------
-
+        /// <summary>
+        /// 
+        /// </summary>
         public GroupPrincipal AddGroup(GroupScope scope, string samAccountName, string description)
         {
             GroupPrincipal adGroup = new GroupPrincipal(GroupContext, samAccountName)
@@ -222,23 +250,26 @@ namespace ProjektOrdner.Utils
             return adGroup;
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
         public void AddGroupMembers(GroupPrincipal group, UserPrincipal user)
         {
             if (null != group)
             {
                 if (null != user)
                 {
-                    group.Members.Add(user);
+                    if (group.Members.Contains(user) == false)
+                        group.Members.Add(user);
                 }
             }
         }
 
 
-
-        //
-        // REMOVE
-        // -----------------------------------------------------------------------------------------------
-
+        /// <summary>
+        /// 
+        /// </summary>
         public void DeleteUser(string identityValue, IdentityType identity)
         {
             UserPrincipal user = GetUser(identityValue, identity);
@@ -249,7 +280,11 @@ namespace ProjektOrdner.Utils
             }
         }
 
-        public void RemoveGroup(string identityValue, IdentityType identity)
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void DeleteGroup(string identityValue, IdentityType identity)
         {
             GroupPrincipal group = GetGroup(identityValue, identity);
 
@@ -259,22 +294,23 @@ namespace ProjektOrdner.Utils
             }
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
         public void RemoveGroupMember(GroupPrincipal group, UserPrincipal user)
         {
-            if (group != null)
+            if (null != group)
             {
-                group.Members.Remove(user);
+                if (null != user)
+                {
+                    if (group.Members.Contains(user) == true)
+                        group.Members.Remove(user);
+                }
             }
         }
 
 
-
-
-        //
-        // HELPERS
-        // ___________________________________________________________________________________________
-
-        
         /// <summary>
         /// 
         /// Ruft die SID der Domäne ab.
@@ -298,7 +334,9 @@ namespace ProjektOrdner.Utils
         }
 
 
-
+        /// <summary>
+        /// 
+        /// </summary>
         public static string GetLdapPath()
         {
             string ldapString = "";
@@ -328,6 +366,10 @@ namespace ProjektOrdner.Utils
             return ldapString;
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
         private static string GetLdapFilter(string value, IdentificationTypes type)
         {
             switch (type)
