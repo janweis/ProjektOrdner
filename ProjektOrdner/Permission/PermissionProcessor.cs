@@ -481,94 +481,66 @@ namespace ProjektOrdner.Permission
         private async Task<RepositoryPermission[]> GetPermissionsFromFileAsync()
         {
             List<RepositoryPermission> permissions = new List<RepositoryPermission>();
+            foreach (PermissionRole role in Enum.GetValues(typeof(PermissionRole)))
+            {
+                string permissionFilePath = GetPermissionFilePath(role);
+                if (File.Exists(permissionFilePath) == false)
+                    continue;
 
-            // Get Content
-            if (Version == RepositoryVersion.Unknown)
-            {
-                return null;
-            }
-            else
-            {
-                if (Version == RepositoryVersion.V1)
+                if (role == PermissionRole.Manager)
                 {
-                    string managerFilePath = GetPermissionFilePath(PermissionRole.Manager);
-                    if (File.Exists(managerFilePath) == false)
-                        return null;
-
-                    // Extract ProjektManager Users
-                    string managerFileContent = await ReadFileContentAsync(managerFilePath);
-                    string filteredLine = managerFileContent
-                        .Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)
-                        .Where(line => line.ToLower().Contains("projektmanager=") == true)
-                        .FirstOrDefault();
-
-                    if (string.IsNullOrWhiteSpace(filteredLine) == true)
-                        return null;
-
-                    string[] managerUsers = filteredLine
-                        .Substring(filteredLine.IndexOf("=") + 1)
-                        .Split(',');
-
-                    // Create Objects
-                    foreach (string manager in managerUsers)
+                    if (Version == RepositoryVersion.V1)
                     {
-                        RepositoryPermission permission = new RepositoryPermission(
-                            new AdUser(manager), PermissionRole.Manager, PermissionSource.File, AppSettings);
+                        // Extract ProjektManager Users
+                        string managerFileContent = await ReadFileContentAsync(permissionFilePath);
+                        string filteredLine = managerFileContent
+                            .Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)
+                            .Where(line => line.ToLower().Contains("projektmanager=") == true)
+                            .FirstOrDefault();
 
-                        permission.User.UpdateUserData();
+                        if (string.IsNullOrWhiteSpace(filteredLine) == true)
+                            return null;
 
-                        if (permission.User.IsValidated == true)
-                            permissions.Add(permission);
+                        string[] managerUsers = filteredLine
+                            .Substring(filteredLine.IndexOf("=") + 1)
+                            .Split(',');
+
+                        // Create Objects
+                        foreach (string manager in managerUsers)
+                        {
+                            RepositoryPermission permission = new RepositoryPermission(
+                                new AdUser(manager), PermissionRole.Manager, PermissionSource.File, AppSettings);
+
+                            permission.User.UpdateUserData();
+
+                            if (permission.User.IsValidated == true)
+                                permissions.Add(permission);
+                        }
+
+                        continue;
                     }
                 }
-            }
 
-            string memberFilePath = GetPermissionFilePath(PermissionRole.Member);
-            if (File.Exists(memberFilePath) == false)
-                return null;
+                string permissionFileContent = await ReadFileContentAsync(permissionFilePath);
 
-            string guestFilePath = GetPermissionFilePath(PermissionRole.Guest);
-            if (File.Exists(guestFilePath) == false)
-                return null;
+                // Filter Content
+                string[] users = permissionFileContent
+                    .Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)
+                    .Where(line => line.Contains('#') == false &&
+                    line.StartsWith("_") == false)
+                    .ToArray();
 
-            string memberFileContent = await ReadFileContentAsync(memberFilePath);
-            string guestFileContent = await ReadFileContentAsync(guestFilePath);
+                // Create Permissions
+                foreach (string user in users)
+                {
+                    RepositoryPermission permission = new RepositoryPermission(
+                        new AdUser(user), role, PermissionSource.File, AppSettings);
 
-            // Filter Content
-            string[] memberUsers = memberFileContent
-                .Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)
-                .Where(line => line.Contains('#') == false &&
-                line.StartsWith("_") == false)
-                .ToArray();
+                    permission.User.UpdateUserData(); // Update Datea from Active Directory
 
-            string[] guestUsers = guestFileContent
-                .Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)
-                .Where(line => line.Contains('#') == false &&
-                line.StartsWith("_") == false)
-                .ToArray();
-
-            // Create Permissions
-            foreach (string member in memberUsers)
-            {
-                RepositoryPermission permission = new RepositoryPermission(
-                    new AdUser(member), PermissionRole.Member, PermissionSource.File, AppSettings);
-
-                permission.User.UpdateUserData();
-
-                if (permission.User.IsValidated == true)
-                    permissions.Add(permission);
-
-            }
-
-            foreach (string guest in guestUsers)
-            {
-                RepositoryPermission permission = new RepositoryPermission(
-                    new AdUser(guest), PermissionRole.Guest, PermissionSource.File, AppSettings);
-
-                permission.User.UpdateUserData();
-
-                if (permission.User.IsValidated == true)
-                    permissions.Add(permission);
+                    if (permission.User.IsValidated == true)
+                        permissions.Add(permission);
+                }
             }
 
             return permissions.ToArray();
