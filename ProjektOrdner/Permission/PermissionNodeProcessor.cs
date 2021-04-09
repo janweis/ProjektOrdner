@@ -233,6 +233,8 @@ namespace ProjektOrdner.Permission
             masterNode.Nodes[name].Nodes.Add("", $"Email:{adUser.Email}", 1, 1);
             masterNode.Nodes[name].Nodes.Add("", $"Matrikelnummer:{adUser.Matrikelnummer}", 1, 1);
             masterNode.Expand();
+
+            SetFocusToNode(View.Nodes[name]);
         }
 
         public void AddNodeSimple(AdUser adUser, MasterNode master)
@@ -248,6 +250,8 @@ namespace ProjektOrdner.Permission
             masterNode.Nodes.Add(name, name, 0, 0);
             masterNode.Nodes[name].Tag = name;
             masterNode.Expand();
+
+            SetFocusToNode(View.Nodes[name]);
         }
 
         public void AddNodeDirect(AdUser adUser)
@@ -262,6 +266,14 @@ namespace ProjektOrdner.Permission
             View.Nodes[name].Nodes.Add("", $"Email:{adUser.Email}", 1, 1);
             View.Nodes[name].Nodes.Add("", $"Matrikelnummer:{adUser.Matrikelnummer}", 1, 1);
             View.Nodes[name].Expand();
+
+            SetFocusToNode(View.Nodes[name]);
+        }
+
+        private void SetFocusToNode(TreeNode node)
+        {
+            View.SelectedNode = node;
+            View.Focus();
         }
 
 
@@ -282,7 +294,7 @@ namespace ProjektOrdner.Permission
             masterNode.Nodes.Add(node);     // Add Node
             masterNode.Expand();           // Expand View
 
-            View.SelectedNode = node;
+            SetFocusToNode(node);
         }
 
 
