@@ -54,6 +54,7 @@
             this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
             this.diagnoseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.integritätsüberprüfungToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.reparaturToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.beendenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.berechtigungenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -98,7 +99,7 @@
             this.benutzerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.benutzerInProjektenToolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator12 = new System.Windows.Forms.ToolStripSeparator();
-            this.reparaturToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.verlängernToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ContextMenu2.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.MainMenu.SuspendLayout();
@@ -233,6 +234,7 @@
             this.umbenennenToolStripMenuItem,
             this.entfernenToolStripMenuItem,
             this.toolStripSeparator7,
+            this.verlängernToolStripMenuItem,
             this.mehrfachAuswahlModusToolStripMenuItem,
             this.toolStripMenuItem3,
             this.diagnoseToolStripMenuItem,
@@ -286,6 +288,7 @@
             this.diagnoseToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.integritätsüberprüfungToolStripMenuItem,
             this.reparaturToolStripMenuItem});
+            this.diagnoseToolStripMenuItem.Enabled = false;
             this.diagnoseToolStripMenuItem.Name = "diagnoseToolStripMenuItem";
             this.diagnoseToolStripMenuItem.Size = new System.Drawing.Size(228, 22);
             this.diagnoseToolStripMenuItem.Text = "Diagnose";
@@ -295,6 +298,12 @@
             this.integritätsüberprüfungToolStripMenuItem.Name = "integritätsüberprüfungToolStripMenuItem";
             this.integritätsüberprüfungToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.integritätsüberprüfungToolStripMenuItem.Text = "Integritätsprüfung";
+            // 
+            // reparaturToolStripMenuItem
+            // 
+            this.reparaturToolStripMenuItem.Name = "reparaturToolStripMenuItem";
+            this.reparaturToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.reparaturToolStripMenuItem.Text = "Reparatur";
             // 
             // toolStripSeparator2
             // 
@@ -332,6 +341,7 @@
             this.umwandelnToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.lesenSchreibenNurLesenToolStripMenuItem,
             this.nurLesenLesenSchreibenToolStripMenuItem});
+            this.umwandelnToolStripMenuItem.Enabled = false;
             this.umwandelnToolStripMenuItem.Name = "umwandelnToolStripMenuItem";
             this.umwandelnToolStripMenuItem.Size = new System.Drawing.Size(294, 22);
             this.umwandelnToolStripMenuItem.Text = "Kurzbefehle";
@@ -648,11 +658,12 @@
             this.toolStripSeparator12.Name = "toolStripSeparator12";
             this.toolStripSeparator12.Size = new System.Drawing.Size(6, 45);
             // 
-            // reparaturToolStripMenuItem
+            // verlängernToolStripMenuItem
             // 
-            this.reparaturToolStripMenuItem.Name = "reparaturToolStripMenuItem";
-            this.reparaturToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.reparaturToolStripMenuItem.Text = "Reparatur";
+            this.verlängernToolStripMenuItem.Name = "verlängernToolStripMenuItem";
+            this.verlängernToolStripMenuItem.Size = new System.Drawing.Size(228, 22);
+            this.verlängernToolStripMenuItem.Text = "Verlängern";
+            this.verlängernToolStripMenuItem.Click += new System.EventHandler(this.verlängernToolStripMenuItem_Click);
             // 
             // ManageRepositorysForm
             // 
@@ -665,6 +676,7 @@
             this.Controls.Add(this.ProjektsTree);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.MainMenu);
+            this.DoubleBuffered = true;
             this.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.MainMenu;
@@ -754,5 +766,6 @@
         private System.Windows.Forms.ToolStripMenuItem benutzerInProjektenToolStripMenuItem2;
         private System.Windows.Forms.ToolStripMenuItem läuftAbAmToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem reparaturToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem verlängernToolStripMenuItem;
     }
 }

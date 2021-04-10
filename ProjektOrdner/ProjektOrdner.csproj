@@ -74,6 +74,12 @@
     <Compile Include="App\EnumModel.cs" />
     <Compile Include="App\LogProcessor.cs" />
     <Compile Include="App\StringExtensions.cs" />
+    <Compile Include="Forms\ExpandProjektExpirationForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\ExpandProjektExpirationForm.Designer.cs">
+      <DependentUpon>ExpandProjektExpirationForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Repository\RepositoryUpdateService.cs" />
     <Compile Include="Forms\FindAdUserForm.cs">
       <SubType>Form</SubType>
@@ -158,6 +164,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Forms\ExpandProjektExpirationForm.resx">
+      <DependentUpon>ExpandProjektExpirationForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\FindAdUserForm.resx">
       <DependentUpon>FindAdUserForm.cs</DependentUpon>
     </EmbeddedResource>

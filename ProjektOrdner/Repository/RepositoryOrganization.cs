@@ -267,6 +267,26 @@ namespace ProjektOrdner.Repository
             return false;
         }
 
+        /// <summary>
+        /// 
+        /// Erweitert das Projekt Ende Datum
+        /// 
+        /// </summary>
+        public async Task ExpandExpireDate(string folderPath, DateTime newDate)
+        {
+            await LoadAuto(folderPath);
+            ProjektEnde = newDate;
+
+            if (Version == RepositoryVersion.V2)
+                await SaveV2();
+            else if (Version == RepositoryVersion.V1)
+                await SaveV1();
+        }
+
+        private Task SaveV1()
+        {
+            throw new NotImplementedException();
+        }
 
         /// <summary>
         /// 

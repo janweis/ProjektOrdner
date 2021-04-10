@@ -611,6 +611,28 @@ namespace ProjektOrdner.Forms
 
 
 
+        private async Task ExpandProjekt()
+        {
+            RepositoryFolder currentProjekt = TreeHelper.GetRepositoryFromSelectedNode(Repositories);
+            if (null == currentProjekt)
+            {
+                MessageBox.Show("Das Projekt konnte nicht gefunden werden. Bitte wählen Sie ein Projekt aus.", "Verlängerung", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+            }
+
+            ExpandProjektExpirationForm expandProjekt = new ExpandProjektExpirationForm(currentProjekt.Organization.ProjektName, currentProjekt.Organization.ProjektEnde);
+            DialogResult result = expandProjekt.ShowDialog();
+
+            if (result == DialogResult.OK)
+            {
+                await currentProjekt.Organization.ExpandExpireDate(currentProjekt.Organization.ProjektPath, expandProjekt.NewExpireDate);
+            }
+
+            ProgressMessage.Report("Projektlaufzeit wurde angepasst!");
+        }
+
+
+
+
         //
         // Controls
         // ---------------------------------------------------------------------------------
@@ -742,6 +764,9 @@ namespace ProjektOrdner.Forms
 
         private async void FilterToolStripButton_Click(object sender, EventArgs e) =>
             await ClickFilterAsync();
+
+        private async void verlängernToolStripMenuItem_Click(object sender, EventArgs e) =>
+            await ExpandProjekt();
 
     }
 }
