@@ -102,7 +102,7 @@ namespace ProjektOrdner.Permission
                 .ToList();
 
             RepositoryOrganization repositoryOrganization = new RepositoryOrganization();
-            await repositoryOrganization.LoadAuto(ProjektPath);
+            await repositoryOrganization.LoadOrganization(ProjektPath);
 
 
             // Update Permissions

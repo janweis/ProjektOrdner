@@ -537,12 +537,14 @@ namespace ProjektOrdner.Forms
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Es ist ein Fehler aufgetreten! {ex.Message}");
+                MessageBox.Show($"Die Ausgabe kann nicht angezeigt werden. {ex.Message}", "Service Ausgabe", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
 
         /// <summary>
+        /// 
+        /// Einschalten des Filters
         /// 
         /// </summary>
         private async Task EnableFilter()
@@ -573,6 +575,8 @@ namespace ProjektOrdner.Forms
 
         /// <summary>
         /// 
+        /// Ausschalten des Filters
+        /// 
         /// </summary>
         private async Task DisableFilter()
         {
@@ -600,6 +604,8 @@ namespace ProjektOrdner.Forms
 
         /// <summary>
         /// 
+        /// Ein- und ausschalten des Filters
+        /// 
         /// </summary>
         private async Task ClickFilterAsync()
         {
@@ -610,7 +616,11 @@ namespace ProjektOrdner.Forms
         }
 
 
-
+        /// <summary>
+        /// 
+        /// Verlängert das Ablaufdatum
+        /// 
+        /// </summary>
         private async Task ExpandProjekt()
         {
             RepositoryFolder currentProjekt = TreeHelper.GetRepositoryFromSelectedNode(Repositories);
@@ -624,7 +634,14 @@ namespace ProjektOrdner.Forms
 
             if (result == DialogResult.OK)
             {
-                await currentProjekt.Organization.ExpandExpireDate(currentProjekt.Organization.ProjektPath, expandProjekt.NewExpireDate);
+                try
+                {
+                    await currentProjekt.Organization.ExpandExpireDate(currentProjekt.Organization.ProjektPath, expandProjekt.NewExpireDate);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Das Projekt konnte nicht verlängert werden. {ex.Message}", "Projekt verlängern", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
 
             ProgressMessage.Report("Projektlaufzeit wurde angepasst!");

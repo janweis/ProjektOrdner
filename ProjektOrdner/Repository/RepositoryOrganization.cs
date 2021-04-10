@@ -57,29 +57,30 @@ namespace ProjektOrdner.Repository
 
 
         // // // // // // // // // // // // // // // // // // // // //
-        // Functions
+        // LOAD
         // 
 
 
         /// <summary>
         /// 
-        /// 
+        /// Läd eine Organisationsdatei
         /// 
         /// </summary>
-        public async Task LoadAuto(string folderPath)
+        public async Task LoadOrganization(string folderPath)
         {
             RepositoryVersion version = GetRepositoryVersion(folderPath);
+            string filePath = GetOrganizationFilePath(folderPath, version);
 
             switch (version)
             {
                 case RepositoryVersion.V1:
                 {
-                    await LoadV1(folderPath);
+                    await LoadV1Async(filePath);
                     break;
                 }
                 case RepositoryVersion.V2:
                 {
-                    await LoadV2(folderPath);
+                    await LoadV2Async(filePath);
                     break;
                 }
                 case RepositoryVersion.Unknown:
@@ -92,18 +93,15 @@ namespace ProjektOrdner.Repository
 
         /// <summary>
         /// 
-        /// Lade die Organisations- oder Antragsdatei Version 1
+        /// Läd eine Anforderungsdatei
         /// 
         /// </summary>
-        public async Task LoadV1(string folderPath)
+        public async Task LoadRequest(string filePath)
         {
-            if (Directory.Exists(folderPath) == false)
+            if (File.Exists(filePath) == false)
                 return;
 
-            RootPath = Directory.GetParent(folderPath).FullName;
-            string filePath = Path.Combine(folderPath, AppConstants.OrganisationFileNameV1);
-
-            await LoadV1(new FileInfo(filePath));
+            await LoadV1Async(filePath);
         }
 
 
@@ -112,48 +110,34 @@ namespace ProjektOrdner.Repository
         /// Lade die Organisations- oder Antragsdatei Version 1
         /// 
         /// </summary>
-        public async Task LoadV1(FileInfo file)
+        private async Task LoadV1Async(string filePath)
         {
-            if (File.Exists(file.FullName) == false)
-                return;
-
-            RootPath = Directory.GetParent(file.DirectoryName).FullName;
-
-            using (StreamReader streamReader = new StreamReader(file.FullName, Encoding.UTF8))
-            {
-                string fileText = await streamReader.ReadToEndAsync();
-
-                if (null == fileText)
-                    return;
-
-                string[] fileLines = fileText
-                    .Split(new[] { Environment.NewLine }, StringSplitOptions.None)
-                    .ToArray();
-
-                LoadV1(fileLines);
-            }
-        }
-
-
-        /// <summary>
-        /// 
-        /// Lade die Organisations- oder Antragsdatei Version 1
-        /// 
-        /// </summary>
-        public void LoadV1(string[] fileContent)
-        {
-            if (null == fileContent)
-                return;
-
             Version = RepositoryVersion.V1;
+            RootPath = new FileInfo(filePath).DirectoryName;
+
+            if (File.Exists(filePath) == false)
+                return;
+
+            string fileText = "";
+            using (StreamReader streamReader = new StreamReader(filePath, Encoding.UTF8))
+            {
+                fileText = await streamReader.ReadToEndAsync();
+
+                if (fileText == "")
+                    return;
+            }
+
+            string[] fileLines = fileText
+                .Split(new[] { Environment.NewLine }, StringSplitOptions.None)
+                .ToArray();
 
             // Process every Line
-            foreach (string lineItem in fileContent)
+            foreach (string line in fileLines)
             {
-                if (lineItem.Contains("=") == true && lineItem.Contains("#") == false)
+                if (line.Contains("=") == true && line.Contains("#") == false)
                 {
-                    string key = lineItem.Substring(0, lineItem.IndexOf("=")).ToLower().Trim();
-                    string value = lineItem.Substring(lineItem.IndexOf("=") + 1).TrimStart().TrimEnd();
+                    string key = line.Substring(0, line.IndexOf("=")).ToLower().Trim();
+                    string value = line.Substring(line.IndexOf("=") + 1).TrimStart().TrimEnd();
 
                     if ((string.IsNullOrEmpty(key) == true) || (string.IsNullOrEmpty(value) == true))
                     {
@@ -209,7 +193,7 @@ namespace ProjektOrdner.Repository
         /// Lade die Organisationsdatei Version 2
         /// 
         /// </summary>
-        public async Task<bool> LoadV2(string folderPath)
+        private async Task<bool> LoadV2Async(string folderPath)
         {
             RootPath = Directory.GetParent(folderPath).FullName;
             string filePath = Path.Combine(folderPath, Path.Combine(AppConstants.OrganisationFolderName, AppConstants.OrganisationFileNameV2));
@@ -239,33 +223,107 @@ namespace ProjektOrdner.Repository
         }
 
 
+
+        // // // // // // // // // // // // // // // // // // // // //
+        // SAVE
+        //
+
+        /// <summary>
+        /// 
+        /// Erstellt eine Organisationsdatei v2
+        /// 
+        /// </summary>
+        public async Task SaveOrganization()
+        {
+            string filePath = GetOrganizationFilePath(ProjektPath, Version);
+
+            if (Version == RepositoryVersion.V1)
+                await SaveV1Async(filePath);
+            else if (Version == RepositoryVersion.V2)
+                await SaveV2Async(filePath);
+        }
+
+
+        /// <summary>
+        /// 
+        /// Erstellt eine Organisationsdatei v2
+        /// 
+        /// </summary>
+        private async Task SaveV1Async(string filePath)
+        {
+            string projektManager = string.Join(",", LegacyPermissions
+                .Where(permission => permission.Role == PermissionRole.Manager)
+                .Select(permission => permission.User.SamAccountName));
+
+            string readWrite = string.Join(",", LegacyPermissions
+                .Where(permission => permission.Role == PermissionRole.Member)
+                .Select(permission => permission.User.SamAccountName));
+
+            string read = string.Join(",", LegacyPermissions
+                .Where(permission => permission.Role == PermissionRole.Guest)
+                .Select(permission => permission.User.SamAccountName));
+
+            string fileContent = $@"#
+# ProjektOrdner - InfoFile
+#
+# Diese Datei wird aus organisatorischen Gründen benötigt ! NICHT LÖSCHEN !
+#
+
+##
+# <> Name des ProjektOrdners <>
+# Leerzeichen sind im Ordnernamen erlaubt, sollten aber nicht direkt nach dem '=' erfolgen.
+# Maximal darf der ProjektOrdner 45 Zeichen (a-z A-Z 0-9 und Leerzeichen) beinhalten.
+ProjektName={ProjektName}
+
+##
+# <> Projekt Organisation <>
+StartDatum={ErstelltAm.ToShortDateString()}
+EndDatum={ProjektEnde.ToShortDateString()}
+
+##
+# <> BERECHTIGUNGEN <>
+# Bitte geben Sie die Anmeldenamen nacheinander, durch ein einfaches Komma ',' getrennt, an.
+# Der ProjektManager hat automatisch eine 'ReadWrite'-Berechtigung
+ProjektManager={projektManager}
+ReadWrite={readWrite}
+Read={read}";
+
+            using (StreamWriter streamWriter = new StreamWriter(filePath, false, Encoding.UTF8))
+            {
+                await streamWriter.WriteAsync(fileContent);
+            }
+        }
+
+
         /// <summary>
         /// 
         /// Speichere die Organisationsdatei Version 2
         /// 
         /// </summary>
-        public async Task<bool> SaveV2(string folderPath = null)
+        private async Task<bool> SaveV2Async(string filePath)
         {
-            string filePath;
-
-            if (null == folderPath)
-                folderPath = Path.Combine(RootPath, ProjektName);
-
-            filePath = Path.Combine(folderPath, Path.Combine(AppConstants.OrganisationFolderName, AppConstants.OrganisationFileNameV2));
-
-            if (Directory.Exists(folderPath) == true)
+            try
             {
                 string organizationJson = JsonConvert.SerializeObject(this, new JsonSerializerSettings() { Formatting = Formatting.Indented });
                 using (StreamWriter streamWriter = new StreamWriter(filePath, false, Encoding.UTF8))
                 {
                     await streamWriter.WriteAsync(organizationJson);
                 }
-
-                return true;
+            }
+            catch (Exception)
+            {
+                return false;
             }
 
-            return false;
+            return true;
         }
+
+
+
+        // // // // // // // // // // // // // // // // // // // // //
+        // Public Functions
+        //
+
 
         /// <summary>
         /// 
@@ -274,19 +332,11 @@ namespace ProjektOrdner.Repository
         /// </summary>
         public async Task ExpandExpireDate(string folderPath, DateTime newDate)
         {
-            await LoadAuto(folderPath);
+            await LoadOrganization(folderPath);
             ProjektEnde = newDate;
-
-            if (Version == RepositoryVersion.V2)
-                await SaveV2();
-            else if (Version == RepositoryVersion.V1)
-                await SaveV1();
+            await SaveOrganization();
         }
 
-        private Task SaveV1()
-        {
-            throw new NotImplementedException();
-        }
 
         /// <summary>
         /// 
@@ -322,6 +372,40 @@ ProjektManager=
 Mitarbeiter=
 Gast=
 ";
+        }
+
+
+        /// <summary>
+        /// 
+        /// Abruf eines v1 Templates
+        /// 
+        /// </summary>
+        private string GetRequestTemplateV1(string projektName, DateTime startDatum, DateTime endeDatum, string[] projektManger, string[] readWrite, string[] read)
+        {
+            return $@"#
+# ProjektOrdner - InfoFile
+#
+# Diese Datei wird aus organisatorischen Gründen benötigt ! NICHT LÖSCHEN !
+#
+
+##
+# <> Name des ProjektOrdners <>
+# Leerzeichen sind im Ordnernamen erlaubt, sollten aber nicht direkt nach dem '=' erfolgen.
+# Maximal darf der ProjektOrdner 45 Zeichen (a-z A-Z 0-9 und Leerzeichen) beinhalten.
+ProjektName={projektName}
+
+##
+# <> Projekt Organisation <>
+StartDatum={startDatum.ToShortDateString()}
+EndDatum={endeDatum.ToShortDateString()}
+
+##
+# <> BERECHTIGUNGEN <>
+# Bitte geben Sie die Anmeldenamen nacheinander, durch ein einfaches Komma ',' getrennt, an.
+# Der ProjektManager hat automatisch eine 'ReadWrite'-Berechtigung
+ProjektManager={string.Join(",", projektManger)}
+ReadWrite={string.Join(",", readWrite)}
+Read={string.Join(",", read)}";
         }
 
 

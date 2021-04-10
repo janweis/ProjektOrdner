@@ -198,7 +198,7 @@ namespace ProjektOrdner.Repository
             foreach(FileInfo file in validRequestFiles)
             {
                 RepositoryOrganization organization = new RepositoryOrganization();
-                await organization.LoadV1(file);
+                await organization.LoadRequest(file.FullName);
 
                 if (organization.IsValid() == true)
                     requests.Add(organization);

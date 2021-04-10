@@ -71,7 +71,7 @@ namespace ProjektOrdner.Repository
             {
                 // Read RepositoryInfoFile
                 Organization = new RepositoryOrganization();
-                await Organization.LoadV2(folderPath);
+                await Organization.LoadOrganization(folderPath);
 
                 // Read ProjektSettings
                 Settings = new RepositorySettings();
@@ -95,17 +95,7 @@ namespace ProjektOrdner.Repository
         {
             // Read RepositoryInfoFile
             RepositoryOrganization repositoryOrganization = new RepositoryOrganization();
-            RepositoryVersion repositoryVersion = repositoryOrganization.GetRepositoryVersion(folderPath);
-
-            if (repositoryVersion == RepositoryVersion.V2)
-            {
-                await repositoryOrganization.LoadV2(folderPath);
-            }
-            else
-            {
-                if (repositoryVersion == RepositoryVersion.V1)
-                    await repositoryOrganization.LoadV1(folderPath);
-            }
+            await repositoryOrganization.LoadOrganization(folderPath);
 
             // Read ProjektSettings
             RepositorySettings repositorySettings = new RepositorySettings();
@@ -290,7 +280,7 @@ namespace ProjektOrdner.Repository
             }
 
             // Create Organisaion File
-            await organisation.SaveV2();
+            await organisation.SaveOrganization();
 
             // Create Settings File
             RepositorySettings repositorySettings = new RepositorySettings();
