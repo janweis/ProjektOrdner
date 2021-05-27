@@ -36,6 +36,7 @@
             this.AbbrechenButton = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.SetupPermissionsBox = new System.Windows.Forms.CheckBox();
+            this.DateInfinityCheck = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // label1
@@ -72,7 +73,7 @@
             // 
             // AnlegenButton
             // 
-            this.AnlegenButton.Location = new System.Drawing.Point(15, 219);
+            this.AnlegenButton.Location = new System.Drawing.Point(15, 237);
             this.AnlegenButton.Name = "AnlegenButton";
             this.AnlegenButton.Size = new System.Drawing.Size(157, 35);
             this.AnlegenButton.TabIndex = 7;
@@ -83,7 +84,7 @@
             // AbbrechenButton
             // 
             this.AbbrechenButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.AbbrechenButton.Location = new System.Drawing.Point(179, 219);
+            this.AbbrechenButton.Location = new System.Drawing.Point(179, 237);
             this.AbbrechenButton.Name = "AbbrechenButton";
             this.AbbrechenButton.Size = new System.Drawing.Size(157, 35);
             this.AbbrechenButton.TabIndex = 8;
@@ -94,7 +95,7 @@
             // label3
             // 
             this.label3.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.label3.Location = new System.Drawing.Point(15, 202);
+            this.label3.Location = new System.Drawing.Point(15, 220);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(321, 2);
             this.label3.TabIndex = 9;
@@ -103,7 +104,7 @@
             // 
             this.SetupPermissionsBox.Checked = true;
             this.SetupPermissionsBox.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.SetupPermissionsBox.Location = new System.Drawing.Point(15, 158);
+            this.SetupPermissionsBox.Location = new System.Drawing.Point(15, 176);
             this.SetupPermissionsBox.Name = "SetupPermissionsBox";
             this.SetupPermissionsBox.Size = new System.Drawing.Size(321, 41);
             this.SetupPermissionsBox.TabIndex = 10;
@@ -111,11 +112,23 @@
             this.SetupPermissionsBox.UseVisualStyleBackColor = true;
             this.SetupPermissionsBox.CheckedChanged += new System.EventHandler(this.SetupPermissionsBox_CheckedChanged);
             // 
-            // NewProjektForm
+            // DateInfinityCheck
+            // 
+            this.DateInfinityCheck.AutoSize = true;
+            this.DateInfinityCheck.Location = new System.Drawing.Point(15, 126);
+            this.DateInfinityCheck.Name = "DateInfinityCheck";
+            this.DateInfinityCheck.Size = new System.Drawing.Size(145, 21);
+            this.DateInfinityCheck.TabIndex = 11;
+            this.DateInfinityCheck.Text = "∞ Kein Ablaufdatum";
+            this.DateInfinityCheck.UseVisualStyleBackColor = true;
+            this.DateInfinityCheck.CheckedChanged += new System.EventHandler(this.DateInfinityCheck_CheckedChanged);
+            // 
+            // GetRepositoryNameForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(356, 268);
+            this.ClientSize = new System.Drawing.Size(362, 288);
+            this.Controls.Add(this.DateInfinityCheck);
             this.Controls.Add(this.SetupPermissionsBox);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.AbbrechenButton);
@@ -128,7 +141,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.MaximizeBox = false;
-            this.Name = "NewProjektForm";
+            this.Name = "GetRepositoryNameForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Projekt anlegen";
             this.ResumeLayout(false);
@@ -146,5 +159,6 @@
         private System.Windows.Forms.Button AbbrechenButton;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.CheckBox SetupPermissionsBox;
+        private System.Windows.Forms.CheckBox DateInfinityCheck;
     }
 }

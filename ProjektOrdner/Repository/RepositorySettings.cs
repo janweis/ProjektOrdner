@@ -147,5 +147,20 @@ namespace ProjektOrdner.Repository
         }
 
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool FileExist(string folderPath)
+        {
+            string filePath = GetSettingsFilePath(folderPath);
+            if (File.Exists(filePath) == false)
+                return false;
+
+            return true;
+        }
+
+
+
+
     }
 }

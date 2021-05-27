@@ -20,6 +20,7 @@ namespace ProjektOrdner.Repository
 
         public string ProjektName { get; set; }
 
+        [JsonIgnore]
         public string ProjektPath
         {
             get
@@ -28,15 +29,21 @@ namespace ProjektOrdner.Repository
             }
         }
 
+        [JsonIgnore]
         public string RootPath { get; set; }
 
         public DateTime ErstelltAm { get; set; }
 
         public DateTime ProjektEnde { get; set; }
 
+        [JsonIgnore]
         public RepositoryVersion Version { get; set; }
 
+        [JsonIgnore]
         public List<RepositoryPermission> LegacyPermissions { get; private set; }
+
+        [JsonIgnore]
+        public string RequestFilePath { get; set; }
 
 
         // // // // // // // // // // // // // // // // // // // // //
@@ -44,14 +51,29 @@ namespace ProjektOrdner.Repository
         //
 
         public RepositoryOrganization()
+            : this(string.Empty, string.Empty, DateTime.MinValue, RepositoryVersion.Unknown)
+        { }
+
+        public RepositoryOrganization(string projektName, string projektRoot)
+            : this(projektName, projektRoot, DateTime.MinValue, RepositoryVersion.Unknown)
+        { }
+
+        public RepositoryOrganization(string folderPath)
+            : this(new DirectoryInfo(folderPath).Name, new DirectoryInfo(folderPath).Parent.FullName, DateTime.MinValue, RepositoryVersion.Unknown)
+        { }
+
+        public RepositoryOrganization(string projektName, string rootPath, DateTime projektEnde, RepositoryVersion version)
         {
+            // INIT
             ID = Guid.NewGuid();
-            ProjektName = string.Empty;
-            RootPath = string.Empty;
-            ErstelltAm = DateTime.MinValue;
-            ProjektEnde = DateTime.MinValue;
-            Version = RepositoryVersion.Unknown;
+            ErstelltAm = DateTime.Now;
             LegacyPermissions = new List<RepositoryPermission>();
+
+            // SET
+            ProjektName = projektName;
+            RootPath = rootPath;
+            ProjektEnde = projektEnde;
+            Version = version;
         }
 
 
@@ -66,26 +88,20 @@ namespace ProjektOrdner.Repository
         /// Läd eine Organisationsdatei
         /// 
         /// </summary>
-        public async Task LoadOrganization(string folderPath)
+        public async Task LoadOrganization()
         {
-            RepositoryVersion version = GetRepositoryVersion(folderPath);
-            string filePath = GetOrganizationFilePath(folderPath, version);
-
-            switch (version)
+            Version = GetRepositoryVersion();
+            switch (Version)
             {
                 case RepositoryVersion.V1:
                 {
-                    await LoadV1Async(filePath);
+                    await LoadV1Async(string.Empty);
                     break;
                 }
                 case RepositoryVersion.V2:
                 {
-                    await LoadV2Async(filePath);
+                    await LoadV2Async();
                     break;
-                }
-                case RepositoryVersion.Unknown:
-                {
-                    throw new Exception("Repository Version is not present!");
                 }
             }
         }
@@ -98,6 +114,10 @@ namespace ProjektOrdner.Repository
         /// </summary>
         public async Task LoadRequest(string filePath)
         {
+            Version = RepositoryVersion.V2; // Define to create V2 Projects
+            RootPath = new FileInfo(filePath).Directory.Parent.FullName;
+            RequestFilePath = filePath;
+
             if (File.Exists(filePath) == false)
                 return;
 
@@ -112,8 +132,8 @@ namespace ProjektOrdner.Repository
         /// </summary>
         private async Task LoadV1Async(string filePath)
         {
-            Version = RepositoryVersion.V1;
-            RootPath = new FileInfo(filePath).DirectoryName;
+            if(string.IsNullOrWhiteSpace(filePath) == true)
+                filePath = GetOrganizationFilePath(ProjektPath, RepositoryVersion.V1);
 
             if (File.Exists(filePath) == false)
                 return;
@@ -193,26 +213,23 @@ namespace ProjektOrdner.Repository
         /// Lade die Organisationsdatei Version 2
         /// 
         /// </summary>
-        private async Task<bool> LoadV2Async(string folderPath)
+        private async Task<bool> LoadV2Async()
         {
-            RootPath = Directory.GetParent(folderPath).FullName;
-            string filePath = Path.Combine(folderPath, Path.Combine(AppConstants.OrganisationFolderName, AppConstants.OrganisationFileNameV2));
+            string filePath = GetOrganizationFilePath(ProjektPath, RepositoryVersion.V2);
 
             if (File.Exists(filePath) == true)
             {
                 using (StreamReader streamReader = new StreamReader(filePath, Encoding.UTF8))
                 {
                     string fileText = await streamReader.ReadToEndAsync();
-                    RepositoryOrganization repositoryOrganization = JsonConvert.DeserializeObject<RepositoryOrganization>(fileText, new JsonSerializerSettings() { Formatting = Formatting.Indented });
+                    RepositoryOrganization repoObjekt = JsonConvert.DeserializeObject<RepositoryOrganization>(fileText, new JsonSerializerSettings() { Formatting = Formatting.Indented });
 
-                    if (null != repositoryOrganization)
+                    if (null != repoObjekt)
                     {
-                        ID = repositoryOrganization.ID;
-                        ProjektName = repositoryOrganization.ProjektName;
-                        ErstelltAm = repositoryOrganization.ErstelltAm;
-                        ProjektEnde = repositoryOrganization.ProjektEnde;
-                        //RootPath = repositoryOrganization.RootPath;
-                        Version = repositoryOrganization.Version;
+                        ID = repoObjekt.ID;
+                        ProjektName = repoObjekt.ProjektName;
+                        ErstelltAm = repoObjekt.ErstelltAm;
+                        ProjektEnde = repoObjekt.ProjektEnde;
                     }
                 }
 
@@ -233,13 +250,13 @@ namespace ProjektOrdner.Repository
         /// Erstellt eine Organisationsdatei v2
         /// 
         /// </summary>
-        public async Task SaveOrganization()
+        public async Task Save(RepositoryVersion version)
         {
-            string filePath = GetOrganizationFilePath(ProjektPath, Version);
+            string filePath = GetOrganizationFilePath(ProjektPath, version);
 
-            if (Version == RepositoryVersion.V1)
+            if (version == RepositoryVersion.V1)
                 await SaveV1Async(filePath);
-            else if (Version == RepositoryVersion.V2)
+            else if (version == RepositoryVersion.V2)
                 await SaveV2Async(filePath);
         }
 
@@ -330,11 +347,11 @@ Read={read}";
         /// Erweitert das Projekt Ende Datum
         /// 
         /// </summary>
-        public async Task ExpandExpireDate(string folderPath, DateTime newDate)
+        public async Task SaveExpireDate(string folderPath, DateTime newDate)
         {
-            await LoadOrganization(folderPath);
+            await LoadOrganization();
             ProjektEnde = newDate;
-            await SaveOrganization();
+            await Save(Version);
         }
 
 
@@ -372,40 +389,6 @@ ProjektManager=
 Mitarbeiter=
 Gast=
 ";
-        }
-
-
-        /// <summary>
-        /// 
-        /// Abruf eines v1 Templates
-        /// 
-        /// </summary>
-        private string GetRequestTemplateV1(string projektName, DateTime startDatum, DateTime endeDatum, string[] projektManger, string[] readWrite, string[] read)
-        {
-            return $@"#
-# ProjektOrdner - InfoFile
-#
-# Diese Datei wird aus organisatorischen Gründen benötigt ! NICHT LÖSCHEN !
-#
-
-##
-# <> Name des ProjektOrdners <>
-# Leerzeichen sind im Ordnernamen erlaubt, sollten aber nicht direkt nach dem '=' erfolgen.
-# Maximal darf der ProjektOrdner 45 Zeichen (a-z A-Z 0-9 und Leerzeichen) beinhalten.
-ProjektName={projektName}
-
-##
-# <> Projekt Organisation <>
-StartDatum={startDatum.ToShortDateString()}
-EndDatum={endeDatum.ToShortDateString()}
-
-##
-# <> BERECHTIGUNGEN <>
-# Bitte geben Sie die Anmeldenamen nacheinander, durch ein einfaches Komma ',' getrennt, an.
-# Der ProjektManager hat automatisch eine 'ReadWrite'-Berechtigung
-ProjektManager={string.Join(",", projektManger)}
-ReadWrite={string.Join(",", readWrite)}
-Read={string.Join(",", read)}";
         }
 
 
@@ -451,10 +434,10 @@ Read={string.Join(",", read)}";
         /// Ermittelt die Verion des ProjektOrdners.
         /// 
         /// </summary>
-        public RepositoryVersion GetRepositoryVersion(string folderPath)
+        public RepositoryVersion GetRepositoryVersion()
         {
-            string orgaVersion1FilePath = Path.Combine(folderPath, AppConstants.OrganisationFileNameV1);
-            string orgaVersion2FilePath = Path.Combine(folderPath, Path.Combine(AppConstants.OrganisationFolderName, AppConstants.OrganisationFileNameV2));
+            string orgaVersion1FilePath = Path.Combine(ProjektPath, AppConstants.OrganisationFileNameV1);
+            string orgaVersion2FilePath = Path.Combine(ProjektPath, Path.Combine(AppConstants.OrganisationFolderName, AppConstants.OrganisationFileNameV2));
 
             if (File.Exists(orgaVersion2FilePath) == true)
             {
@@ -525,6 +508,22 @@ Read={string.Join(",", read)}";
             //LegacyPermissions.Add(new RepositoryPermission(new AdUser(user), accessRole, PermissionSource.File, null));
 
         }
+
+
+
+        // // // // // // // // // // // // // // // // // // // // //
+        // Validation Functions
+        //
+
+        public bool FileExist()
+        {
+            string filePath = GetOrganizationFilePath(ProjektPath, Version);
+            if (File.Exists(filePath) == false)
+                return false;
+
+            return true;
+        }
+
 
     }
 }

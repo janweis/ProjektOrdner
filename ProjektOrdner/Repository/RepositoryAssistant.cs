@@ -13,16 +13,20 @@ namespace ProjektOrdner.Repository
 {
     public class RepositoryAssistant
     {
-        public string RootFolder { get; set; }
+        public RepositoryRoot RootFolder { get; set; }
         private RepositoryFolder Processor { get; set; }
+        private RepositoryProcessor RepositoryProcessor { get; set; }
         private AppSettings AppSettings { get; set; }
+        private IProgress<string> Progress { get; set; }
 
-        public RepositoryAssistant(string rootFolder, AppSettings appSettings)
+        public RepositoryAssistant(string rootFolder, IProgress<string> progress, AppSettings appSettings)
         {
-            RootFolder = rootFolder;
+            RootFolder = new RepositoryRoot(rootFolder, appSettings);
             AppSettings = appSettings;
+            Progress = progress;
 
             Processor = new RepositoryFolder(appSettings);
+            RepositoryProcessor = new RepositoryProcessor(new RepositoryRoot(rootFolder, appSettings), appSettings, progress);
         }
 
 
@@ -31,7 +35,7 @@ namespace ProjektOrdner.Repository
         /// Erstellt ein neues Projekt.
         /// 
         /// </summary>
-        public async Task<bool> CreateRepositoryAsync(IProgress<string> messageProgress)
+        public async Task<bool> CreateRepositoryAsync()
         {
             // Collect Projekt Data
             GetRepositoryNameForm getDataForm = new GetRepositoryNameForm();
@@ -39,26 +43,17 @@ namespace ProjektOrdner.Repository
 
             if (getDataForm.DialogResult == DialogResult.Cancel)
             {
-                messageProgress.Report("Project creation cancelled!");
+                Progress.Report("Project creation cancelled!");
                 return false;
             }
 
             // Create Repository with Data
             string projektName = getDataForm.ProjektName;
             DateTime projektEnde = getDataForm.ProjektEnde;
-
-            RepositoryOrganization organisation = new RepositoryOrganization()
-            {
-                ErstelltAm = DateTime.Now,
-                ProjektName = projektName,
-                ProjektEnde = projektEnde,
-                RootPath = RootFolder,
-                Version = RepositoryVersion.V2
-            };
+            RepositoryOrganization organisation = new RepositoryOrganization(projektName, RootFolder.RootPath, projektEnde, RepositoryVersion.V2);
 
             // Add Repository
-            RepositoryFolder repository = new RepositoryFolder(organisation, new RepositorySettings(), RepositoryVersion.V2, AppSettings);
-            await repository.CreateAsync(messageProgress);
+            await RepositoryProcessor.CreateAsync(organisation);
 
             // Start PermissionManager
             if (getDataForm.UsePermissionAssistent == true)
@@ -76,7 +71,7 @@ namespace ProjektOrdner.Repository
         /// Benennt das Projekt um.
         /// 
         /// </summary>
-        public async Task<bool> RenameRepositoryAsync(string folderPath, IProgress<string> messageProgress)
+        public async Task<bool> RenameRepositoryAsync(string folderPath)
         {
             // Get current directory name
             DirectoryInfo directory = new DirectoryInfo(folderPath);
@@ -88,15 +83,15 @@ namespace ProjektOrdner.Repository
 
             if (result == DialogResult.Cancel)
             {
-                messageProgress.Report("Project renaming cancelled!");
+                Progress.Report("Project renaming cancelled!");
                 return false;
             }
 
             string newName = renameProjekt.Name;
 
             // Get & Rename Repository
-            RepositoryFolder repository = await Processor.Get(folderPath, messageProgress);
-            await Processor.RenameAsync(repository, newName, messageProgress);
+            RepositoryFolder repository = await RepositoryProcessor.Get(currentName);
+            await Processor.RenameAsync(repository, newName, Progress);
 
             return true;
         }
@@ -104,24 +99,31 @@ namespace ProjektOrdner.Repository
 
         /// <summary>
         /// 
-        /// Entfernt das Projekt.
-        /// 
         /// </summary>
-        public async Task<bool> RemoveRespositoryAsync(string folderPath, IProgress<string> messageProgress)
+        public async Task MigrateFolderToRepositoryAsync()
         {
-            RepositoryFolder repositoryFolder = new RepositoryFolder(AppSettings);
-            try
-            {
-                repositoryFolder = await repositoryFolder.Get(folderPath, messageProgress);
-                repositoryFolder.Remove(messageProgress);
+            FolderBrowserDialog fbd = new FolderBrowserDialog();
+            DialogResult result = fbd.ShowDialog();
 
-                return true;
-            }
-            catch (Exception)
+            if (result != DialogResult.OK || string.IsNullOrWhiteSpace(fbd.SelectedPath) == true)
+                return;
+
+
+
+            // Collect Projekt Data
+            RepositoryOrganization repositoryOrganization = new RepositoryOrganization(fbd.SelectedPath);
+            GetRepositoryNameForm getDataForm = new GetRepositoryNameForm(repositoryOrganization.ProjektName);
+            getDataForm.ShowDialog();
+
+            if (getDataForm.DialogResult == DialogResult.Cancel)
             {
-                return false;
+                Progress.Report("Project creation cancelled!");
+                return;
             }
+
+            // Create Repository with Data
+            repositoryOrganization.ProjektEnde = getDataForm.ProjektEnde;
+            await RepositoryProcessor.CreateAsync(repositoryOrganization, true);
         }
-
     }
 }

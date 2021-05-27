@@ -162,22 +162,16 @@ namespace ProjektOrdner.Repository
 
             foreach (RepositoryOrganization organization in requests)
             {
-
-                RepositoryFolder repository = new RepositoryFolder(organization, new RepositorySettings(), RepositoryVersion.V2, AppSettings);
-                try
-                {
-                    await repository.CreateAsync(Progress);
-                }
-                catch (Exception)
-                {
-                    throw;
-                }
+                RepositoryProcessor repositoryProcessor = new RepositoryProcessor(root, AppSettings, Progress);
+                await repositoryProcessor.CreateAsync(organization);
 
                 if (null != organization.LegacyPermissions || organization.LegacyPermissions.Count() > 0)
                 {
-                    PermissionProcessor permissionProcessor = new PermissionProcessor(repository, AppSettings);
+                    PermissionProcessor permissionProcessor = new PermissionProcessor(organization.ProjektPath, AppSettings);
                     await permissionProcessor.GrantPermissionsAsync(organization.LegacyPermissions.ToArray());
                 }
+
+                File.Delete(organization.RequestFilePath);
             }
         }
 

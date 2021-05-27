@@ -101,8 +101,8 @@ namespace ProjektOrdner.Permission
                 .Except(permissionsFromFile, new PermissionComparer())
                 .ToList();
 
-            RepositoryOrganization repositoryOrganization = new RepositoryOrganization();
-            await repositoryOrganization.LoadOrganization(ProjektPath);
+            RepositoryOrganization repositoryOrganization = new RepositoryOrganization(ProjektPath);
+            await repositoryOrganization.LoadOrganization();
 
 
             // Update Permissions
@@ -526,8 +526,8 @@ namespace ProjektOrdner.Permission
                 // Filter Content
                 string[] users = permissionFileContent
                     .Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)
-                    .Where(line => line.Contains('#') == false &&
-                    line.StartsWith("_") == false)
+                    .Where(line => line.Contains('#') == false && line.StartsWith("_") == false)
+                    .Select(line => line.ToLower())
                     .ToArray();
 
                 // Create Permissions
@@ -584,10 +584,48 @@ namespace ProjektOrdner.Permission
         private void DetectRepositoryVersion()
         {
             // Detect Repository Version
-            RepositoryOrganization organization = new RepositoryOrganization();
-            RepositoryVersion repositoryVersion = organization.GetRepositoryVersion(ProjektPath);
+            RepositoryOrganization organization = new RepositoryOrganization(ProjektPath);
+            RepositoryVersion repositoryVersion = organization.GetRepositoryVersion();
 
             Version = repositoryVersion;
+        }
+
+
+        // // // // // // // // // // // // // // // // // // // // //
+        // Validations
+        // 
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool FilesExist()
+        {
+            // Manager
+            string managerFilePath = GetPermissionFilePath(PermissionRole.Manager);
+            if (File.Exists(managerFilePath) == false)
+                return false;
+
+            // Member
+            string memberFilePath = GetPermissionFilePath(PermissionRole.Member);
+            if (File.Exists(memberFilePath) == false)
+                return false;
+
+            // Guest
+            string guestFilePath = GetPermissionFilePath(PermissionRole.Guest);
+            if (File.Exists(guestFilePath) == false)
+                return false;
+
+            return true;
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool FilesValid()
+        {
+            throw new NotImplementedException();
         }
 
 

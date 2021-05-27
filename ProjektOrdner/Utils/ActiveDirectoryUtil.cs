@@ -35,7 +35,7 @@ namespace ProjektOrdner.Utils
         /// <summary>
         /// 
         /// </summary>
-        public static DirectoryEntry GetUser(string value, IdentificationTypes type)
+        public static DirectoryEntry Get(string value, IdentificationTypes type)
         {
             string ldapFilter = GetLdapFilter(value, type);
             string ldapPath = GetLdapPath();
@@ -72,7 +72,7 @@ namespace ProjektOrdner.Utils
                 }
                 case IdentificationTypes.Email:
                 {
-                    DirectoryEntry tempUser = GetUser(value, identification);
+                    DirectoryEntry tempUser = Get(value, identification);
                     if (null == tempUser)
                         break;
 
@@ -81,7 +81,7 @@ namespace ProjektOrdner.Utils
                 }
                 case IdentificationTypes.Matrikelnummer:
                 {
-                    DirectoryEntry tempUser = GetUser(value, identification);
+                    DirectoryEntry tempUser = Get(value, identification);
                     if (null == tempUser)
                         break;
 
@@ -230,7 +230,7 @@ namespace ProjektOrdner.Utils
         /// <summary>
         /// 
         /// </summary>
-        public GroupPrincipal AddGroup(GroupScope scope, string samAccountName, string description)
+        public GroupPrincipal NewAdGroup(GroupScope scope, string samAccountName, string description)
         {
             GroupPrincipal adGroup = new GroupPrincipal(GroupContext, samAccountName)
             {
@@ -254,14 +254,36 @@ namespace ProjektOrdner.Utils
         /// <summary>
         /// 
         /// </summary>
-        public void AddGroupMembers(GroupPrincipal group, UserPrincipal user)
+        public void AddGroupMembers(GroupPrincipal group, UserPrincipal userToAdd)
         {
             if (null != group)
             {
-                if (null != user)
+                if (null != userToAdd)
                 {
-                    if (group.Members.Contains(user) == false)
-                        group.Members.Add(user);
+                    if (group.Members.Contains(userToAdd) == false)
+                    {
+                        group.Members.Add(userToAdd);
+                        group.Save();
+                    }
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void AddGroupMembers(GroupPrincipal group, GroupPrincipal groupToAdd)
+        {
+            if (null != group)
+            {
+                if (null != groupToAdd)
+                {
+                    if (group.Members.Contains(groupToAdd) == false)
+                    {
+                        group.Members.Add(groupToAdd);
+                        group.Save();
+                    }
                 }
             }
         }
@@ -305,7 +327,10 @@ namespace ProjektOrdner.Utils
                 if (null != user)
                 {
                     if (group.Members.Contains(user) == true)
+                    {
                         group.Members.Remove(user);
+                        group.Save();
+                    }
                 }
             }
         }

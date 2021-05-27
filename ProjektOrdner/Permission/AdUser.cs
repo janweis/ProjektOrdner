@@ -40,9 +40,9 @@ namespace ProjektOrdner.Permission
 
             Vorname = user.GivenName;
             Nachname = user.Surname;
-            Email = user.EmailAddress;
-            SamAccountName = user.SamAccountName;
-            UserPrincipalName = user.UserPrincipalName;
+            Email = user.EmailAddress.ToLower();
+            SamAccountName = user.SamAccountName.ToLower();
+            UserPrincipalName = user.UserPrincipalName.ToLower();
 
             using (DirectoryEntry directoryEntry = (DirectoryEntry)user.GetUnderlyingObject())
             {
@@ -58,8 +58,9 @@ namespace ProjektOrdner.Permission
 
         public AdUser(string identString)
         {
+            // fill up
             Identification = identString;
-            IdentificationType = GetIdentType(Identification);
+            IdentificationType = GetType(identString);
 
             switch (IdentificationType)
             {
@@ -90,15 +91,15 @@ namespace ProjektOrdner.Permission
         /// </summary>
         public void UpdateUserData()
         {
-            DirectoryEntry foundUser = ActiveDirectoryUtil.GetUser(Identification, IdentificationType);
+            DirectoryEntry foundUser = ActiveDirectoryUtil.Get(Identification, IdentificationType);
 
             if (null == foundUser)
                 return;
 
             Vorname = foundUser.Properties["givenName"].Value?.ToString();
             Nachname = foundUser.Properties["sn"].Value?.ToString();
-            SamAccountName = foundUser.Properties["sAMAccountName"].Value?.ToString();
-            Email = foundUser.Properties["mail"].Value?.ToString();
+            SamAccountName = foundUser.Properties["sAMAccountName"].Value?.ToString().ToLower();
+            Email = foundUser.Properties["mail"].Value?.ToString().ToLower();
 
             if (foundUser.Properties["employeeNumber"].Value != null)
             {
@@ -121,7 +122,7 @@ namespace ProjektOrdner.Permission
         /// <summary>
         /// 
         /// </summary>
-        private IdentificationTypes GetIdentType(string identString)
+        private IdentificationTypes GetType(string identString)
         {
             if (uint.TryParse(identString, out uint output))
             {

@@ -50,12 +50,22 @@
             this.umbenennenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.entfernenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator7 = new System.Windows.Forms.ToolStripSeparator();
+            this.optionenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.verlängernToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.datumWählenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.umEinenMonatVerlängernToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.um6MonateVerlängernToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.umEinJahrVerlängernToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.keinAblaufdatumMehrToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.diagnoseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.reparaturToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.migrationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ordnerKonvertierenZuProjektOrdnerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.stammverzeichnisKonvertierenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator10 = new System.Windows.Forms.ToolStripSeparator();
             this.mehrfachAuswahlModusToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
-            this.diagnoseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.integritätsüberprüfungToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.reparaturToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.beendenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.berechtigungenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.hinzufügenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -99,7 +109,12 @@
             this.benutzerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.benutzerInProjektenToolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator12 = new System.Windows.Forms.ToolStripSeparator();
-            this.verlängernToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.einfachePrüfungToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.erweitertePrüfungToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator14 = new System.Windows.Forms.ToolStripSeparator();
+            this.archivToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.inDasArchivVerschiebenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ausDemArchivHolenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ContextMenu2.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.MainMenu.SuspendLayout();
@@ -234,11 +249,12 @@
             this.umbenennenToolStripMenuItem,
             this.entfernenToolStripMenuItem,
             this.toolStripSeparator7,
-            this.verlängernToolStripMenuItem,
+            this.optionenToolStripMenuItem,
+            this.diagnoseToolStripMenuItem,
+            this.migrationToolStripMenuItem,
+            this.toolStripSeparator10,
             this.mehrfachAuswahlModusToolStripMenuItem,
             this.toolStripMenuItem3,
-            this.diagnoseToolStripMenuItem,
-            this.toolStripSeparator2,
             this.beendenToolStripMenuItem});
             this.projektOrnderToolStripMenuItem.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.projektOrnderToolStripMenuItem.Name = "projektOrnderToolStripMenuItem";
@@ -271,6 +287,114 @@
             this.toolStripSeparator7.Name = "toolStripSeparator7";
             this.toolStripSeparator7.Size = new System.Drawing.Size(225, 6);
             // 
+            // optionenToolStripMenuItem
+            // 
+            this.optionenToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.verlängernToolStripMenuItem1,
+            this.archivToolStripMenuItem});
+            this.optionenToolStripMenuItem.Name = "optionenToolStripMenuItem";
+            this.optionenToolStripMenuItem.Size = new System.Drawing.Size(228, 22);
+            this.optionenToolStripMenuItem.Text = "Optionen";
+            // 
+            // verlängernToolStripMenuItem1
+            // 
+            this.verlängernToolStripMenuItem1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.datumWählenToolStripMenuItem,
+            this.toolStripSeparator2,
+            this.umEinenMonatVerlängernToolStripMenuItem,
+            this.um6MonateVerlängernToolStripMenuItem,
+            this.umEinJahrVerlängernToolStripMenuItem,
+            this.keinAblaufdatumMehrToolStripMenuItem});
+            this.verlängernToolStripMenuItem1.Name = "verlängernToolStripMenuItem1";
+            this.verlängernToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            this.verlängernToolStripMenuItem1.Text = "Verlängern";
+            // 
+            // datumWählenToolStripMenuItem
+            // 
+            this.datumWählenToolStripMenuItem.Name = "datumWählenToolStripMenuItem";
+            this.datumWählenToolStripMenuItem.Size = new System.Drawing.Size(194, 22);
+            this.datumWählenToolStripMenuItem.Text = "Datum wählen";
+            this.datumWählenToolStripMenuItem.Click += new System.EventHandler(this.datumWählenToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(191, 6);
+            // 
+            // umEinenMonatVerlängernToolStripMenuItem
+            // 
+            this.umEinenMonatVerlängernToolStripMenuItem.Name = "umEinenMonatVerlängernToolStripMenuItem";
+            this.umEinenMonatVerlängernToolStripMenuItem.Size = new System.Drawing.Size(194, 22);
+            this.umEinenMonatVerlängernToolStripMenuItem.Text = "+ 1 Monat";
+            this.umEinenMonatVerlängernToolStripMenuItem.Click += new System.EventHandler(this.umEinenMonatVerlängernToolStripMenuItem_Click);
+            // 
+            // um6MonateVerlängernToolStripMenuItem
+            // 
+            this.um6MonateVerlängernToolStripMenuItem.Name = "um6MonateVerlängernToolStripMenuItem";
+            this.um6MonateVerlängernToolStripMenuItem.Size = new System.Drawing.Size(194, 22);
+            this.um6MonateVerlängernToolStripMenuItem.Text = "+ 6 Monate";
+            this.um6MonateVerlängernToolStripMenuItem.Click += new System.EventHandler(this.um6MonateVerlängernToolStripMenuItem_Click);
+            // 
+            // umEinJahrVerlängernToolStripMenuItem
+            // 
+            this.umEinJahrVerlängernToolStripMenuItem.Name = "umEinJahrVerlängernToolStripMenuItem";
+            this.umEinJahrVerlängernToolStripMenuItem.Size = new System.Drawing.Size(194, 22);
+            this.umEinJahrVerlängernToolStripMenuItem.Text = "+ 1 Jahr";
+            this.umEinJahrVerlängernToolStripMenuItem.Click += new System.EventHandler(this.umEinJahrVerlängernToolStripMenuItem_Click);
+            // 
+            // keinAblaufdatumMehrToolStripMenuItem
+            // 
+            this.keinAblaufdatumMehrToolStripMenuItem.Name = "keinAblaufdatumMehrToolStripMenuItem";
+            this.keinAblaufdatumMehrToolStripMenuItem.Size = new System.Drawing.Size(194, 22);
+            this.keinAblaufdatumMehrToolStripMenuItem.Text = "∞ Kein Ablaufdatum";
+            this.keinAblaufdatumMehrToolStripMenuItem.Click += new System.EventHandler(this.keinAblaufdatumMehrToolStripMenuItem_Click);
+            // 
+            // diagnoseToolStripMenuItem
+            // 
+            this.diagnoseToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.einfachePrüfungToolStripMenuItem,
+            this.erweitertePrüfungToolStripMenuItem,
+            this.toolStripSeparator14,
+            this.reparaturToolStripMenuItem});
+            this.diagnoseToolStripMenuItem.Name = "diagnoseToolStripMenuItem";
+            this.diagnoseToolStripMenuItem.Size = new System.Drawing.Size(228, 22);
+            this.diagnoseToolStripMenuItem.Text = "Diagnose";
+            // 
+            // reparaturToolStripMenuItem
+            // 
+            this.reparaturToolStripMenuItem.Name = "reparaturToolStripMenuItem";
+            this.reparaturToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
+            this.reparaturToolStripMenuItem.Text = "Reparatur";
+            this.reparaturToolStripMenuItem.Click += new System.EventHandler(this.reparaturToolStripMenuItem_Click);
+            // 
+            // migrationToolStripMenuItem
+            // 
+            this.migrationToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.ordnerKonvertierenZuProjektOrdnerToolStripMenuItem,
+            this.stammverzeichnisKonvertierenToolStripMenuItem});
+            this.migrationToolStripMenuItem.Name = "migrationToolStripMenuItem";
+            this.migrationToolStripMenuItem.Size = new System.Drawing.Size(228, 22);
+            this.migrationToolStripMenuItem.Text = "Konvertieren";
+            // 
+            // ordnerKonvertierenZuProjektOrdnerToolStripMenuItem
+            // 
+            this.ordnerKonvertierenZuProjektOrdnerToolStripMenuItem.Name = "ordnerKonvertierenZuProjektOrdnerToolStripMenuItem";
+            this.ordnerKonvertierenZuProjektOrdnerToolStripMenuItem.Size = new System.Drawing.Size(302, 22);
+            this.ordnerKonvertierenZuProjektOrdnerToolStripMenuItem.Text = "Externer Ordner";
+            this.ordnerKonvertierenZuProjektOrdnerToolStripMenuItem.Click += new System.EventHandler(this.ordnerKonvertierenZuProjektOrdnerToolStripMenuItem_Click);
+            // 
+            // stammverzeichnisKonvertierenToolStripMenuItem
+            // 
+            this.stammverzeichnisKonvertierenToolStripMenuItem.Enabled = false;
+            this.stammverzeichnisKonvertierenToolStripMenuItem.Name = "stammverzeichnisKonvertierenToolStripMenuItem";
+            this.stammverzeichnisKonvertierenToolStripMenuItem.Size = new System.Drawing.Size(302, 22);
+            this.stammverzeichnisKonvertierenToolStripMenuItem.Text = "Ordner zu Stammverzeichnis migrieren";
+            // 
+            // toolStripSeparator10
+            // 
+            this.toolStripSeparator10.Name = "toolStripSeparator10";
+            this.toolStripSeparator10.Size = new System.Drawing.Size(225, 6);
+            // 
             // mehrfachAuswahlModusToolStripMenuItem
             // 
             this.mehrfachAuswahlModusToolStripMenuItem.Name = "mehrfachAuswahlModusToolStripMenuItem";
@@ -282,33 +406,6 @@
             // 
             this.toolStripMenuItem3.Name = "toolStripMenuItem3";
             this.toolStripMenuItem3.Size = new System.Drawing.Size(225, 6);
-            // 
-            // diagnoseToolStripMenuItem
-            // 
-            this.diagnoseToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.integritätsüberprüfungToolStripMenuItem,
-            this.reparaturToolStripMenuItem});
-            this.diagnoseToolStripMenuItem.Enabled = false;
-            this.diagnoseToolStripMenuItem.Name = "diagnoseToolStripMenuItem";
-            this.diagnoseToolStripMenuItem.Size = new System.Drawing.Size(228, 22);
-            this.diagnoseToolStripMenuItem.Text = "Diagnose";
-            // 
-            // integritätsüberprüfungToolStripMenuItem
-            // 
-            this.integritätsüberprüfungToolStripMenuItem.Name = "integritätsüberprüfungToolStripMenuItem";
-            this.integritätsüberprüfungToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.integritätsüberprüfungToolStripMenuItem.Text = "Integritätsprüfung";
-            // 
-            // reparaturToolStripMenuItem
-            // 
-            this.reparaturToolStripMenuItem.Name = "reparaturToolStripMenuItem";
-            this.reparaturToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.reparaturToolStripMenuItem.Text = "Reparatur";
-            // 
-            // toolStripSeparator2
-            // 
-            this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(225, 6);
             // 
             // beendenToolStripMenuItem
             // 
@@ -658,12 +755,46 @@
             this.toolStripSeparator12.Name = "toolStripSeparator12";
             this.toolStripSeparator12.Size = new System.Drawing.Size(6, 45);
             // 
-            // verlängernToolStripMenuItem
+            // einfachePrüfungToolStripMenuItem
             // 
-            this.verlängernToolStripMenuItem.Name = "verlängernToolStripMenuItem";
-            this.verlängernToolStripMenuItem.Size = new System.Drawing.Size(228, 22);
-            this.verlängernToolStripMenuItem.Text = "Verlängern";
-            this.verlängernToolStripMenuItem.Click += new System.EventHandler(this.verlängernToolStripMenuItem_Click);
+            this.einfachePrüfungToolStripMenuItem.Enabled = false;
+            this.einfachePrüfungToolStripMenuItem.Name = "einfachePrüfungToolStripMenuItem";
+            this.einfachePrüfungToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
+            this.einfachePrüfungToolStripMenuItem.Text = "Einfache Prüfung";
+            // 
+            // erweitertePrüfungToolStripMenuItem
+            // 
+            this.erweitertePrüfungToolStripMenuItem.Enabled = false;
+            this.erweitertePrüfungToolStripMenuItem.Name = "erweitertePrüfungToolStripMenuItem";
+            this.erweitertePrüfungToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
+            this.erweitertePrüfungToolStripMenuItem.Text = "Erweiterte Prüfung";
+            // 
+            // toolStripSeparator14
+            // 
+            this.toolStripSeparator14.Name = "toolStripSeparator14";
+            this.toolStripSeparator14.Size = new System.Drawing.Size(180, 6);
+            // 
+            // archivToolStripMenuItem
+            // 
+            this.archivToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.inDasArchivVerschiebenToolStripMenuItem,
+            this.ausDemArchivHolenToolStripMenuItem});
+            this.archivToolStripMenuItem.Enabled = false;
+            this.archivToolStripMenuItem.Name = "archivToolStripMenuItem";
+            this.archivToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.archivToolStripMenuItem.Text = "Archiv";
+            // 
+            // inDasArchivVerschiebenToolStripMenuItem
+            // 
+            this.inDasArchivVerschiebenToolStripMenuItem.Name = "inDasArchivVerschiebenToolStripMenuItem";
+            this.inDasArchivVerschiebenToolStripMenuItem.Size = new System.Drawing.Size(223, 22);
+            this.inDasArchivVerschiebenToolStripMenuItem.Text = "In das Archiv verschieben";
+            // 
+            // ausDemArchivHolenToolStripMenuItem
+            // 
+            this.ausDemArchivHolenToolStripMenuItem.Name = "ausDemArchivHolenToolStripMenuItem";
+            this.ausDemArchivHolenToolStripMenuItem.Size = new System.Drawing.Size(223, 22);
+            this.ausDemArchivHolenToolStripMenuItem.Text = "Aus dem Archiv holen";
             // 
             // ManageRepositorysForm
             // 
@@ -721,7 +852,6 @@
         private System.Windows.Forms.ToolStripMenuItem EinklappenItem;
         private System.Windows.Forms.ToolStripMenuItem ansichtToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem mehrfachAuswahlModusToolStripMenuItem;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripMenuItem entfernenToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem lesenSchreibenNurLesenToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem nurLesenLesenSchreibenToolStripMenuItem;
@@ -751,7 +881,6 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator9;
         private System.Windows.Forms.ToolStripMenuItem ausgabeEinblendenToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem diagnoseToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem integritätsüberprüfungToolStripMenuItem;
         private System.Windows.Forms.ToolStrip toolStrip1;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator11;
         private System.Windows.Forms.ToolStripButton FilterToolStripButton;
@@ -766,6 +895,23 @@
         private System.Windows.Forms.ToolStripMenuItem benutzerInProjektenToolStripMenuItem2;
         private System.Windows.Forms.ToolStripMenuItem läuftAbAmToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem reparaturToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem verlängernToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem optionenToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem verlängernToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem migrationToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem ordnerKonvertierenZuProjektOrdnerToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem stammverzeichnisKonvertierenToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator10;
+        private System.Windows.Forms.ToolStripMenuItem datumWählenToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+        private System.Windows.Forms.ToolStripMenuItem umEinenMonatVerlängernToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem um6MonateVerlängernToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem umEinJahrVerlängernToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem keinAblaufdatumMehrToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem archivToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem inDasArchivVerschiebenToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem ausDemArchivHolenToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem einfachePrüfungToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem erweitertePrüfungToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator14;
     }
 }

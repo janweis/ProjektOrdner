@@ -141,13 +141,13 @@ namespace ProjektOrdner.Repository
             }
 
             int i = 0;
-            RepositoryFolder repositoryFolder = new RepositoryFolder(AppSettings);
+            RepositoryProcessor repositoryProcessor = new RepositoryProcessor(new RepositoryRoot(RootPath, AppSettings), AppSettings, progress);
             List<RepositoryFolder> repositories = new List<RepositoryFolder>();
             foreach (string folderPath in folderList)
             {
                 i++;
                 progress.Report($"Lade Projekt {i.ToString()}/{folderList.Count().ToString()} - {new DirectoryInfo(folderPath).Name}");
-                repositories.Add(await repositoryFolder.Get(folderPath, progress));
+                repositories.Add(await repositoryProcessor.Get(folderPath));
             }
 
             // Exclude empty Projects
@@ -195,7 +195,7 @@ namespace ProjektOrdner.Repository
 
             // Process Files
             List<RepositoryOrganization> requests = new List<RepositoryOrganization>();
-            foreach(FileInfo file in validRequestFiles)
+            foreach (FileInfo file in validRequestFiles)
             {
                 RepositoryOrganization organization = new RepositoryOrganization();
                 await organization.LoadRequest(file.FullName);

@@ -102,10 +102,10 @@ namespace ProjektOrdner.Forms
         private async Task CreateProjektAsync()
         {
             // Add Projekt
-            RepositoryAssistant repositoryManager = new RepositoryAssistant(CurrentRootPath, AppSettings);
+            RepositoryAssistant repositoryManager = new RepositoryAssistant(CurrentRootPath, ProgressMessage, AppSettings);
             try
             {
-                bool successfully = await repositoryManager.CreateRepositoryAsync(ProgressMessage);
+                bool successfully = await repositoryManager.CreateRepositoryAsync();
 
                 if (successfully)
                 {
@@ -146,10 +146,10 @@ namespace ProjektOrdner.Forms
                 return;
             }
 
-            RepositoryAssistant repositoryManager = new RepositoryAssistant(CurrentRootPath, AppSettings);
+            RepositoryAssistant repositoryManager = new RepositoryAssistant(CurrentRootPath, ProgressMessage, AppSettings);
             try
             {
-                bool successfully = await repositoryManager.RenameRepositoryAsync(node.Tag.ToString(), ProgressMessage);
+                bool successfully = await repositoryManager.RenameRepositoryAsync(node.Tag.ToString());
 
                 if (successfully)
                 {
@@ -162,7 +162,7 @@ namespace ProjektOrdner.Forms
                 MessageBox.Show($"Es ist ein Fehler beim umbenennen aufgetreten. {ex.Message}", "Hinweis", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
-            ProgressMessage.Report("Projekt umbenennen abgeschlossen!");
+            ProgressMessage.Report("Das/Die Projekt(e) wurde(n) umbenannt!");
         }
 
 
@@ -194,13 +194,16 @@ namespace ProjektOrdner.Forms
                 return;
             }
 
+            DialogResult resultRemove = MessageBox.Show($"Möchten Sie wirklich {nodes.Count} Projekt(e) entfernen?", "Projekt(e) entfernen", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            if (resultRemove != DialogResult.Yes)
+                return;
+
+            RepositoryProcessor repositoryProcessor = new RepositoryProcessor(new RepositoryRoot(CurrentRootPath, AppSettings), AppSettings);
             foreach (TreeNode node in nodes)
             {
                 try
                 {
-                    RepositoryAssistant repositoryManager = new RepositoryAssistant(CurrentRootPath, AppSettings);
-                    await repositoryManager.RemoveRespositoryAsync(node.Tag.ToString(), ProgressMessage);
-
+                    await repositoryProcessor.RemoveAsync(node.Tag.ToString());
                 }
                 catch (Exception ex)
                 {
@@ -211,6 +214,8 @@ namespace ProjektOrdner.Forms
             // Update View
             await UpdateRepositoryListAsync();
             UpdateTreeView();
+
+            ProgressMessage.Report("Das/Die Projekt(e) wurde(n) entfernt!");
         }
 
 
@@ -340,8 +345,8 @@ namespace ProjektOrdner.Forms
                 return; // Node ist kein Sub-Node!
 
             string projektPath = node.Parent.Tag.ToString();
-            RepositoryOrganization organization = new RepositoryOrganization();
-            RepositoryVersion repositoryVersion = organization.GetRepositoryVersion(projektPath);
+            RepositoryOrganization organization = new RepositoryOrganization(projektPath);
+            RepositoryVersion repositoryVersion = organization.GetRepositoryVersion();
 
             if (repositoryVersion == RepositoryVersion.Unknown)
             {
@@ -378,7 +383,6 @@ namespace ProjektOrdner.Forms
             }
 
         }
-
 
 
         /// <summary>
@@ -621,32 +625,112 @@ namespace ProjektOrdner.Forms
         /// Verlängert das Ablaufdatum
         /// 
         /// </summary>
-        private async Task ExpandProjekt()
+        private async Task ExpandProjekt(TimeSpan? manualExpand)
         {
             RepositoryFolder currentProjekt = TreeHelper.GetRepositoryFromSelectedNode(Repositories);
+
             if (null == currentProjekt)
             {
                 MessageBox.Show("Das Projekt konnte nicht gefunden werden. Bitte wählen Sie ein Projekt aus.", "Verlängerung", MessageBoxButtons.OK, MessageBoxIcon.Hand);
             }
 
-            ExpandProjektExpirationForm expandProjekt = new ExpandProjektExpirationForm(currentProjekt.Organization.ProjektName, currentProjekt.Organization.ProjektEnde);
-            DialogResult result = expandProjekt.ShowDialog();
-
-            if (result == DialogResult.OK)
+            // Get date
+            DateTime newExpireDate = new DateTime();
+            if (null == manualExpand)
             {
-                try
+                // Set choosen date
+                ExpandProjektExpirationForm expandProjekt = new ExpandProjektExpirationForm(currentProjekt.Organization.ProjektName, currentProjekt.Organization.ProjektEnde);
+                DialogResult result = expandProjekt.ShowDialog();
+
+                if (result != DialogResult.OK)
+                    return;
+
+                newExpireDate = expandProjekt.NewExpireDate;
+            }
+            else
+            {
+                if (manualExpand == TimeSpan.MaxValue)
                 {
-                    await currentProjekt.Organization.ExpandExpireDate(currentProjekt.Organization.ProjektPath, expandProjekt.NewExpireDate);
+                    // Set Infinite
+                    newExpireDate = currentProjekt.Organization.ProjektEnde = DateTime.MaxValue;
                 }
-                catch (Exception ex)
+                else
                 {
-                    MessageBox.Show($"Das Projekt konnte nicht verlängert werden. {ex.Message}", "Projekt verlängern", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    if (currentProjekt.Organization.ProjektEnde == DateTime.MaxValue)
+                    {
+                        MessageBox.Show("Das Projekt kann nicht verländert werden. Es hat kein Ablaufdatum!", "Verlängerung", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        return;
+                    }
+
+                    // Add Days
+                    newExpireDate = currentProjekt.Organization.ProjektEnde.Add(manualExpand.Value);
                 }
+            }
+
+            // save date
+            try
+            {
+                await currentProjekt.Organization.SaveExpireDate(currentProjekt.Organization.ProjektPath, newExpireDate);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Das Projekt konnte nicht verlängert werden. {ex.Message}", "Projekt verlängern", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
             ProgressMessage.Report("Projektlaufzeit wurde angepasst!");
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private async Task FolderMigration()
+        {
+            ProgressMessage.Report("Ordnermigration läuft");
+
+            try
+            {
+                RepositoryAssistant assistant = new RepositoryAssistant(CurrentRootPath, ProgressMessage, AppSettings);
+                await assistant.MigrateFolderToRepositoryAsync();
+
+                await UpdateRepositoryListAsync();
+                UpdateTreeView();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Migration wurde nicht abgeschlossen. {ex.Message}", "Migration", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            ProgressMessage.Report("Ordnermigration abgeschlossen!");
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private async Task RepairRepositoryAsync()
+        {
+            TreeNode selectedNode = TreeHelper.GetNodeBySelection();
+
+            if (null == selectedNode || null != selectedNode.Parent)
+            {
+                MessageBox.Show("Bitte wählen Sie ein ProjektOrdner aus!", "Reparatur", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            RepositoryProcessor repositoryProcessor = new RepositoryProcessor(
+                new RepositoryRoot(CurrentRootPath, AppSettings),
+                AppSettings);
+
+            try
+            {
+                await repositoryProcessor.RepairAsync(selectedNode.Tag.ToString());
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Der ProjektOrdner konnte nicht repariert werden! {ex.Message}", "Reparatur", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
 
 
 
@@ -756,6 +840,8 @@ namespace ProjektOrdner.Forms
         {
             await UpdateRepositoryListAsync();
             UpdateTreeView();
+
+            ProgressMessage.Report("Projekte wurden erneut geladen.");
         }
 
         private async void startenToolStripMenuItem_Click(object sender, EventArgs e) =>
@@ -782,8 +868,25 @@ namespace ProjektOrdner.Forms
         private async void FilterToolStripButton_Click(object sender, EventArgs e) =>
             await ClickFilterAsync();
 
-        private async void verlängernToolStripMenuItem_Click(object sender, EventArgs e) =>
-            await ExpandProjekt();
+        private async void datumWählenToolStripMenuItem_Click(object sender, EventArgs e) =>
+            await ExpandProjekt(null);
 
+        private async void umEinenMonatVerlängernToolStripMenuItem_Click(object sender, EventArgs e) =>
+            await ExpandProjekt(new TimeSpan(days: 30, hours: 0, minutes: 0, seconds: 0));
+
+        private async void um6MonateVerlängernToolStripMenuItem_Click(object sender, EventArgs e) =>
+            await ExpandProjekt(new TimeSpan(days: 180, hours: 0, minutes: 0, seconds: 0));
+
+        private async void umEinJahrVerlängernToolStripMenuItem_Click(object sender, EventArgs e) =>
+            await ExpandProjekt(new TimeSpan(days: 365, hours: 0, minutes: 0, seconds: 0));
+
+        private async void keinAblaufdatumMehrToolStripMenuItem_Click(object sender, EventArgs e) =>
+            await ExpandProjekt(TimeSpan.MaxValue);
+
+        private async void ordnerKonvertierenZuProjektOrdnerToolStripMenuItem_Click(object sender, EventArgs e)
+            => await FolderMigration();
+
+        private async void reparaturToolStripMenuItem_Click(object sender, EventArgs e) 
+            => await RepairRepositoryAsync();
     }
 }

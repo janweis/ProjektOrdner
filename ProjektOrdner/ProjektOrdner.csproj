@@ -80,6 +80,7 @@
     <Compile Include="Forms\ExpandProjektExpirationForm.Designer.cs">
       <DependentUpon>ExpandProjektExpirationForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Repository\RepositoryProcessor.cs" />
     <Compile Include="Repository\RepositoryUpdateService.cs" />
     <Compile Include="Forms\FindAdUserForm.cs">
       <SubType>Form</SubType>

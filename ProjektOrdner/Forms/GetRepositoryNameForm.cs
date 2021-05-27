@@ -9,18 +9,20 @@ namespace ProjektOrdner.Forms
         public string ProjektName { get; set; }
         public DateTime ProjektEnde { get; set; }
         public bool UsePermissionAssistent { get; set; }
+        private bool IsInfiniteDate { get; set; }
 
-        public GetRepositoryNameForm()
+        public GetRepositoryNameForm(string projektName = "")
         {
             InitializeComponent();
 
-            Name = string.Empty;
+            ProjektName = projektName;
             ProjektEnde = DateTime.Now.AddDays(30);
             UsePermissionAssistent = true;
+            IsInfiniteDate = false;
 
             PreSetComponents();
         }
-        
+
         //
         // Functions
         //
@@ -33,6 +35,7 @@ namespace ProjektOrdner.Forms
         private void PreSetComponents()
         {
             EndDate.Value = EndDate.Value.AddDays(30);
+            NameTextbox.Text = ProjektName;
         }
 
 
@@ -43,9 +46,7 @@ namespace ProjektOrdner.Forms
         /// </summary>
         private void ValidateAndClose()
         {
-            string Name = NameTextbox.Text;
-
-            bool isValidName = IsValidName(Name);
+            bool isValidName = IsValidName(NameTextbox.Text);
             if (isValidName == false)
                 return;
 
@@ -53,13 +54,18 @@ namespace ProjektOrdner.Forms
             if (isValidDate == false)
                 return;
 
-            ProjektName = Name;
-            ProjektEnde = EndDate.Value;
+            ProjektName = NameTextbox.Text;
+
+            if (IsInfiniteDate)
+                ProjektEnde = DateTime.MaxValue;
+            else
+                ProjektEnde = EndDate.Value;
 
             // Close Assistent
             DialogResult = DialogResult.OK;
             Close();
         }
+
 
         /// <summary>
         /// 
@@ -76,6 +82,7 @@ namespace ProjektOrdner.Forms
 
             return true;
         }
+
 
         /// <summary>
         /// 
@@ -108,6 +115,7 @@ namespace ProjektOrdner.Forms
             return true;
         }
 
+
         /// <summary>
         /// 
         /// 
@@ -115,13 +123,31 @@ namespace ProjektOrdner.Forms
         /// </summary>
         private void SetStatePermissionAssistent()
         {
-            if(UsePermissionAssistent == true)
+            if (UsePermissionAssistent == true)
             {
                 UsePermissionAssistent = false;
             }
             else
             {
                 UsePermissionAssistent = true;
+            }
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private void InfinityDate(bool set)
+        {
+            if (set)
+            {
+                EndDate.Enabled = false;
+                IsInfiniteDate = true;
+            }
+            else
+            {
+                EndDate.Enabled = true;
+                IsInfiniteDate = false;
             }
         }
 
@@ -135,5 +161,12 @@ namespace ProjektOrdner.Forms
         private void AnlegenButton_Click(object sender, EventArgs e) => ValidateAndClose();
 
         private void SetupPermissionsBox_CheckedChanged(object sender, EventArgs e) => SetStatePermissionAssistent();
+
+        private void DateInfinityCheck_CheckedChanged(object sender, EventArgs e)
+        {
+            CheckBox check = sender as CheckBox;
+            InfinityDate(check.Checked);
+        }
+
     }
 }
