@@ -38,20 +38,57 @@ namespace ProjektOrdner.Permission
             if (null == user)
                 throw new ArgumentNullException("user");
 
-            Vorname = user.GivenName;
-            Nachname = user.Surname;
-            Email = user.EmailAddress.ToLower();
-            SamAccountName = user.SamAccountName.ToLower();
-            UserPrincipalName = user.UserPrincipalName.ToLower();
-
             using (DirectoryEntry directoryEntry = (DirectoryEntry)user.GetUnderlyingObject())
             {
-                if (directoryEntry.Properties["employeeNumber"].Value != null)
+                if (null != directoryEntry.Properties["GivenName"].Value)
                 {
-                    if (null != directoryEntry.Properties["employeeNumber"].Value)
-                    {
-                        Matrikelnummer = uint.Parse(directoryEntry.Properties["employeeNumber"].Value.ToString());
-                    }
+                    Vorname = directoryEntry
+                        .Properties["GivenName"]
+                        .Value
+                        .ToString();
+                }
+
+                if (null != directoryEntry.Properties["Surname"].Value)
+                {
+                    Nachname = directoryEntry
+                        .Properties["Surname"]
+                        .Value
+                        .ToString();
+                }
+
+                if (null != directoryEntry.Properties["EmailAddress"].Value)
+                {
+                    Email = directoryEntry
+                        .Properties["EmailAddress"]
+                        .Value
+                        .ToString()
+                        .ToLower();
+                }
+
+                if (null != directoryEntry.Properties["SamAccountName"].Value)
+                {
+                    SamAccountName = directoryEntry
+                        .Properties["SamAccountName"]
+                        .Value
+                        .ToString()
+                        .ToLower();
+                }
+
+                if (null != directoryEntry.Properties["UserPrincipalName"].Value)
+                {
+                    UserPrincipalName = directoryEntry
+                        .Properties["UserPrincipalName"]
+                        .Value
+                        .ToString()
+                        .ToLower();
+                }
+
+                if (null != directoryEntry.Properties["employeeNumber"].Value)
+                {
+                    Matrikelnummer = uint.Parse(directoryEntry
+                        .Properties["employeeNumber"]
+                        .Value
+                        .ToString());
                 }
             }
         }
