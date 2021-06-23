@@ -677,6 +677,5 @@ namespace ProjektOrdner.Permission
 
             return permissions.ToArray();
         }
-
     }
 }

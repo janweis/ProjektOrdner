@@ -42,53 +42,32 @@ namespace ProjektOrdner.Permission
             {
                 if (null != directoryEntry.Properties["GivenName"].Value)
                 {
-                    Vorname = directoryEntry
-                        .Properties["GivenName"]
-                        .Value
-                        .ToString();
+                    Vorname = directoryEntry.Properties["GivenName"].Value.ToString();
                 }
 
                 if (null != directoryEntry.Properties["Surname"].Value)
                 {
-                    Nachname = directoryEntry
-                        .Properties["Surname"]
-                        .Value
-                        .ToString();
+                    Nachname = directoryEntry.Properties["Surname"].Value.ToString();
                 }
 
                 if (null != directoryEntry.Properties["EmailAddress"].Value)
                 {
-                    Email = directoryEntry
-                        .Properties["EmailAddress"]
-                        .Value
-                        .ToString()
-                        .ToLower();
+                    Email = directoryEntry.Properties["EmailAddress"].Value.ToString().ToLower();
                 }
 
                 if (null != directoryEntry.Properties["SamAccountName"].Value)
                 {
-                    SamAccountName = directoryEntry
-                        .Properties["SamAccountName"]
-                        .Value
-                        .ToString()
-                        .ToLower();
+                    SamAccountName = directoryEntry.Properties["SamAccountName"].Value.ToString().ToLower();
                 }
 
                 if (null != directoryEntry.Properties["UserPrincipalName"].Value)
                 {
-                    UserPrincipalName = directoryEntry
-                        .Properties["UserPrincipalName"]
-                        .Value
-                        .ToString()
-                        .ToLower();
+                    UserPrincipalName = directoryEntry.Properties["UserPrincipalName"].Value.ToString().ToLower();
                 }
 
                 if (null != directoryEntry.Properties["employeeNumber"].Value)
                 {
-                    Matrikelnummer = uint.Parse(directoryEntry
-                        .Properties["employeeNumber"]
-                        .Value
-                        .ToString());
+                    Matrikelnummer = uint.Parse(directoryEntry.Properties["employeeNumber"].Value.ToString());
                 }
             }
         }

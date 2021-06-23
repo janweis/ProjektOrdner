@@ -13,6 +13,7 @@ C:\Users\jan.weis\Documents\GitHub\ProjektOrdner\ProjektOrdner\bin\Release\MimeK
 C:\Users\jan.weis\Documents\GitHub\ProjektOrdner\ProjektOrdner\bin\Release\MimeKit.xml
 C:\Users\jan.weis\Documents\GitHub\ProjektOrdner\ProjektOrdner\bin\Release\Newtonsoft.Json.xml
 C:\Users\jan.weis\Documents\GitHub\ProjektOrdner\ProjektOrdner\bin\Release\System.Buffers.xml
+C:\Users\jan.weis\Documents\GitHub\ProjektOrdner\ProjektOrdner\obj\Release\ProjektOrdner.Forms.ExpandProjektExpirationForm.resources
 C:\Users\jan.weis\Documents\GitHub\ProjektOrdner\ProjektOrdner\obj\Release\ProjektOrdner.Forms.FindAdUserForm.resources
 C:\Users\jan.weis\Documents\GitHub\ProjektOrdner\ProjektOrdner\obj\Release\ProjektOrdner.Forms.ManageRepositorysForm.resources
 C:\Users\jan.weis\Documents\GitHub\ProjektOrdner\ProjektOrdner\obj\Release\ProjektOrdner.Forms.ManagerInfoForm.resources
@@ -28,5 +29,3 @@ C:\Users\jan.weis\Documents\GitHub\ProjektOrdner\ProjektOrdner\obj\Release\Proje
 C:\Users\jan.weis\Documents\GitHub\ProjektOrdner\ProjektOrdner\obj\Release\ProjektOrdner.csproj.CopyComplete
 C:\Users\jan.weis\Documents\GitHub\ProjektOrdner\ProjektOrdner\obj\Release\ProjektOrdner.exe
 C:\Users\jan.weis\Documents\GitHub\ProjektOrdner\ProjektOrdner\obj\Release\ProjektOrdner.pdb
-C:\Users\jan.weis\Documents\GitHub\ProjektOrdner\ProjektOrdner\obj\Release\ProjektOrdner.csprojAssemblyReference.cache
-C:\Users\jan.weis\Documents\GitHub\ProjektOrdner\ProjektOrdner\obj\Release\ProjektOrdner.Forms.ExpandProjektExpirationForm.resources
