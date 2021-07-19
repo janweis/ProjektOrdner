@@ -195,6 +195,40 @@ namespace ProjektOrdner.Permission
             return nodeList;
         }
 
+        public List<TreeNode> GetNodesByCheckBoxes(bool includeSubnodes)
+        {
+            List<TreeNode> nodeList = null;
+
+            if (View.CheckBoxes == true)
+            {
+                nodeList = new List<TreeNode>();
+
+                // Get checked Projects
+                foreach (TreeNode node in View.Nodes)
+                {
+                    if (includeSubnodes)
+                    {
+                        if (null != node.Nodes)
+                        {
+                            // SubNodes
+                            foreach (TreeNode subNode in node.Nodes)
+                            {
+                                if (subNode.Checked == true)
+                                    nodeList.Add(subNode);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (node.Checked == true)
+                            nodeList.Add(node);
+                    }
+                }
+            }
+
+            return nodeList;
+        }
+
         public TreeNode GetMasterNode(MasterNode masterNode)
         {
             string masterNodeName = GetDescription(masterNode);

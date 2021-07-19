@@ -117,7 +117,7 @@
             this.AddUserButton.Name = "AddUserButton";
             this.AddUserButton.Size = new System.Drawing.Size(278, 39);
             this.AddUserButton.TabIndex = 25;
-            this.AddUserButton.Text = "Suchergebnis übernehmen";
+            this.AddUserButton.Text = "Ergebnis übernehmen";
             this.AddUserButton.UseVisualStyleBackColor = true;
             this.AddUserButton.Click += new System.EventHandler(this.AddUserButton_Click);
             // 

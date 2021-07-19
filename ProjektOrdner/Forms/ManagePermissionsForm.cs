@@ -16,6 +16,7 @@ namespace ProjektOrdner.Forms
         private PermissionNodeProcessor NodeProcessor { get; set; }
         private AppSettings AppSettings { get; set; }
 
+        private bool IsMultiValue = false;
         private bool NodeAdvancedMode = false;
 
         public ManagePermissionsForm(List<RepositoryPermission> permissions, AppSettings appSettings)
@@ -46,6 +47,29 @@ namespace ProjektOrdner.Forms
             NodeProcessor.ResetView();
             NodeProcessor.UpdateView(Permissions.ToArray(), NodeAdvancedMode);
         }
+
+
+        /// <summary>
+        /// 
+        /// Aktiviert oder Deaktiviert die Mehrfachauswahl
+        /// 
+        /// </summary>
+        private void SetMultiValueTree()
+        {
+            if (MehrfachauswahlCheckBox.Checked == true)
+            {
+                // Control TreeView
+                PermissionTreeView.CheckBoxes = true;
+                IsMultiValue = true;
+            }
+            else
+            {
+                // Control TreeView
+                PermissionTreeView.CheckBoxes = false;
+                IsMultiValue = false;
+            }
+        }
+
 
 
         /// <summary>
@@ -140,80 +164,84 @@ namespace ProjektOrdner.Forms
         /// Das Objekt im TreeView wird eine Berechtigungsstufe höher gesetzt.
         /// 
         /// </summary>
-        private void MoveEntryUp()
+        private void MoveEntry(bool up)
         {
-            TreeNode selectedNode = NodeProcessor.GetNodeBySelection();
-            if (null == selectedNode && null == selectedNode.Parent)
-                return; // nichts ausgewählt, oder kein VaterObjekt vorhanden
+            List<TreeNode> treeNodes = new List<TreeNode>();
 
-            var foundPermission = GetPermissionFromNode(selectedNode);
-            if (null == foundPermission)
-                return; // keine Zuordnung gefunden
-
-            switch (selectedNode.Parent.Index)
+            if (IsMultiValue)
             {
-                case 1:
-                {
-                    NodeProcessor.MoveNodeTo(selectedNode, MasterNode.Unbestimmt);
-                    foundPermission.Role = PermissionRole.Undefined;
-                    break;
-                }
-                case 2:
-                {
-                    NodeProcessor.MoveNodeTo(selectedNode, MasterNode.Manager);
-                    foundPermission.Role = PermissionRole.Manager;
-                    break;
-                }
-                case 3:
-                {
-                    NodeProcessor.MoveNodeTo(selectedNode, MasterNode.Mitarbeiter);
-                    foundPermission.Role = PermissionRole.Member;
-                    break;
-                }
+                treeNodes = NodeProcessor.GetNodesByCheckBoxes(true);
+            }
+            else
+            {
+                TreeNode treeNode = NodeProcessor.GetNodeBySelection();
+                if (null != treeNode)
+                    treeNodes.Add(treeNode);
             }
 
-            PermissionTreeView.Select();
-        }
-
-
-        /// <summary>
-        /// 
-        /// Das Objekt im TreeView wird eine Berechtigungsstufe tiefer gesetzt.
-        /// 
-        /// </summary>
-        private void MoveEntryDown()
-        {
-            TreeNode selectedNode = NodeProcessor.GetNodeBySelection();
-            if (null == selectedNode)
-                return; // nichts ausgewählt
-
-            var foundPermission = GetPermissionFromNode(selectedNode);
-            if (null == foundPermission)
-                return; // keine Zuordnung gefunden
-
-            switch (selectedNode.Parent.Index)
+            foreach (TreeNode treeNode in treeNodes)
             {
-                case 0:
+                if (null == treeNode && null == treeNode.Parent)
+                    return; // nichts ausgewählt, oder kein VaterObjekt vorhanden
+
+                var foundPermission = GetPermissionFromNode(treeNode);
+                if (null == foundPermission)
+                    continue; // keine Zuordnung gefunden
+
+                switch (treeNode.Parent.Index)
                 {
-                    NodeProcessor.MoveNodeTo(selectedNode, MasterNode.Manager);
-                    foundPermission.Role = PermissionRole.Manager;
-                    break;
-                }
-                case 1:
-                {
-                    NodeProcessor.MoveNodeTo(selectedNode, MasterNode.Mitarbeiter);
-                    foundPermission.Role = PermissionRole.Member;
-                    break;
-                }
-                case 2:
-                {
-                    NodeProcessor.MoveNodeTo(selectedNode, MasterNode.NurLesen);
-                    foundPermission.Role = PermissionRole.Guest;
-                    break;
+                    case 0:
+                    {
+                        if (up == false)
+                        {
+                            NodeProcessor.MoveNodeTo(treeNode, MasterNode.Manager);
+                            foundPermission.Role = PermissionRole.Manager;
+                        }
+
+                        break;
+                    }
+                    case 1:
+                    {
+                        if (up)
+                        {
+                            NodeProcessor.MoveNodeTo(treeNode, MasterNode.Unbestimmt);
+                            foundPermission.Role = PermissionRole.Undefined;
+                        }
+                        else
+                        {
+                            NodeProcessor.MoveNodeTo(treeNode, MasterNode.Mitarbeiter);
+                            foundPermission.Role = PermissionRole.Member;
+                        }
+
+                        break;
+                    }
+                    case 2:
+                    {
+                        if (up)
+                        {
+                            NodeProcessor.MoveNodeTo(treeNode, MasterNode.Manager);
+                            foundPermission.Role = PermissionRole.Manager;
+                        }
+                        else
+                        {
+                            NodeProcessor.MoveNodeTo(treeNode, MasterNode.NurLesen);
+                            foundPermission.Role = PermissionRole.Guest;
+                        }
+
+                        break;
+                    }
+                    case 3:
+                    {
+                        if (up)
+                        {
+                            NodeProcessor.MoveNodeTo(treeNode, MasterNode.Mitarbeiter);
+                            foundPermission.Role = PermissionRole.Member;
+                        }
+
+                        break;
+                    }
                 }
             }
-
-            PermissionTreeView.Select();
         }
 
 
@@ -263,9 +291,12 @@ namespace ProjektOrdner.Forms
             RemoveSelectedUser();
 
         private void SetUpButton_Click(object sender, EventArgs e) =>
-            MoveEntryUp();
+            MoveEntry(true);
 
         private void SetDownButton_Click(object sender, EventArgs e) =>
-            MoveEntryDown();
+            MoveEntry(false);
+
+        private void MehrfachauswahlCheckBox_CheckedChanged(object sender, EventArgs e) =>
+            SetMultiValueTree();
     }
 }
