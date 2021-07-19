@@ -22,6 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -80,6 +81,7 @@
     <Compile Include="Forms\ExpandProjektExpirationForm.Designer.cs">
       <DependentUpon>ExpandProjektExpirationForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Permission\PermissionFileTemplate.cs" />
     <Compile Include="Repository\RepositoryProcessor.cs" />
     <Compile Include="Repository\RepositoryUpdateService.cs" />
     <Compile Include="Forms\FindAdUserForm.cs">

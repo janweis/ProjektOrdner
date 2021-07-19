@@ -52,14 +52,17 @@ namespace ProjektOrdner.Repository
             DateTime projektEnde = getDataForm.ProjektEnde;
             RepositoryOrganization organisation = new RepositoryOrganization(projektName, RootFolder.RootPath, projektEnde, RepositoryVersion.V2);
 
+            // Create Settings
+            RepositorySettings repositorySettings = new RepositorySettings();
+
             // Add Repository
-            await RepositoryProcessor.CreateAsync(organisation);
+            await RepositoryProcessor.CreateAsync(organisation, false, repositorySettings);
 
             // Start PermissionManager
             if (getDataForm.UsePermissionAssistent == true)
             {
                 PermissionManager permissionManager = new PermissionManager(organisation.ProjektPath, AppSettings);
-                await permissionManager.ManagePermissions();
+                await permissionManager.ManagePermissionsAsync();
             }
 
             return true;

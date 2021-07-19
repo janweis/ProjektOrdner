@@ -5,6 +5,7 @@ using System.DirectoryServices;
 using System.DirectoryServices.AccountManagement;
 using System.DirectoryServices.ActiveDirectory;
 using System.Security.Principal;
+using System.Threading.Tasks;
 using static ProjektOrdner.Permission.AdUser;
 
 namespace ProjektOrdner.Utils
@@ -21,6 +22,11 @@ namespace ProjektOrdner.Utils
             UserContext = new PrincipalContext(ContextType.Domain, appSettings.AdDomainName);
             AppSettings = appSettings;
         }
+
+
+        // // // // // // // // // // // // // // // // // // // // // // // // // 
+        // GET
+        //
 
 
         /// <summary>
@@ -103,6 +109,23 @@ namespace ProjektOrdner.Utils
             return group;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public async Task<GroupPrincipal> GetGroupAsync(string identityValue, IdentityType identity)
+        {
+            GroupPrincipal group = null;
+
+            await Task.Run(() =>
+            {
+                group = GroupPrincipal.FindByIdentity(GroupContext, identity, identityValue);
+
+            });
+
+            return group;
+        }
+
+
 
         /// <summary>
         /// 
@@ -169,7 +192,7 @@ namespace ProjektOrdner.Utils
         /// <summary>
         /// 
         /// </summary>
-        public string GetAdGroupName(string Name, GroupScope groupScope, PermissionRole accessRole)
+        public string GetAdGroupName(string repositoryName, GroupScope groupScope, PermissionRole accessRole)
         {
             string groupScopeName = "";
             switch (groupScope)
@@ -203,7 +226,7 @@ namespace ProjektOrdner.Utils
                 }
             }
 
-            string NameWithoutSpaces = Name.Replace(" ", "");
+            string NameWithoutSpaces = repositoryName.Replace(" ", "");
             string adGroupName = $@"{AppSettings.AdGroupNamePrefix}{groupScopeName}{AppSettings.AdGroupNameTopic}{NameWithoutSpaces}{adGroupSuffix}";
 
             return adGroupName.ToUpper();
@@ -213,126 +236,17 @@ namespace ProjektOrdner.Utils
         /// <summary>
         /// 
         /// </summary>
-        public List<string> GetAdGroupNames(string Name)
+        public List<string> GetAdGroupNames(string repositoryName)
         {
             return new List<string>
             {
-                GetAdGroupName(Name, GroupScope.Local, PermissionRole.Guest),
-                GetAdGroupName(Name, GroupScope.Local, PermissionRole.Member),
-                GetAdGroupName(Name, GroupScope.Local, PermissionRole.Manager),
-                GetAdGroupName(Name, GroupScope.Global, PermissionRole.Guest),
-                GetAdGroupName(Name, GroupScope.Global, PermissionRole.Member),
-                GetAdGroupName(Name, GroupScope.Global, PermissionRole.Manager)
+                GetAdGroupName(repositoryName, GroupScope.Local, PermissionRole.Guest),
+                GetAdGroupName(repositoryName, GroupScope.Local, PermissionRole.Member),
+                GetAdGroupName(repositoryName, GroupScope.Local, PermissionRole.Manager),
+                GetAdGroupName(repositoryName, GroupScope.Global, PermissionRole.Guest),
+                GetAdGroupName(repositoryName, GroupScope.Global, PermissionRole.Member),
+                GetAdGroupName(repositoryName, GroupScope.Global, PermissionRole.Manager)
             };
-        }
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public GroupPrincipal NewAdGroup(GroupScope scope, string samAccountName, string description)
-        {
-            GroupPrincipal adGroup = new GroupPrincipal(GroupContext, samAccountName)
-            {
-                // Type
-                GroupScope = scope,
-                IsSecurityGroup = true,
-
-                // Definitions
-                Name = samAccountName,
-                DisplayName = samAccountName,
-                Description = description,
-            };
-
-            // Invoke
-            adGroup.Save();
-
-            return adGroup;
-        }
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public void AddGroupMembers(GroupPrincipal group, UserPrincipal userToAdd)
-        {
-            if (null != group)
-            {
-                if (null != userToAdd)
-                {
-                    if (group.Members.Contains(userToAdd) == false)
-                    {
-                        group.Members.Add(userToAdd);
-                        group.Save();
-                    }
-                }
-            }
-        }
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public void AddGroupMembers(GroupPrincipal group, GroupPrincipal groupToAdd)
-        {
-            if (null != group)
-            {
-                if (null != groupToAdd)
-                {
-                    if (group.Members.Contains(groupToAdd) == false)
-                    {
-                        group.Members.Add(groupToAdd);
-                        group.Save();
-                    }
-                }
-            }
-        }
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public void DeleteUser(string identityValue, IdentityType identity)
-        {
-            UserPrincipal user = GetUser(identityValue, identity);
-
-            if (user != null)
-            {
-                user.Delete();
-            }
-        }
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public void DeleteGroup(string identityValue, IdentityType identity)
-        {
-            GroupPrincipal group = GetGroup(identityValue, identity);
-
-            if (group != null)
-            {
-                group.Delete();
-            }
-        }
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public void RemoveGroupMember(GroupPrincipal group, UserPrincipal user)
-        {
-            if (null != group)
-            {
-                if (null != user)
-                {
-                    if (group.Members.Contains(user) == true)
-                    {
-                        group.Members.Remove(user);
-                        group.Save();
-                    }
-                }
-            }
         }
 
 
@@ -420,6 +334,170 @@ namespace ProjektOrdner.Utils
                 }
             }
         }
+
+
+
+        // // // // // // // // // // // // // // // // // // // // // // // // // 
+        // NEW
+        //
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public GroupPrincipal NewAdGroup(GroupScope scope, string samAccountName, string description)
+        {
+            GroupPrincipal adGroup = new GroupPrincipal(GroupContext, samAccountName)
+            {
+                // Type
+                GroupScope = scope,
+                IsSecurityGroup = true,
+
+                // Definitions
+                Name = samAccountName,
+                DisplayName = samAccountName,
+                Description = description,
+            };
+
+            // Invoke
+            adGroup.Save();
+
+            return adGroup;
+        }
+
+
+        // // // // // // // // // // // // // // // // // // // // // // // // // 
+        // ADD
+        //
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void AddGroupMembers(GroupPrincipal group, UserPrincipal userToAdd)
+        {
+            if (null != group)
+            {
+                if (null != userToAdd)
+                {
+                    if (group.Members.Contains(userToAdd) == false)
+                    {
+                        group.Members.Add(userToAdd);
+                        group.Save();
+                    }
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void AddGroupMembers(GroupPrincipal group, GroupPrincipal groupToAdd)
+        {
+            if (null != group)
+            {
+                if (null != groupToAdd)
+                {
+                    if (group.Members.Contains(groupToAdd) == false)
+                    {
+                        group.Members.Add(groupToAdd);
+                        group.Save();
+                    }
+                }
+            }
+        }
+
+
+        // // // // // // // // // // // // // // // // // // // // // // // // // 
+        // REMOVE
+        //
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void DeleteUser(string identityValue, IdentityType identity)
+        {
+            UserPrincipal user = GetUser(identityValue, identity);
+
+            if (user != null)
+            {
+                user.Delete();
+            }
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void DeleteGroup(string identityValue, IdentityType identity)
+        {
+            GroupPrincipal group = GetGroup(identityValue, identity);
+
+            if (group != null)
+            {
+                group.Delete();
+            }
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void RemoveGroupMember(GroupPrincipal group, UserPrincipal user)
+        {
+            if (null != group)
+            {
+                if (null != user)
+                {
+                    if (group.Members.Contains(user) == true)
+                    {
+                        group.Members.Remove(user);
+                        group.Save();
+                    }
+                }
+            }
+        }
+
+
+        // // // // // // // // // // // // // // // // // // // // // // // // // 
+        // RENAME
+        //
+
+
+        /// <summary>
+        /// 
+        /// Benennt die Active Directory Gruppe um
+        /// 
+        /// </summary>
+        public async Task RenameGroupAsync(string groupName, string newName)
+        {
+            GroupPrincipal adGroup = await GetGroupAsync(groupName, IdentityType.SamAccountName);
+
+            if (null != adGroup)
+                await RenameGroupAsync(adGroup, newName);
+        }
+
+
+        /// <summary>
+        /// 
+        /// Benennt die Active Directory Gruppe um
+        /// 
+        /// </summary>
+        public async static Task RenameGroupAsync(GroupPrincipal group, string newName)
+        {
+            await Task.Run(() =>
+            {
+                if (null != group)
+                {
+                    var Groupentry = (DirectoryEntry)group.GetUnderlyingObject();
+                    Groupentry.Rename($"cn={newName}");
+                    Groupentry.CommitChanges();
+                }
+            });
+        }
+
 
     }
 }

@@ -44,61 +44,6 @@ namespace ProjektOrdner.Repository
         // Public Functions
         // 
 
-
-        /// <summary>
-        /// 
-        /// </summary>
-        //public async Task ApplyTo(RepositoryOrganization organization)
-        //{
-        //    switch (organization.Version)
-        //    {
-        //        case RepositoryVersion.V1:
-        //        {
-        //            await AddUserToPermissionFileV1(organization.ProjektPath);
-        //            break;
-        //        }
-        //        case RepositoryVersion.V2:
-        //        {
-        //            await AddUserToPermissionFileV2(organization.ProjektPath);
-        //            break;
-        //        }
-        //        case RepositoryVersion.Unknown:
-        //        {
-        //            throw new ArgumentException("Unknown Repository Version!");
-        //        }
-        //    }
-
-        //    AddUserToADGroup(organization);
-        //}
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        //public async Task RemoveFrom(RepositoryOrganization organization)
-        //{
-        //    switch (organization.Version)
-        //    {
-        //        case RepositoryVersion.V1:
-        //        {
-        //            await RemoveFromFileV1Async(organization.ProjektPath);
-        //            RemoveFromActiveDirectoryV1(organization);
-        //            break;
-        //        }
-        //        case RepositoryVersion.V2:
-        //        {
-        //            await RemoveFromFileV2Async(organization.ProjektPath);
-        //            RemoveFromActiveDirectoryV2(organization);
-        //            break;
-        //        }
-        //        case RepositoryVersion.Unknown:
-        //        {
-        //            throw new ArgumentException("Unknown Repository Version!");
-        //        }
-        //    }
-        //}
-
-
         // // // // // // // // // // // // // // // // // // // // //
         // Private Functions
         // 
@@ -352,17 +297,17 @@ namespace ProjektOrdner.Repository
                     {
                         case PermissionRole.Guest:
                         {
-                            fileName = AppConstants.PermissionFileReadOnlyName;
+                            fileName = AppConstants.PERMISSION_GUEST_FILE_NAME;
                             break;
                         }
                         case PermissionRole.Member:
                         {
-                            fileName = AppConstants.PermissionFileReadWriteName;
+                            fileName = AppConstants.PERMISSION_MEMBER_FILE_NAME;
                             break;
                         }
                         case PermissionRole.Manager:
                         {
-                            fileName = AppConstants.PermissionFileManagerName;
+                            fileName = AppConstants.PERMISSION_MANAGER_FILE_NAME;
                             break;
                         }
                         case PermissionRole.Undefined:
@@ -378,17 +323,17 @@ namespace ProjektOrdner.Repository
                     {
                         case PermissionRole.Guest:
                         {
-                            fileName = AppConstants.PermissionFileReadOnlyName;
+                            fileName = AppConstants.PERMISSION_GUEST_FILE_NAME;
                             break;
                         }
                         case PermissionRole.Member:
                         {
-                            fileName = AppConstants.PermissionFileReadWriteName;
+                            fileName = AppConstants.PERMISSION_MEMBER_FILE_NAME;
                             break;
                         }
                         case PermissionRole.Manager:
                         {
-                            fileName = AppConstants.PermissionFileManagerName;
+                            fileName = AppConstants.PERMISSION_MANAGER_FILE_NAME;
                             break;
                         }
                         case PermissionRole.Undefined:

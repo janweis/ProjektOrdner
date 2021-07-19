@@ -111,10 +111,21 @@ namespace ProjektOrdner.Repository
         public DirectoryInfo[] GetRepositories()
         {
             DirectoryInfo rootDirectory = new DirectoryInfo(RootPath);
-            DirectoryInfo[] projektList = rootDirectory
-                .GetDirectories()
-                .Where(directory => directory.Name.StartsWith("_") == false)
-                .ToArray();
+            if (rootDirectory.Exists == false)
+                return null;
+
+            DirectoryInfo[] projektList = null;
+            try
+            {
+                projektList = rootDirectory
+                    .GetDirectories()
+                    ?.Where(directory => directory.Name.StartsWith("_") == false)
+                    ?.ToArray();
+            }
+            catch (Exception)
+            {
+                return null;
+            }
 
             return projektList;
         }
@@ -128,31 +139,39 @@ namespace ProjektOrdner.Repository
         public async Task<RepositoryFolder[]> GetRepositoriesAsync(bool includeCorrupted, IProgress<string> progress)
         {
             progress.Report("Lade Projektliste...");
-            string[] folderList;
-            try
+            string[] folderList = null;
+
+            await Task.Run(() =>
             {
                 folderList = GetRepositories()
-                    .Where(folder =>
+                    ?.Where(folder =>
                         folder.Name.StartsWith("_") == false && // Unterstrich ausblenden
                         folder.Name.StartsWith(".") == false)  // Punkt ausblenden
                     ?.Select(directory => directory.FullName)
                     ?.ToArray();
-            }
-            catch (Exception ex)
-            {
-                progress.Report($"Error: Could not read folders! You may not have the correct permissions! {ex.Message}");
+            });
+
+
+            if (null == folderList)
                 return null;
-            }
 
             int i = 0;
             RepositoryProcessor repositoryProcessor = new RepositoryProcessor(new RepositoryRoot(RootPath, AppSettings), AppSettings, progress);
             List<RepositoryFolder> repositories = new List<RepositoryFolder>();
-            foreach (string folderPath in folderList)
+            List<Task<RepositoryFolder>> getRepoTasks = new List<Task<RepositoryFolder>>();
+
+            await Task.Run(() =>
             {
-                i++;
-                progress.Report($"Lade Projekt {i.ToString()}/{folderList.Count().ToString()} - {new DirectoryInfo(folderPath).Name}");
-                repositories.Add(await repositoryProcessor.Get(folderPath));
-            }
+                foreach (string folderPath in folderList)
+                {
+                    i++;
+                    progress.Report($"Lade Projekt {i.ToString()}/{folderList.Count().ToString()} - {new DirectoryInfo(folderPath).Name}");
+                    getRepoTasks.Add(repositoryProcessor.Get(folderPath));
+                }
+            });
+
+            await Task.WhenAll(getRepoTasks);
+            repositories.AddRange(getRepoTasks.Select(asdf => asdf.Result));
 
             // Exclude empty Projects
             repositories = repositories
@@ -167,86 +186,6 @@ namespace ProjektOrdner.Repository
 
             return repositories.ToArray();
         }
-
-
-        public async Task<RepositoryFolder[]> GetRepositoriesWithWorker(bool includeCorrupted, IProgress<string> progress)
-        {
-            if (Worker.IsBusy == false)
-            {
-                Worker.WorkerReportsProgress = true;
-                Worker.WorkerSupportsCancellation = true;
-
-                Worker.ProgressChanged += Worker_ProgressChanged;
-                Worker.DoWork += Worker_DoWork;
-                Worker.RunWorkerCompleted += Worker_RunWorkerCompleted;
-            }
-
-
-
-
-            progress.Report("Lade Projektliste...");
-            string[] folderList;
-            try
-            {
-                folderList = GetRepositories()
-                    .Where(folder =>
-                        folder.Name.StartsWith("_") == false && // Unterstrich ausblenden
-                        folder.Name.StartsWith(".") == false)  // Punkt ausblenden
-                    ?.Select(directory => directory.FullName)
-                    ?.ToArray();
-            }
-            catch (Exception ex)
-            {
-                progress.Report($"Error: Could not read folders! You may not have the correct permissions! {ex.Message}");
-                return null;
-            }
-
-            int i = 0;
-            RepositoryProcessor repositoryProcessor = new RepositoryProcessor(new RepositoryRoot(RootPath, AppSettings), AppSettings, progress);
-            List<RepositoryFolder> repositories = new List<RepositoryFolder>();
-            foreach (string folderPath in folderList)
-            {
-                i++;
-                progress.Report($"Lade Projekt {i.ToString()}/{folderList.Count().ToString()} - {new DirectoryInfo(folderPath).Name}");
-                repositories.Add(await repositoryProcessor.Get(folderPath));
-            }
-
-            // Exclude empty Projects
-            repositories = repositories
-                .Where(projekt => null != projekt)
-                .ToList();
-
-            // Exclude corrupted projects
-            if (includeCorrupted == false)
-                repositories = repositories
-                    .Where(projekt => projekt.Status == RepositoryFolder.RepositoryStatus.Ok)
-                    ?.ToList();
-
-            return repositories.ToArray();
-        }
-
-        private void Worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void Worker_DoWork(object sender, DoWorkEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void Worker_ProgressChanged(object sender, ProgressChangedEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
-
-
-
-
-
-
-
 
 
         /// <summary>

@@ -25,8 +25,9 @@ namespace ProjektOrdner.Permission
         // Functions
         //
 
-        public async Task ManagePermissions()
+        public async Task ManagePermissionsAsync()
         {
+
             // Get current permissions
             PermissionProcessor permissionProcessor = new PermissionProcessor(FolderPath, AppSettings);
             RepositoryPermission[] projektPermissions = await permissionProcessor.GetPermissionsAsync();
@@ -47,6 +48,5 @@ namespace ProjektOrdner.Permission
             // Update Permission
             await permissionProcessor.SyncPermissionsAsync(editedPermissions.ToArray());
         }
-
     }
 }

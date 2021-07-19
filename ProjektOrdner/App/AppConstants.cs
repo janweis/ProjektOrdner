@@ -15,11 +15,11 @@ namespace ProjektOrdner.App
         public static string OrganisationFileNameV2 = "ProjektOrdner.json";
         public static string OrganisationFileNameV1 = "_ProjektInfo";
 
-        public static string PermissionFileManagerName = "_Manager-Zugriff.txt";
-        public static string PermissionFileReadWriteName = "_Mitarbeiter-Zugriff.txt";
-        public static string PermissionFileReadOnlyName = "_Gast-Zugriff.txt";
-        public static string PermissionFileReadWriteNameV1 = "_RW-Ordnerzugriff.txt";
-        public static string PermissionFileReadOnlyNameV1 = "_R-Ordnerzugriff.txt";
+        public const string PERMISSION_MANAGER_FILE_NAME = "_Manager-Zugriff.txt";
+        public const string PERMISSION_MEMBER_FILE_NAME = "_Mitarbeiter-Zugriff.txt";
+        public const string PERMISSION_GUEST_FILE_NAME = "_Gast-Zugriff.txt";
+        public const string PERMISSION_CHANGE_FILE_NAME = "_RW-Ordnerzugriff.txt";
+        public const string PERMISSION_READ_FILE_NAME = "_R-Ordnerzugriff.txt";
 
         public static string RepositorySettingsFileName = "Einstellungen.json";
         public static string AppSettingsFileName = "AppSettings.json";
@@ -27,7 +27,7 @@ namespace ProjektOrdner.App
 
         // File System Log
         public static string LogFileName = "ErrorLog_ProjektOrdner.txt";
-        public static string LogFolderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"ProjektOrdner");
+        public static string LogFolderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ProjektOrdner");
         public static string LogFilePath = Path.Combine(LogFolderPath, LogFileName);
 
         // Active Directory Configuration

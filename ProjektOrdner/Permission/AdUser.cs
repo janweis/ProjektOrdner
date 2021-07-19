@@ -105,9 +105,13 @@ namespace ProjektOrdner.Permission
         /// <summary>
         /// 
         /// </summary>
-        public void UpdateUserData()
+        public async Task UpdateUserData()
         {
-            DirectoryEntry foundUser = ActiveDirectoryUtil.Get(Identification, IdentificationType);
+            DirectoryEntry foundUser = null;
+            await Task.Run(() =>
+            {
+                foundUser = ActiveDirectoryUtil.Get(Identification, IdentificationType);
+            });
 
             if (null == foundUser)
                 return;

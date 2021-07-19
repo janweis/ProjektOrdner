@@ -245,6 +245,18 @@ namespace ProjektOrdner.Repository
         // SAVE
         //
 
+
+        /// <summary>
+        /// 
+        /// Erstellt eine Organisationsdatei v2
+        /// 
+        /// </summary>
+        public async Task Save()
+        {
+            await Save(Version);
+        }
+
+
         /// <summary>
         /// 
         /// Erstellt eine Organisationsdatei v2

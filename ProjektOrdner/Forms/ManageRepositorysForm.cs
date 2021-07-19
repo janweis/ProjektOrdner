@@ -3,6 +3,7 @@ using ProjektOrdner.Permission;
 using ProjektOrdner.Repository;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,6 +14,7 @@ namespace ProjektOrdner.Forms
     public partial class ManageRepositorysForm : Form
     {
         private AppSettings AppSettings { get; set; }
+
         private RepositoryFolder[] Repositories { get; set; }
         private TreeViewHelper TreeHelper { get; set; }
         private string CurrentRootPath { get; set; }
@@ -25,6 +27,13 @@ namespace ProjektOrdner.Forms
         public ManageRepositorysForm(AppSettings appSettings, RepositoryFolder[] repositories)
         {
             InitializeComponent();
+
+            // INIT Worker
+            //ProjectsLoaderWorker = new BackgroundWorker();
+            //ProjectsLoaderWorker.WorkerReportsProgress = true;
+            //ProjectsLoaderWorker.DoWork += ProjectsLoadWorker_DoWork;
+            //ProjectsLoaderWorker.RunWorkerCompleted += ProjectsLoadWorker_RunWorkerCompleted;
+
             if (null == repositories)
                 Repositories = new RepositoryFolder[0];
             else
@@ -295,6 +304,7 @@ namespace ProjektOrdner.Forms
         private async Task EditRepositoryPermission()
         {
             TreeNode selectedNode = TreeHelper.GetNodeBySelection();
+
             if (null == selectedNode)
             {
                 // No Projekt selected!
@@ -310,6 +320,7 @@ namespace ProjektOrdner.Forms
             if (null == repository)
                 return;
 
+            ProgressMessage.Report("Starte Berechtigungsverwaltung...");
             if (repository.Status == RepositoryFolder.RepositoryStatus.Corrupted)
             {
                 // Projekt corrupted!
@@ -320,7 +331,7 @@ namespace ProjektOrdner.Forms
             try
             {
                 PermissionManager permissionManager = new PermissionManager(repository.Organization.ProjektPath, AppSettings);
-                await permissionManager.ManagePermissions();
+                await permissionManager.ManagePermissionsAsync();
             }
             catch (Exception ex)
             {
@@ -470,7 +481,7 @@ namespace ProjektOrdner.Forms
         /// Ändert den Rootpfad und läd diese
         /// 
         /// </summary>
-        private async Task ChangeRootPath(string rootPath)
+        private async Task ChangeRootPathAsync(string rootPath)
         {
             CurrentRootPath = rootPath;         // Set new root Path
 
@@ -743,28 +754,31 @@ namespace ProjektOrdner.Forms
             // Select new Root
             ToolStripMenuItem menuItem = sender as ToolStripMenuItem;
 
-            try
+            if (menuItem.Checked == false)
             {
-                await ChangeRootPath(menuItem.Tag.ToString());
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Es ist ein Fehler aufgetreten! {ex.Message}", "Stammpfad auswahl", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-
-            // Clear Checked
-            for (int i = 1; i <= (projektRootToolStripMenuItem.DropDownItems.Count - 1); i++)
-            {
-                if (projektRootToolStripMenuItem.DropDownItems[i].GetType() == typeof(ToolStripMenuItem))
+                try
                 {
-                    ToolStripMenuItem selectedMenuItem = projektRootToolStripMenuItem.DropDownItems[i] as ToolStripMenuItem;
-
-                    if (selectedMenuItem.Checked == true)
-                        selectedMenuItem.Checked = false;
+                    await ChangeRootPathAsync(menuItem.Tag.ToString());
                 }
-            }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Es ist ein Fehler aufgetreten! {ex.Message}", "Stammpfad auswahl", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
 
-            menuItem.Checked = true;
+                // Clear Checked
+                for (int i = 1; i <= (projektRootToolStripMenuItem.DropDownItems.Count - 1); i++)
+                {
+                    if (projektRootToolStripMenuItem.DropDownItems[i].GetType() == typeof(ToolStripMenuItem))
+                    {
+                        ToolStripMenuItem selectedMenuItem = projektRootToolStripMenuItem.DropDownItems[i] as ToolStripMenuItem;
+
+                        if (selectedMenuItem.Checked == true)
+                            selectedMenuItem.Checked = false;
+                    }
+                }
+
+                menuItem.Checked = true;
+            }
         }
 
         private void ProjektsTree_DoubleClick(object sender, EventArgs e) =>
@@ -836,13 +850,12 @@ namespace ProjektOrdner.Forms
         private async void zeigeDefekteProjekteToolStripMenuItem_Click(object sender, EventArgs e) =>
             await ProcessFilterCorruptedProjectsShownAsync();
 
-        private async void projekteErneutEinlesenToolStripMenuItem_Click(object sender, EventArgs e)
+        private void projekteErneutEinlesenToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            await UpdateRepositoryListAsync();
             UpdateTreeView();
-
             ProgressMessage.Report("Projekte wurden erneut geladen.");
         }
+
 
         private async void startenToolStripMenuItem_Click(object sender, EventArgs e) =>
             await StartUpdateServiceAsync();
@@ -886,7 +899,7 @@ namespace ProjektOrdner.Forms
         private async void ordnerKonvertierenZuProjektOrdnerToolStripMenuItem_Click(object sender, EventArgs e)
             => await FolderMigration();
 
-        private async void reparaturToolStripMenuItem_Click(object sender, EventArgs e) 
+        private async void reparaturToolStripMenuItem_Click(object sender, EventArgs e)
             => await RepairRepositoryAsync();
     }
 }

@@ -166,7 +166,7 @@
         #endregion
 
         private System.Windows.Forms.Button OkButton;
-        private System.Windows.Forms.Button CancelButton;
+        private new System.Windows.Forms.Button CancelButton;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.RadioButton EditRootRadio;
         private System.Windows.Forms.RadioButton CreateRootRadio;
