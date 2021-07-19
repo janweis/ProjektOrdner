@@ -45,12 +45,14 @@
             this.FilterArtCombo.Items.AddRange(new object[] {
             "Benutzername",
             "E-Mail Adresse",
-            "Matrikelnummer"});
+            "Matrikelnummer",
+            "Domänen-Gruppe"});
             this.FilterArtCombo.Location = new System.Drawing.Point(15, 34);
             this.FilterArtCombo.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.FilterArtCombo.Name = "FilterArtCombo";
             this.FilterArtCombo.Size = new System.Drawing.Size(278, 25);
             this.FilterArtCombo.TabIndex = 20;
+            this.FilterArtCombo.SelectedIndexChanged += new System.EventHandler(this.FilterArtCombo_SelectedIndexChanged);
             // 
             // SuchenButton
             // 
@@ -119,7 +121,7 @@
             this.AddUserButton.UseVisualStyleBackColor = true;
             this.AddUserButton.Click += new System.EventHandler(this.AddUserButton_Click);
             // 
-            // ActiveDirectoryUserFinderForm
+            // FindAdUserForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -135,7 +137,7 @@
             this.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.Name = "ActiveDirectoryUserFinderForm";
+            this.Name = "FindAdUserForm";
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;

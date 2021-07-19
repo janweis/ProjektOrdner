@@ -45,14 +45,14 @@ namespace ProjektOrdner.Permission
                     Vorname = directoryEntry.Properties["GivenName"].Value.ToString();
                 }
 
-                if (null != directoryEntry.Properties["Surname"].Value)
+                if (null != directoryEntry.Properties["sn"].Value)
                 {
-                    Nachname = directoryEntry.Properties["Surname"].Value.ToString();
+                    Nachname = directoryEntry.Properties["sn"].Value.ToString();
                 }
 
-                if (null != directoryEntry.Properties["EmailAddress"].Value)
+                if (null != directoryEntry.Properties["mail"].Value)
                 {
-                    Email = directoryEntry.Properties["EmailAddress"].Value.ToString().ToLower();
+                    Email = directoryEntry.Properties["mail"].Value.ToString().ToLower();
                 }
 
                 if (null != directoryEntry.Properties["SamAccountName"].Value)

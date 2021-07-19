@@ -12,14 +12,12 @@ namespace ProjektOrdner.Utils
 {
     public class ActiveDirectoryUtil
     {
-        private PrincipalContext GroupContext { get; set; }
-        private PrincipalContext UserContext { get; set; }
+        private PrincipalContext PrincipalContext { get; set; }
         private AppSettings AppSettings { get; set; }
 
         public ActiveDirectoryUtil(AppSettings appSettings)
         {
-            GroupContext = new PrincipalContext(ContextType.Domain, appSettings.AdDomainName, appSettings.AdGroupDlDN);
-            UserContext = new PrincipalContext(ContextType.Domain, appSettings.AdDomainName);
+            PrincipalContext = new PrincipalContext(ContextType.Domain, appSettings.AdDomainName);
             AppSettings = appSettings;
         }
 
@@ -34,7 +32,7 @@ namespace ProjektOrdner.Utils
         /// </summary>
         public UserPrincipal GetUser(string value, IdentityType identity)
         {
-            return UserPrincipal.FindByIdentity(UserContext, identity, value);
+            return UserPrincipal.FindByIdentity(PrincipalContext, identity, value);
         }
 
 
@@ -73,7 +71,7 @@ namespace ProjektOrdner.Utils
             {
                 case IdentificationTypes.SamAccountName:
                 {
-                    foundUser = UserPrincipal.FindByIdentity(UserContext, IdentityType.SamAccountName, value);
+                    foundUser = UserPrincipal.FindByIdentity(PrincipalContext, IdentityType.SamAccountName, value);
                     break;
                 }
                 case IdentificationTypes.Email:
@@ -82,7 +80,7 @@ namespace ProjektOrdner.Utils
                     if (null == tempUser)
                         break;
 
-                    foundUser = UserPrincipal.FindByIdentity(UserContext, IdentityType.DistinguishedName, tempUser.Properties["DistinguishedName"].Value.ToString());
+                    foundUser = UserPrincipal.FindByIdentity(PrincipalContext, IdentityType.DistinguishedName, tempUser.Properties["DistinguishedName"].Value.ToString());
                     break;
                 }
                 case IdentificationTypes.Matrikelnummer:
@@ -91,7 +89,7 @@ namespace ProjektOrdner.Utils
                     if (null == tempUser)
                         break;
 
-                    foundUser = UserPrincipal.FindByIdentity(UserContext, IdentityType.DistinguishedName, tempUser.Properties["DistinguishedName"].Value.ToString());
+                    foundUser = UserPrincipal.FindByIdentity(PrincipalContext, IdentityType.DistinguishedName, tempUser.Properties["DistinguishedName"].Value.ToString());
                     break;
                 }
             }
@@ -105,7 +103,7 @@ namespace ProjektOrdner.Utils
         /// </summary>
         public GroupPrincipal GetGroup(string identityValue, IdentityType identity)
         {
-            GroupPrincipal group = GroupPrincipal.FindByIdentity(GroupContext, identity, identityValue);
+            GroupPrincipal group = GroupPrincipal.FindByIdentity(PrincipalContext, identity, identityValue);
             return group;
         }
 
@@ -116,11 +114,11 @@ namespace ProjektOrdner.Utils
         {
             GroupPrincipal group = null;
 
-            await Task.Run(() =>
+            await Task.Run((Action)(() =>
             {
-                group = GroupPrincipal.FindByIdentity(GroupContext, identity, identityValue);
+                group = GroupPrincipal.FindByIdentity((PrincipalContext)this.PrincipalContext, identity, identityValue);
 
-            });
+            }));
 
             return group;
         }
@@ -347,7 +345,7 @@ namespace ProjektOrdner.Utils
         /// </summary>
         public GroupPrincipal NewAdGroup(GroupScope scope, string samAccountName, string description)
         {
-            GroupPrincipal adGroup = new GroupPrincipal(GroupContext, samAccountName)
+            GroupPrincipal adGroup = new GroupPrincipal(PrincipalContext, samAccountName)
             {
                 // Type
                 GroupScope = scope,

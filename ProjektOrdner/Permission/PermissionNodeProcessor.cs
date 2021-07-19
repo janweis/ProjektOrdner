@@ -262,9 +262,9 @@ namespace ProjektOrdner.Permission
             View.Nodes[name].Tag = name;
 
             // Add Node Attributes
-            View.Nodes[name].Nodes.Add("", $"Benutzername:{adUser.SamAccountName}", 1, 1);
-            View.Nodes[name].Nodes.Add("", $"Email:{adUser.Email}", 1, 1);
-            View.Nodes[name].Nodes.Add("", $"Matrikelnummer:{adUser.Matrikelnummer}", 1, 1);
+            View.Nodes[name].Nodes.Add("", $"Benutzername: {adUser.SamAccountName}", 1, 1);
+            View.Nodes[name].Nodes.Add("", $"Email: {adUser.Email}", 1, 1);
+            View.Nodes[name].Nodes.Add("", $"Matrikelnummer: {adUser.Matrikelnummer}", 1, 1);
             View.Nodes[name].Expand();
 
             SetFocusToNode(View.Nodes[name]);

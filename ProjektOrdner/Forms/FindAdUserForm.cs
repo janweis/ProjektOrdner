@@ -4,20 +4,22 @@ using ProjektOrdner.Utils;
 using System;
 using System.Collections.Generic;
 using System.DirectoryServices.AccountManagement;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace ProjektOrdner.Forms
 {
     public partial class FindAdUserForm : Form
     {
-        public List<AdUser> AdUsers { get; set; }
-        public AdUser CurrentUserShown { get; set; }
+        public List<AdUser> AdUserResults { get; set; }
         public AppSettings AppSettings { get; set; }
 
+        public AdUser.IdentificationTypes SuchFilter { get; set; }
+        public bool SeachForUsers { get; set; }
 
-        public FindAdUserForm(List<AdUser> users, AppSettings appSettings)
+        public FindAdUserForm(AppSettings appSettings)
         {
-            AdUsers = users;
+            AdUserResults = new List<AdUser>();
             AppSettings = appSettings;
 
             InitializeComponent();
@@ -36,49 +38,53 @@ namespace ProjektOrdner.Forms
         /// Sucht nach dem Active Directory Benutzer und fügt ihn in die Liste.
         /// 
         /// </summary>
-
-        private void SeachForAdUser()
+        private async Task<List<AdUser>> SearchForAdObjectAsync(string searchString)
         {
             // Clear View
             UserTreeView.Nodes.Clear();
 
-            if (string.IsNullOrWhiteSpace(FilterBox.Text) == true)
-                return; // Suche ist leer
-
-            AdUser.IdentificationTypes identification = AdUser.IdentificationTypes.SamAccountName;
-            switch (FilterArtCombo.Text)
-            {
-                case "Benutzername":
-                {
-                    identification = AdUser.IdentificationTypes.SamAccountName;
-                    break;
-                }
-                case "Matrikelnummer":
-                {
-                    identification = AdUser.IdentificationTypes.Matrikelnummer;
-                    break;
-                }
-                case "E-Mail Adresse":
-                {
-                    identification = AdUser.IdentificationTypes.Email;
-                    break;
-                }
-            }
+            if (string.IsNullOrWhiteSpace(searchString) == true)
+                return null; // Suche ist leer
 
             // Search Ad-User
             ActiveDirectoryUtil activeDirectory = new ActiveDirectoryUtil(AppSettings);
-            UserPrincipal foundUser = activeDirectory.GetUserByType(FilterBox.Text, identification);
 
-            if (null == foundUser)
-                return; // Kein Benutzer gefunden!
+            List<AdUser> userList = new List<AdUser>();
 
-            AdUser user = new AdUser(foundUser);
+            await Task.Run(() =>
+            {
+                if (SeachForUsers)
+                {
+                    // Username
+                    UserPrincipal foundUser = activeDirectory.GetUserByType(searchString, SuchFilter);
 
-            // Add User to View
-            PermissionNodeProcessor nodeProcessor = new PermissionNodeProcessor(UserTreeView);
-            nodeProcessor.AddNodeDirect(user);
+                    if (null != foundUser)
+                    {
+                        AdUser adUser = new AdUser(foundUser);
 
-            CurrentUserShown = user;
+                        if (null != adUser)
+                            userList.Add(adUser);
+                    }
+                }
+                else
+                {
+                    // Ad-Group
+                    GroupPrincipal foundAdGroup = activeDirectory.GetGroup(searchString, IdentityType.SamAccountName);
+
+                    if (null != foundAdGroup)
+                    {
+                        foreach (UserPrincipal user in foundAdGroup.Members)
+                        {
+                            AdUser adUser = new AdUser(user);
+
+                            if (null != adUser)
+                                userList.Add(adUser);
+                        }
+                    }
+                }
+            });
+
+            return userList;
         }
 
 
@@ -87,21 +93,65 @@ namespace ProjektOrdner.Forms
         /// Fügt den gefunden Benutzer der Liste hinzu.
         /// 
         /// </summary>
-
-        private void AddCurrentUserToList()
+        private void AddResultToView(List<AdUser> adUsers)
         {
-            AdUsers.Add(CurrentUserShown);
+            // Add User to View
+            PermissionNodeProcessor nodeProcessor = new PermissionNodeProcessor(UserTreeView);
+            foreach (AdUser adUser in adUsers)
+                nodeProcessor.AddNodeDirect(adUser);
         }
+
 
 
         // Controls
 
         private void AddUserButton_Click(object sender, EventArgs e)
         {
-            AddCurrentUserToList();
             Close();
         }
 
-        private void SuchenButton_Click(object sender, EventArgs e) => SeachForAdUser();
+        private async void SuchenButton_Click(object sender, EventArgs e)
+        {
+            AdUserResults.Clear();
+            List<AdUser> AdUsers = await SearchForAdObjectAsync(FilterBox.Text);
+
+            if (null != AdUsers)
+                AddResultToView(AdUsers);
+
+            AdUserResults = AdUsers;
+        }
+
+        private void FilterArtCombo_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ComboBox comboBox = sender as ComboBox;
+
+            switch (comboBox.Text)
+            {
+                case "Benutzername":
+                {
+                    SuchFilter = AdUser.IdentificationTypes.SamAccountName;
+                    SeachForUsers = true;
+                    break;
+                }
+                case "Matrikelnummer":
+                {
+                    SuchFilter = AdUser.IdentificationTypes.Matrikelnummer;
+                    SeachForUsers = true;
+                    break;
+                }
+                case "E-Mail Adresse":
+                {
+                    SuchFilter = AdUser.IdentificationTypes.Email;
+                    SeachForUsers = true;
+                    break;
+                }
+                case "Domänen-Gruppe":
+                {
+                    SuchFilter = AdUser.IdentificationTypes.SamAccountName;
+                    SeachForUsers = false;
+                    break;
+                }
+            }
+        }
     }
 }

@@ -72,13 +72,13 @@ namespace ProjektOrdner.Forms
         private void AddUserToView()
         {
             List<AdUser> adUsers = new List<AdUser>();
-
-            FindAdUserForm finderForm = new FindAdUserForm(adUsers, AppSettings);
+            FindAdUserForm finderForm = new FindAdUserForm(AppSettings);
             DialogResult dialogResult;
 
             try
             {
                 dialogResult = finderForm.ShowDialog();
+                adUsers = finderForm.AdUserResults;
             }
             catch (Exception ex)
             {
