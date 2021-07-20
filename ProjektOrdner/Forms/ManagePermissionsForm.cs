@@ -148,7 +148,7 @@ namespace ProjektOrdner.Forms
             if (IsMultiValue)
             {
                 // Multi User selected
-                List<TreeNode> selectedNodes = NodeProcessor.GetNodesByCheckBoxes();
+                List<TreeNode> selectedNodes = NodeProcessor.GetNodesByCheckBoxes(true);
                 if (null == selectedNodes)
                     return;
 
