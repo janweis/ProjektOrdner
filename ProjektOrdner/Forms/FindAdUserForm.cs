@@ -18,12 +18,14 @@ namespace ProjektOrdner.Forms
         public bool SearchForUsers { get; set; }
 
         public IProgress<string> StatusProgress { get; set; }
+        public bool IsConfiguredForTeams { get; set; }
 
         public FindAdUserForm(AppSettings appSettings)
         {
             AdUserResults = new List<AdUser>();
             StatusProgress = new Progress<string>(status => OutputStatus(status));
             AppSettings = appSettings;
+            IsConfiguredForTeams = false;
 
             InitializeComponent();
             InitializeControls();
@@ -144,6 +146,20 @@ namespace ProjektOrdner.Forms
             StatusProgress.Report("Suchfilter wurde gesetzt!");
         }
 
+        private async Task AddSettingTeamsAsync()
+        {
+            AppSettings.Teams.AddRange(new SettingTeam[]
+            {
+                new SettingTeam("Adrive","GG-R-Adrive-Mitarbeiter"),
+                new SettingTeam("Adrive","GG-R-Adrive-Leitung"),
+                new SettingTeam("PowerElectronics","GG-R-PowerElectronics-Mitarbeiter"),
+                new SettingTeam("PowerElectronics","GG-R-PowerElectronics-Leitung")
+            });
+
+            await AppSettings.SaveAsync();
+        }
+
+
 
         /// <summary>
         /// 
@@ -157,11 +173,19 @@ namespace ProjektOrdner.Forms
                 case "Benutzer":
                 {
                     SearchForUsers = true;
+                    SetControlsToDefault();
                     break;
                 }
                 case "Gruppe":
                 {
                     SearchForUsers = false;
+                    SetControlsToDefault();
+                    break;
+                }
+                case "Teams (mehrere Gruppen)":
+                {
+                    SearchForUsers = false;
+                    SetControlsForTeams();
                     break;
                 }
             }
@@ -172,12 +196,64 @@ namespace ProjektOrdner.Forms
 
         /// <summary>
         /// 
+        /// Set Controls for Teams
+        /// 
+        /// </summary>
+        private void SetControlsForTeams()
+        {
+            if (IsConfiguredForTeams == false)
+            {
+                // Set Controls
+                FilterArtCombo.Items.Clear();
+                FilterBox.Enabled = false;
+                SearchForUsers = false;
+
+                // Add Teams
+                if (null != AppSettings.Teams)
+                {
+                    foreach (SettingTeam settingTeam in AppSettings.Teams)
+                    {
+                        if (FilterArtCombo.Items.Contains(settingTeam.TeamName) == false)
+                            FilterArtCombo.Items.Add(settingTeam.TeamName);
+                    }
+                }
+
+                // Set Focus
+                if (FilterArtCombo.Items.Count > 0)
+                    FilterArtCombo.SelectedIndex = 0;
+
+                IsConfiguredForTeams = true;
+            }
+        }
+
+
+        /// <summary>
+        /// 
+        /// Set Controls to default
+        /// 
+        /// </summary>
+        private void SetControlsToDefault()
+        {
+            if (IsConfiguredForTeams == true)
+            {
+                FilterArtCombo.Items.Clear();
+                FilterArtCombo.Items.AddRange(new string[] { "Name", "E-Mail Adresse", "Matrikelnummer" });
+                FilterArtCombo.SelectedIndex = 0;
+                FilterBox.Enabled = true;
+
+                IsConfiguredForTeams = false;
+            }
+        }
+
+
+        /// <summary>
+        /// 
         /// Führt die Suche aus
         /// 
         /// </summary>
         private async Task InvokeSearchAsync()
         {
-            List<AdUser> adUsers = null;
+            List<AdUser> adUsers = new List<AdUser>();
 
             // Set Controls
             AdUserResults.Clear();      // Clear List
@@ -188,7 +264,29 @@ namespace ProjektOrdner.Forms
             try
             {
                 StatusProgress.Report("Suche wird durchgeführt...");
-                adUsers = await SearchInActiveDirectory(FilterBox.Text);
+
+                if (IsConfiguredForTeams == false)
+                {
+                    adUsers = await SearchInActiveDirectory(FilterBox.Text);
+                }
+                else
+                {
+                    // Teams suche
+                    int i = 1;
+                    List<SettingTeam> teams = AppSettings?.Teams?.FindAll(settingTeam => settingTeam.TeamName == FilterArtCombo.Text);
+                    int teamsCount = teams.Count;
+
+                    foreach (SettingTeam team in teams)
+                    {
+                        StatusProgress.Report($"Suche wird durchgeführt... ({i.ToString()}/{teamsCount.ToString()})");
+
+                        List<AdUser> tempUsers = await SearchInActiveDirectory(team.AdGroupSamAccountName);
+                        if (null != tempUsers)
+                            adUsers.AddRange(tempUsers.ToArray());
+
+                        i++;
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -241,5 +339,11 @@ namespace ProjektOrdner.Forms
 
         private void SuchTypCombo_SelectedIndexChanged(object sender, EventArgs e) =>
             SetSearchType(sender as ComboBox);
+
+        private async void button1_Click(object sender, EventArgs e)
+        {
+            await AddSettingTeamsAsync();
+            StatusProgress.Report("Gespeichert!");
+        }
     }
 }

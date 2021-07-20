@@ -58,6 +58,8 @@ namespace ProjektOrdner.App
         public string AdGroupScopeGlobalName { get; set; }
         public string AdGroupScopeLocalName { get; set; }
 
+        // Ad-Gruppen zu Teams zusammenschließen für eine einfachere Berechtigungsverwaltung
+        public List<SettingTeam> Teams = new List<SettingTeam>();
 
         // Fortlaufende GruppenID für künftige AD-Gruppen
         public int AdGroupID { get; set; } = 0;
@@ -157,6 +159,7 @@ namespace ProjektOrdner.App
                     MailDisabled = appSettings.MailDisabled;
                     MailServer = appSettings.MailServer;
                     MailPort = appSettings.MailPort;
+                    Teams = appSettings.Teams;
 
                     if (null == appSettings.RootPaths)
                     {

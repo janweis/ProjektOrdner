@@ -39,6 +39,7 @@
             this.SuchTypCombo = new System.Windows.Forms.ComboBox();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.StatusStripLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.button1 = new System.Windows.Forms.Button();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -130,7 +131,8 @@
             this.SuchTypCombo.FormattingEnabled = true;
             this.SuchTypCombo.Items.AddRange(new object[] {
             "Benutzer",
-            "Gruppe"});
+            "Gruppe",
+            "Teams (mehrere Gruppen)"});
             this.SuchTypCombo.Location = new System.Drawing.Point(15, 29);
             this.SuchTypCombo.Name = "SuchTypCombo";
             this.SuchTypCombo.Size = new System.Drawing.Size(241, 25);
@@ -153,11 +155,22 @@
             this.StatusStripLabel.Size = new System.Drawing.Size(91, 17);
             this.StatusStripLabel.Text = "StatusStripLabel";
             // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(270, 29);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(34, 25);
+            this.button1.TabIndex = 29;
+            this.button1.Text = "button1";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
             // FindAdUserForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(316, 581);
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.SuchTypCombo);
             this.Controls.Add(this.SuchTypLabel);
@@ -195,5 +208,6 @@
         private System.Windows.Forms.ComboBox SuchTypCombo;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel StatusStripLabel;
+        private System.Windows.Forms.Button button1;
     }
 }
