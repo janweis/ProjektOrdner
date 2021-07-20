@@ -71,7 +71,6 @@ namespace ProjektOrdner.Forms
         }
 
 
-
         /// <summary>
         /// 
         /// Sucht das verknüfte Objekt aus der Berechtigungsliste heraus.
