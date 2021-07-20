@@ -111,6 +111,10 @@ namespace ProjektOrdner.Forms
             PermissionNodeProcessor nodeProcessor = new PermissionNodeProcessor(UserTreeView);
             foreach (AdUser adUser in adUsers)
                 nodeProcessor.AddNodeDirect(adUser);
+
+            // Better View
+            if(adUsers.Count > 1)
+                nodeProcessor.CollapseAll();
         }
 
 
@@ -145,20 +149,6 @@ namespace ProjektOrdner.Forms
 
             StatusProgress.Report("Suchfilter wurde gesetzt!");
         }
-
-        private async Task AddSettingTeamsAsync()
-        {
-            AppSettings.Teams.AddRange(new SettingTeam[]
-            {
-                new SettingTeam("Adrive","GG-R-Adrive-Mitarbeiter"),
-                new SettingTeam("Adrive","GG-R-Adrive-Leitung"),
-                new SettingTeam("PowerElectronics","GG-R-PowerElectronics-Mitarbeiter"),
-                new SettingTeam("PowerElectronics","GG-R-PowerElectronics-Leitung")
-            });
-
-            await AppSettings.SaveAsync();
-        }
-
 
 
         /// <summary>
@@ -207,6 +197,7 @@ namespace ProjektOrdner.Forms
                 FilterArtCombo.Items.Clear();
                 FilterBox.Enabled = false;
                 SearchForUsers = false;
+                FilterBox.Text = "";
 
                 // Add Teams
                 if (null != AppSettings.Teams)
@@ -339,11 +330,5 @@ namespace ProjektOrdner.Forms
 
         private void SuchTypCombo_SelectedIndexChanged(object sender, EventArgs e) =>
             SetSearchType(sender as ComboBox);
-
-        private async void button1_Click(object sender, EventArgs e)
-        {
-            await AddSettingTeamsAsync();
-            StatusProgress.Report("Gespeichert!");
-        }
     }
 }

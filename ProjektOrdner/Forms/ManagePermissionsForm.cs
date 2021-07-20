@@ -145,15 +145,35 @@ namespace ProjektOrdner.Forms
         /// </summary>
         private void RemoveSelectedUser()
         {
-            TreeNode selectedNode = NodeProcessor.GetNodeBySelection();
-            if (null == selectedNode)
-                return; // nichts ausgewählt
+            if (IsMultiValue)
+            {
+                // Multi User selected
+                List<TreeNode> selectedNodes = NodeProcessor.GetNodesByCheckBoxes();
+                if (null == selectedNodes)
+                    return;
 
-            var foundPermission = GetPermissionFromNode(selectedNode);
-            if (null == foundPermission)
-                return; // keine Zuordnung gefunden
+                foreach(TreeNode node in selectedNodes)
+                {
+                    RepositoryPermission foundPermission = GetPermissionFromNode(node);
+                    if(null != foundPermission)
+                        Permissions.Remove(foundPermission);
+                }
+            }
+            else
+            {
+                // Single User selected
 
-            Permissions.Remove(foundPermission);
+                TreeNode selectedNode = NodeProcessor.GetNodeBySelection();
+                if (null == selectedNode)
+                    return; // nichts ausgewählt
+
+                RepositoryPermission foundPermission = GetPermissionFromNode(selectedNode);
+                if (null == foundPermission)
+                    return; // keine Zuordnung gefunden
+
+                Permissions.Remove(foundPermission);
+            }
+
             NodeProcessor.UpdateView(Permissions.ToArray(), NodeAdvancedMode);
         }
 

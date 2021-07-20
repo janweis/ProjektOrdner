@@ -29,12 +29,12 @@ namespace ProjektOrdner.Permission
             View = treeView;
         }
 
+
         /// <summary>
         /// 
         /// Initalisiert den TreeView mit den Standardknoten
         /// 
         /// </summary>
-
         public void ResetView()
         {
             // Prepare
@@ -51,6 +51,23 @@ namespace ProjektOrdner.Permission
             View.EndUpdate();
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void CollapseAll()
+        {
+            View.CollapseAll();
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void ExpandAll()
+        {
+            View.ExpandAll();
+        }
 
 
         /// <summary>
@@ -299,7 +316,7 @@ namespace ProjektOrdner.Permission
             View.Nodes[name].Nodes.Add("", $"Benutzername: {adUser.SamAccountName}", 1, 1);
             View.Nodes[name].Nodes.Add("", $"Email: {adUser.Email}", 1, 1);
             View.Nodes[name].Nodes.Add("", $"Matrikelnummer: {adUser.Matrikelnummer}", 1, 1);
-            View.Nodes[name].Expand();
+            //View.Nodes[name].Expand();
 
             SetFocusToNode(View.Nodes[name]);
         }

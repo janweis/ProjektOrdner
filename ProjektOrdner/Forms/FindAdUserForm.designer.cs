@@ -39,7 +39,6 @@
             this.SuchTypCombo = new System.Windows.Forms.ComboBox();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.StatusStripLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.button1 = new System.Windows.Forms.Button();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -107,6 +106,7 @@
             // AddUserButton
             // 
             this.AddUserButton.DialogResult = System.Windows.Forms.DialogResult.OK;
+            this.AddUserButton.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.AddUserButton.Location = new System.Drawing.Point(15, 495);
             this.AddUserButton.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.AddUserButton.Name = "AddUserButton";
@@ -155,22 +155,11 @@
             this.StatusStripLabel.Size = new System.Drawing.Size(91, 17);
             this.StatusStripLabel.Text = "StatusStripLabel";
             // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(270, 29);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(34, 25);
-            this.button1.TabIndex = 29;
-            this.button1.Text = "button1";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
-            // 
             // FindAdUserForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(316, 581);
-            this.Controls.Add(this.button1);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.SuchTypCombo);
             this.Controls.Add(this.SuchTypLabel);
@@ -182,8 +171,9 @@
             this.Controls.Add(this.FilterBox);
             this.Controls.Add(this.SucheLabel);
             this.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.MaximizeBox = false;
             this.Name = "FindAdUserForm";
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
@@ -208,6 +198,5 @@
         private System.Windows.Forms.ComboBox SuchTypCombo;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel StatusStripLabel;
-        private System.Windows.Forms.Button button1;
     }
 }
